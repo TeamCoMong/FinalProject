@@ -55,7 +55,7 @@ const IntroScreen = ({ navigation }) => {
                 {/*테스트용*/}
             </View>
 
-            {/* 프론트 테스트 버튼을 별도의 View로 분리작업 */}
+            {/* 프론트 테스트 버튼을 별도의 View로 분리 */}
             <View style={styles.singleButtonContainer}>
                 <TouchableOpacity
                     style={styles.testButton2}

@@ -7,11 +7,11 @@ const IntroScreen = ({ navigation }) => {
             {/* 로고 및 앱 이름 */}
             <View style={styles.logoContainer}>
                 <Image source={require('../assets/god.png')} style={styles.logo} />
-                <Text style={styles.appName}>SmartCampus</Text>
+                <Text style={styles.appName}>PathFinder</Text>
             </View>
 
             {/* 간략한 설명 */}
-            <Text style={styles.mainDescription}>그냥 다 해줬잖아</Text>
+            <Text style={styles.mainDescription}></Text>
 
             {/* 주요 기능 아이콘 */}
             <View style={styles.iconSection}>
@@ -21,11 +21,11 @@ const IntroScreen = ({ navigation }) => {
                 </View>
                 <View style={styles.iconCard}>
                     <Image source={require('../assets/personal.png')} style={styles.icon} />
-                    <Text style={styles.iconLabel}>시간표</Text>
+                    <Text style={styles.iconLabel}>음성 안내</Text>
                 </View>
                 <View style={styles.iconCard}>
                     <Image source={require('../assets/chatbot.png')} style={styles.icon} />
-                    <Text style={styles.iconLabel}>챗봇</Text>
+                    <Text style={styles.iconLabel}>장애물 감지</Text>
                 </View>
 
             </View>

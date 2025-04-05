@@ -8,43 +8,49 @@ import java.util.Optional;
 
 /**
  * JPA를 활용한 사용자 정보 접근 Layer
- * 기본적인 CRUD 기능 제공
+ * USERS 테이블에 맞게 수정된 버전
  */
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, String> { // ID 타입을 String으로 변경
 
     /**
-     * 아이디로 사용자 조회 -> 로그인 시 사용
-     * @param username 아이디
+     * 사용자 ID로 조회 (기본 제공 메서드)
+     * Optional<User> findById(String userId);
+     */
+
+    /**
+     * 전화번호로 사용자 조회 -> 로그인/아이디 찾기 시 사용
+     * @param phone 전화번호
      * @return Optional<User>
      */
-    Optional<User> findByUsername(String username);
+    Optional<User> findByPhone(String phone);
 
     /**
-     * 이메일로 사용자 조회 -> 아이디 찾기 시 사용
-     * @param email 이메일
+     * 사용자 유형으로 조회 -> 시각장애인 또는 보호자 목록 조회 시 사용
+     * @param userType 사용자 유형 (DISABLED/GUARDIAN)
      * @return Optional<User>
      */
-    Optional<User> findByEmail(String email);
+    Optional<User> findByUserType(String userType);
 
     /**
-     * Refresh Token으로 사용자 조회 -> JWT Access Token 재발급 시 사용
-     * @param refreshToken Refresh Token
-     * @return Optional<User>
-     */
-    Optional<User> findByRefreshToken(String refreshToken);
-
-    /**
-     * 아이디로 존재 여부 확인 -> 회원가입 시 아이디 중복 검사
-     * @param username 아이디
+     * 전화번호 존재 여부 확인 -> 회원가입 시 중복 검사
+     * @param phone 전화번호
      * @return true: 존재, false: 존재X
      */
-    boolean existsByUsername(String username);
+    boolean existsByPhone(String phone);
 
     /**
-     * 이메일 존재 여부 확인 -> 회원가입 시 이메일 중복 검사
-     * @param email 이메일
-     * @return true: 존재, false: 존재X
+     * 계정 상태로 사용자 조회 -> 휴면 계정 관리 시 사용
+     * @param status 계정 상태 (ACTIVE/INACTIVE/SUSPENDED)
+     * @return Optional<User>
      */
-    boolean existsByEmail(String email);
+    Optional<User> findByStatus(String status);
+
+    /**
+     * 사용자 ID와 상태로 조회 -> 계정 활성화 여부 확인
+     * @param userId 사용자 ID
+     * @param status 계정 상태
+     * @return Optional<User>
+     */
+    Optional<User> findByUserIdAndStatus(String userId, String status);
 }

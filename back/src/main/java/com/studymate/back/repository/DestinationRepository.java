@@ -1,11 +1,10 @@
 package com.studymate.back.repository;
-import org.springframework.data.jpa.repository.JpaRepository;
+
 import com.studymate.back.entity.Destination;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-@Repository("destinationRepository")
 public interface DestinationRepository extends JpaRepository<Destination, Long> {
-    Optional<Destination> findByName(String name); // 이름으로 조회하는 메서드
+    Optional<Destination> findByName(String name);
 }

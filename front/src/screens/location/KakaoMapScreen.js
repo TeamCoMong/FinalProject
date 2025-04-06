@@ -46,29 +46,29 @@ const KakaoMapScreen = () => {
             return;
         }
         try {
-            const response = await api.get(`/destinations/search`, { params: { name: destination }, withCredentials: false });
+            const response = await api.get(`/directions`, {
+                params: {
+                    startLat: latitude,
+                    startLng: longitude,
+                    destinationName: destination,
+                }
+            });
 
-            console.log("📥 서버 응답:", response.data);
-
-            if (response.data && response.data.latitude && response.data.longitude) {
-                console.log("📍 백엔드 좌표 사용:", response.data.latitude, response.data.longitude);
-
-                // ✅ 백엔드에서 받은 좌표를 바로 WebView로 전송
+            if (response.data && Array.isArray(response.data.path)) {
                 if (webViewRef.current) {
                     webViewRef.current.postMessage(
                         JSON.stringify({
-                            type: "DESTINATION_SEARCH",
-                            latitude: response.data.latitude,
-                            longitude: response.data.longitude,
+                            type: "DRAW_ROUTE",
+                            path: response.data.path
                         })
                     );
                 }
             } else {
-                Alert.alert("❌ 검색 결과 없음", "해당 목적지를 찾을 수 없습니다.");
+                Alert.alert("❌ 경로를 불러올 수 없습니다.");
             }
         } catch (error) {
-            console.error("❌ API 요청 오류:", error);
-            Alert.alert("❌ 오류 발생", "서버 요청 중 문제가 발생했습니다.");
+            console.error("❌ 경로 요청 실패:", error);
+            Alert.alert("❌ 오류", "경로 데이터를 불러올 수 없습니다.");
         }
     };
 
@@ -110,43 +110,32 @@ const KakaoMapScreen = () => {
                 
                 document.addEventListener("message", function(event) {
                     var data = JSON.parse(event.data);
-                    
+                
                     if (data.type === "CURRENT_LOCATION") {
                         var currentPosition = new kakao.maps.LatLng(data.latitude, data.longitude);
                         marker.setPosition(currentPosition);
                         map.setCenter(currentPosition);
                     }
                 
-                    if (data.type === "DESTINATION_SEARCH") {
-                        processRoute(data.latitude, data.longitude);
+                    if (data.type === "DRAW_ROUTE") {
+                        drawRoute(data.path);
                     }
                 });
-
-                function processRoute(destLat, destLon) {
-                    var currentLat = marker.getPosition().getLat();
-                    var currentLon = marker.getPosition().getLng();
+                
+                function drawRoute(pathArray) {
+                    if (!Array.isArray(pathArray)) return;
+                
+                    var path = pathArray.map(coord => new kakao.maps.LatLng(coord[0], coord[1]));
                     
-                    if (currentLat === destLat && currentLon === destLon) {
-                        window.ReactNativeWebView.postMessage(JSON.stringify({
-                            type: "ERROR",
-                            message: "목적지와 현재 위치가 동일합니다."
-                        }));
-                        return;
-                    }
-
-                    var destPosition = new kakao.maps.LatLng(destLat, destLon);
-                    destMarker.setPosition(destPosition);
-                    destMarker.setMap(map);
-
-                    polyline.setPath([marker.getPosition(), destPosition]);
+                    polyline.setPath(path);
                     polyline.setMap(map);
-
-                    var linePath = new kakao.maps.Polyline({ path: [marker.getPosition(), destPosition] });
-                    var distance = Math.round(linePath.getLength() / 1000);
-                    var estimatedTime = Math.round((distance / 50) * 60);
-
-                    document.getElementById('info').innerText = "거리: " + distance + " km, 예상 소요 시간: " + estimatedTime + " 분";
-                    map.setCenter(destPosition);
+                
+                    var distance = Math.round(polyline.getLength() / 1000);
+                    var estimatedTime = Math.round((distance / 50) * 60); // 평균 50km/h
+                    document.getElementById('info').innerText =
+                        "거리: " + distance + " km, 예상 소요 시간: " + estimatedTime + " 분";
+                
+                    map.setCenter(path[path.length - 1]);
                 }
             </script>
         </body>
@@ -190,3 +179,21 @@ const styles = StyleSheet.create({
 });
 
 export default KakaoMapScreen;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

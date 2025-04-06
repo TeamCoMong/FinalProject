@@ -36,16 +36,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+
+        // ✅ dialogflow 경로는 JWT 검사 없이 통과시킴
+        String uri = request.getRequestURI();
+        if (uri.startsWith("/dialogflow")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
             // 요청 헤더에서 JWT 추출
             String token = getTokenFromRequest(request);
 
-            // JWT가 존재하고, 유효한 경우 사용자 인증 처리
-            if(token != null && jwtProvider.validateToken(token)) {
+            // JWT가 존재하고 유효한 경우 사용자 인증 처리
+            if (token != null && jwtProvider.validateToken(token)) {
                 String username = jwtProvider.getUsernameFromToken(token);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);

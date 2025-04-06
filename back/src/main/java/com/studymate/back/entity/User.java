@@ -2,119 +2,60 @@ package com.studymate.back.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
-/**
- * User Entity 클래스
- * users 테이블과 매핑되는 JPA Entity
- */
 @Entity
-@Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "USERS") // 대문자 테이블명 명시
 public class User {
 
-    /**
-     * 사용자 고유 ID
-     * Auto Increment
-     * Primary Key
-     */
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "USER_ID", length = 20, nullable = false)
+    private String userId;  // 기존 username 대신 userId 사용
 
-    /**
-     * 아이디
-     * Not Null
-     * 중복 불가
-     * 최대 50자
-     */
-    @Column(nullable = false, unique = true, length = 50)
-    private String username;
-
-    /**
-     * 암호화된 비밀번호
-     * Not Null
-     */
-    @Column(nullable = false)
+    @Column(name = "PASSWORD", length = 100, nullable = false)
     private String password;
 
-    /**
-     * 이름
-     * Not Null
-     * 최대 100자
-     */
-    @Column(nullable = false, length = 100)
+    @Column(name = "NAME", length = 50, nullable = false)
     private String name;
 
-    /**
-     * 전화번호
-     * Not Null
-     * 최대 15자
-     */
-    @Column(nullable = false, length = 15)
+    @Column(name = "PHONE", length = 20, nullable = false, unique = true)
     private String phone;
 
-    /**
-     * 이메일
-     * Not Null
-     * 중복 불가
-     * 최대 100자
-     */
-    @Column(nullable = false, unique = true, length = 100)
-    private String email;
+    @Column(name = "USER_TYPE", length = 10, nullable = false)
+    private String userType;  // DISABLED 또는 GUARDIAN
 
-    /**
-     * 이메일 인증 여부
-     * Default: false
-     * Not Null
-     */
-    @Column(nullable = false, name = "email_verified")
+    @Column(name = "REG_DATE", nullable = false, updatable = false)
+    private LocalDateTime regDate;
+
+    @Column(name = "LAST_LOGIN")
+    private LocalDateTime lastLogin;
+
+    @Column(name = "STATUS", length = 10, nullable = false)
     @Builder.Default
-    private boolean emailVerified = false;
+    private String status = "ACTIVE";  // ACTIVE, INACTIVE, SUSPENDED
 
-    /**
-     * Refresh Token -> JWT 재발급용
-     * BCrypt 암호화된 상태로 저장 -> 보안 강화
-     */
-    @Column(name = "refresh_token")
-    private String refreshToken;
-
-    /**
-     * 계정 생성 시각
-     * 회원가입이 완료된 시각으로 자동 설정
-     */
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    /**
-     * 계정 정보 마지막 수정 시각
-     * -> 계정 정보 변경 시 자동 갱신
-     */
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
-
-    /**
-     * Entity 저장 전 실행 -> createdAt 자동 설정
-     */
+    // 추가 메서드
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.regDate = LocalDateTime.now();
+        this.status = "ACTIVE";
     }
 
-    /**
-     * Entity 업데이트 전 실행 -> updatedAt 자동 설정
-     */
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
+    public void updateLastLogin() {
+        this.lastLogin = LocalDateTime.now();
+    }
+
+    // ENUM 정의 (선택사항)
+    public enum UserType {
+        DISABLED, GUARDIAN
+    }
+
+    public enum UserStatus {
+        ACTIVE, INACTIVE, SUSPENDED
     }
 }

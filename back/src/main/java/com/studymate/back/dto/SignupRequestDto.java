@@ -5,6 +5,7 @@ import lombok.*;
 
 @Getter
 @Setter
+@Builder
 public class SignupRequestDto {
     private String userId;
     private String password;

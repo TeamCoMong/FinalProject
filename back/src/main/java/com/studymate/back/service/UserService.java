@@ -55,4 +55,26 @@ public class UserService {
                 .toList();
     }
 
+    public UserResponseDto getUserByUserId(String userId) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("사용자 없음"));
+        return new UserResponseDto(user);
+    }
+
+    public void updatePhone(String userId, String newPhone) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("사용자 없음"));
+        user.setPhone(newPhone);
+        userRepository.save(user);
+    }
+
+    public void deleteUser(String userId) {
+        userRepository.deleteById(userId);
+    }
+
+    public boolean existsByUserId(String userId) {
+        return userRepository.findByUserId(userId).isPresent();
+    }
+
+
 }

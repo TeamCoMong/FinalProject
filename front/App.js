@@ -22,6 +22,7 @@ import TestMyPageScreen from "./src/screens/testscreen/TestMyPageScreen";
 import TestCommunityScreen from "./src/screens/testscreen/TestCommunityScreen";
 import TestSearchScreen from "./src/screens/testscreen/TestSearchScreen";
 import TestLoginScreen from "./src/screens/testscreen/TestLoginScreen";
+import TmapScreen from "./src/screens/location/TmapScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -85,7 +86,7 @@ const App = () => (
             <Stack.Screen name="Register" component={RegisterScreen} />
             <Stack.Screen name="FindAccount" component={FindAccountScreen} />
             <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
-            <Stack.Screen name="KakaoMap" component={KakaoMapScreen} />
+            <Stack.Screen name="KakaoMap" component={TmapScreen} />
 
             {/* 테스트 화면들 */}
             <Stack.Screen name="TestLoginScreen" component={TestLoginScreen} />

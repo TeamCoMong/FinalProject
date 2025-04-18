@@ -73,73 +73,33 @@ const KakaoMapScreen = () => {
     };
 
     const kakaoMapHtml = `<!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="utf-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=e84461afa8078822e18c5b6af6752df6&libraries=services"></script>
-            <style>
-                * { margin: 0; padding: 0; }
-                html, body { width: 100%; height: 100%; overflow: hidden; }
-                #map { width: 100%; height: 100%; }
-                #info { position: absolute; top: 10px; left: 10px; background: white; padding: 5px; z-index: 100; }
-            </style>
-        </head>
-        <body>
-            <div id="map"></div>
-            <div id="info">거리: -, 예상 소요 시간: -</div>
-            <script>
-                var map;
-                var marker = new kakao.maps.Marker();
-                var destMarker = new kakao.maps.Marker();
-                var polyline = new kakao.maps.Polyline({
-                    strokeWeight: 5,
-                    strokeColor: "#FF0000",
-                    strokeOpacity: 0.7,
-                    strokeStyle: "solid"
-                });
-
-                function initMap() {
-                    var mapContainer = document.getElementById('map');
-                    var mapOption = { center: new kakao.maps.LatLng(37.5665, 126.9780), level: 3 };
-                    map = new kakao.maps.Map(mapContainer, mapOption);
-                    marker.setMap(map);
-                    destMarker.setMap(map);
-                }
-                initMap();
-                
-                document.addEventListener("message", function(event) {
-                    var data = JSON.parse(event.data);
-                
-                    if (data.type === "CURRENT_LOCATION") {
-                        var currentPosition = new kakao.maps.LatLng(data.latitude, data.longitude);
-                        marker.setPosition(currentPosition);
-                        map.setCenter(currentPosition);
-                    }
-                
-                    if (data.type === "DRAW_ROUTE") {
-                        drawRoute(data.path);
-                    }
-                });
-                
-                function drawRoute(pathArray) {
-                    if (!Array.isArray(pathArray)) return;
-                
-                    var path = pathArray.map(coord => new kakao.maps.LatLng(coord[0], coord[1]));
-                    
-                    polyline.setPath(path);
-                    polyline.setMap(map);
-                
-                    var distance = Math.round(polyline.getLength() / 1000);
-                    var estimatedTime = Math.round((distance / 50) * 60); // 평균 50km/h
-                    document.getElementById('info').innerText =
-                        "거리: " + distance + " km, 예상 소요 시간: " + estimatedTime + " 분";
-                
-                    map.setCenter(path[path.length - 1]);
-                }
-            </script>
-        </body>
-        </html>`;
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Tmap 지도</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=N58gCr0OpV7gn4udSAHyC3PZyY2HC7Jt8e4LQ5WB"></script>
+    <style>
+      html, body, #map {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      const map = new Tmapv2.Map("map", {
+        center: new Tmapv2.LatLng(37.5665, 126.9780),
+        width: "100%",
+        height: "100%",
+        zoom: 15
+      });
+    </script>
+  </body>
+</html>`;
 
     return (
         <View style={styles.container}>
@@ -179,21 +139,3 @@ const styles = StyleSheet.create({
 });
 
 export default KakaoMapScreen;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

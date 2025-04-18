@@ -20,8 +20,8 @@ public class UserController {
         return ResponseEntity.ok("회원가입 성공");
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<UserResponseDto> login(@RequestBody LoginRequestDto requestDto) {
-        return ResponseEntity.ok(userService.login(requestDto));
-    }
+//    @PostMapping("/login")
+//    public ResponseEntity<UserResponseDto> login(@RequestBody LoginRequestDto requestDto) {
+//        return ResponseEntity.ok(userService.login(requestDto));
+//    }
 }

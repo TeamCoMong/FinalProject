@@ -1,13 +1,12 @@
 package com.studymate.back.dto;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-@Builder
 @Getter
 @Setter
-public class SignupRequestDto {
+public class ErrorLogDto {
     private String userId;
-    private String name;
+    private String errorType;
+    private String errorContext;
 }

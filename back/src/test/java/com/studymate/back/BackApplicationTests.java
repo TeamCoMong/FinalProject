@@ -9,13 +9,30 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class BackApplicationTests {
+
     @Autowired
     private UserService userService;
+
+    @Test
+    void 사용자_생성_성공() {
+        // given
+        SignupRequestDto requestDto = SignupRequestDto.builder()
+                .userId("testuser100")
+                .name("테스트 사용자")
+                .build();
+
+        // when
+        userService.signup(requestDto);
+
+        // then
+        UserResponseDto savedUser = userService.getUserByUserId("testuser100");
+        assertThat(savedUser).isNotNull();
+        assertThat(savedUser.getUserId()).isEqualTo("testuser100");
+    }
 
     @Test
     void 사용자_목록_조회_성공() {
@@ -28,43 +45,11 @@ class BackApplicationTests {
         System.out.println("조회된 사용자 수: " + userList.size());
         userList.forEach(user -> System.out.println("userId: " + user.getUserId()));
     }
-    @Test
-    void 사용자_생성_성공() {
-        // given
-        SignupRequestDto requestDto = SignupRequestDto.builder()
-                .userId("testuser1")
-                .password("testpass123")
-                .name("테스트 유저")
-                .phone("01012345678")
-                .userType("DISABLED")
-                .build();
 
-        // when
-        userService.signup(requestDto);
-
-        // then
-        UserResponseDto savedUser = userService.getUserByUserId("testuser1");
-        assertThat(savedUser).isNotNull();
-        assertThat(savedUser.getUserId()).isEqualTo("testuser1");
-    }
-
-    @Test
-    void 사용자_정보_수정_성공() {
-        // given
-        String userId = "testuser1";
-        String newPhone = "01099998888";
-
-        // when
-        userService.updatePhone(userId, newPhone);
-
-        // then
-        UserResponseDto updatedUser = userService.getUserByUserId(userId);
-        assertThat(updatedUser.getPhone()).isEqualTo(newPhone);
-    }
     @Test
     void 사용자_삭제_성공() {
         // given
-        String userId = "testuser1";
+        String userId = "testuser100";
 
         // when
         userService.deleteUser(userId);
@@ -73,7 +58,4 @@ class BackApplicationTests {
         boolean exists = userService.existsByUserId(userId);
         assertThat(exists).isFalse();
     }
-
-
-
 }

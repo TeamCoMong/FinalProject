@@ -7,7 +7,7 @@ const IntroScreen = ({ navigation }) => {
             {/* 로고 및 앱 이름 */}
             <View style={styles.logoContainer}>
                 <Image source={require('../assets/god.png')} style={styles.logo} />
-                <Text style={styles.appName}>PathFinder</Text>
+                <Text style={styles.appName}>종합프로젝트 보행 앱</Text>
             </View>
 
             {/* 간략한 설명 */}

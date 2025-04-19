@@ -4,16 +4,13 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 const IntroScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
-            {/* 로고 및 앱 이름 */}
             <View style={styles.logoContainer}>
                 <Image source={require('../assets/god.png')} style={styles.logo} />
-                <Text style={styles.appName}>종합프로젝트 보행 앱</Text>
+                <Text style={styles.appName}>SmartCampus</Text>
             </View>
 
-            {/* 간략한 설명 */}
-            <Text style={styles.mainDescription}></Text>
+            <Text style={styles.mainDescription}>그냥 다 해줬잖아</Text>
 
-            {/* 주요 기능 아이콘 */}
             <View style={styles.iconSection}>
                 <View style={styles.iconCard}>
                     <Image source={require('../assets/joomin_map.png')} style={styles.icon} />
@@ -21,46 +18,28 @@ const IntroScreen = ({ navigation }) => {
                 </View>
                 <View style={styles.iconCard}>
                     <Image source={require('../assets/personal.png')} style={styles.icon} />
-                    <Text style={styles.iconLabel}>음성 안내</Text>
+                    <Text style={styles.iconLabel}>시간표</Text>
                 </View>
                 <View style={styles.iconCard}>
                     <Image source={require('../assets/chatbot.png')} style={styles.icon} />
-                    <Text style={styles.iconLabel}>장애물 감지</Text>
+                    <Text style={styles.iconLabel}>챗봇</Text>
                 </View>
-
             </View>
 
-
-            {/* 버튼 섹션 */}
             <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                    style={styles.loginButton}
-                    onPress={() => navigation.navigate('Login')}
-                >
+                <TouchableOpacity style={styles.loginButton} onPress={() => navigation.navigate('Login')}>
                     <Text style={styles.buttonText}>로그인</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.signUpButton}
-                    onPress={() => navigation.navigate('Register')}
-                >
+                <TouchableOpacity style={styles.signUpButton} onPress={() => navigation.navigate('Register')}>
                     <Text style={styles.buttonText}>회원가입</Text>
                 </TouchableOpacity>
-                {/*테스트용*/}
-                <TouchableOpacity
-                    style={styles.testButton}
-                    onPress={() => navigation.navigate('KakaoMap')}
-                >
+                <TouchableOpacity style={styles.testButton} onPress={() => navigation.navigate('KakaoMap')}>
                     <Text style={styles.buttonText}>테스트</Text>
                 </TouchableOpacity>
-                {/*테스트용*/}
             </View>
 
-            {/* 프론트 테스트 버튼을 별도의 View로 분리 */}
             <View style={styles.singleButtonContainer}>
-                <TouchableOpacity
-                    style={styles.testButton2}
-                    onPress={() => navigation.navigate('TestLoginScreen')}
-                >
+                <TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('TestLoginScreen')}>
                     <Text style={styles.buttonText}>프론트 테스트</Text>
                 </TouchableOpacity>
             </View>
@@ -69,12 +48,10 @@ const IntroScreen = ({ navigation }) => {
                 <Text style={styles.footerText}>Created by CoMong</Text>
                 <Image source={require('../assets/copyright.png')} style={styles.footerIcon} />
             </View>
-
-
-
         </View>
     );
 };
+
 
 const styles = StyleSheet.create({
     container: {

@@ -1,4 +1,4 @@
-package com.studymate.back.config;
+package com.smartvision.back.config;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;

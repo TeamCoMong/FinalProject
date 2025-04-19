@@ -2,7 +2,6 @@ package com.smartvision.back.service;
 
 import com.smartvision.back.config.JwtProvider;
 import com.smartvision.back.dto.*;
-import com.studymate.back.dto.*;
 import com.smartvision.back.entity.User;
 import com.smartvision.back.repository.UserRepository;
 import com.smartvision.back.utils.EmailUtil;

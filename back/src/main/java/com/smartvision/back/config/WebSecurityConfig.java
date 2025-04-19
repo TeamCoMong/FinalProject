@@ -1,4 +1,4 @@
-package com.studymate.back.config;
+package com.smartvision.back.config;
 
 import jakarta.servlet.Filter;
 import org.springframework.context.annotation.Bean;

@@ -1,4 +1,4 @@
-package com.studymate.back.service;
+package com.smartvision.back.service;
 
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.oauth2.GoogleCredentials;

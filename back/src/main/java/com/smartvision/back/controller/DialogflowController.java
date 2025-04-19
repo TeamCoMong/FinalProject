@@ -55,7 +55,7 @@ public class DialogflowController {
 
     // ✅ Dialogflow intent 요청 + SSE 푸시
     @GetMapping("/message")
-    public ResponseEntity<Map<String, String>> getMessageFromDialogflow(@RequestParam String query) {
+    public ResponseEntity<Map<String, String>> getMessageFromDialogflow(@RequestParam("query") String query) {
         try {
             String answer = dialogflowService.sendMessageToDialogflow(query);
             String intent = query;

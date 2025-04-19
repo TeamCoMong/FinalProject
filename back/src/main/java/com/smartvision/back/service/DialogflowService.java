@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
 import java.util.UUID;
-// g
+
 @Service
 public class DialogflowService {
 

@@ -1,6 +1,7 @@
 package com.smartvision.back.controller;
 
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
@@ -90,30 +91,22 @@ public class DialogflowController {
         }
     }
 
-
-//    // ✅ GET 테스트용
-//    @GetMapping("/message")
-//    public ResponseEntity<Map<String, String>> getMessageFromDialogflow(@RequestParam String query) {
-//        try {
-//            // Dialogflow로부터 응답 메시지 수신
-//            String answer = dialogflowService.sendMessageToDialogflow(query);
-//
-//            // 👉 인텐트 이름도 함께 반환하도록 구성해도 됨 (option)
-//            String intent = query; // 또는 dialogflowService.detectIntentName(query)
-//
-//            // JSON 응답 구성
-//            Map<String, String> response = new HashMap<>();
-//            response.put("intent", intent);          // 핵심! → 앱에서 res.data.intent로 읽음
-//            response.put("message", answer);         // 필요 시 안내 음성용
-//
-//            return ResponseEntity.ok(response);
-//
-//        } catch (Exception e) {
-//            return ResponseEntity.status(500).body(
-//                    Map.of("intent", "fallback", "message", "Dialogflow 오류: " + e.getMessage())
-//            );
-//        }
-//    }
+    // ping
+    @Scheduled(fixedRate = 10000) // 10초마다 실행
+    public void sendPingToClients() {
+        Iterator<SseEmitter> iterator = emitters.iterator();
+        while (iterator.hasNext()) {
+            SseEmitter emitter = iterator.next();
+            try {
+                emitter.send(SseEmitter.event().name("ping").data("💓"));
+                System.out.println("📡 ping 전송 중 → 현재 연결 수: " + emitters.size());
+            } catch (IOException e) {
+                System.out.println("❌ ping 실패 → emitter 제거");
+                emitter.completeWithError(e);
+                emitters.remove(emitter);
+            }
+        }
+    }
 
     // ✅ POST Webhook용
     @PostMapping("/webhook")

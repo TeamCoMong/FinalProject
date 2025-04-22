@@ -2,29 +2,36 @@ package com.studymate.back.service;
 
 import com.studymate.back.dto.SignupRequestDto;
 import com.studymate.back.dto.UserResponseDto;
+import com.studymate.back.dto.UserSignupRequestDto;
+import com.studymate.back.dto.UserSignupResponseDto;
 import com.studymate.back.entity.User;
 import com.studymate.back.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
 
-    public void signup(SignupRequestDto requestDto) {
-        if (userRepository.findByUserId(requestDto.getUserId()).isPresent()) {
-            throw new RuntimeException("이미 존재하는 사용자입니다.");
-        }
+    public UserSignupResponseDto signup(UserSignupRequestDto dto) {
+        String generatedUserId = UUID.randomUUID().toString().substring(0, 8).toUpperCase(); // 예: ABCD1234
 
         User user = User.builder()
-                .userId(requestDto.getUserId())
-                .name(requestDto.getName())
+                .userId(generatedUserId)
+                .name(dto.getName())
                 .build();
 
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        return UserSignupResponseDto.builder()
+                .userId(savedUser.getUserId())
+                .name(savedUser.getName())
+                .createdAt(savedUser.getCreatedAt().toString())
+                .build();
     }
 
     public List<UserResponseDto> getAllUsers() {

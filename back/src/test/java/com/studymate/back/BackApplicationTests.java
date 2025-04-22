@@ -2,6 +2,8 @@ package com.studymate.back;
 
 import com.studymate.back.dto.SignupRequestDto;
 import com.studymate.back.dto.UserResponseDto;
+import com.studymate.back.dto.UserSignupRequestDto;
+import com.studymate.back.dto.UserSignupResponseDto;
 import com.studymate.back.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,18 +22,19 @@ class BackApplicationTests {
     @Test
     void 사용자_생성_성공() {
         // given
-        SignupRequestDto requestDto = SignupRequestDto.builder()
-                .userId("testuser100")
+        UserSignupRequestDto requestDto = UserSignupRequestDto.builder()
                 .name("테스트 사용자")
                 .build();
 
         // when
-        userService.signup(requestDto);
+        UserSignupResponseDto responseDto = userService.signup(requestDto);
 
         // then
-        UserResponseDto savedUser = userService.getUserByUserId("testuser100");
-        assertThat(savedUser).isNotNull();
-        assertThat(savedUser.getUserId()).isEqualTo("testuser100");
+        assertThat(responseDto).isNotNull();
+        assertThat(responseDto.getUserId()).isNotBlank();
+        assertThat(responseDto.getName()).isEqualTo("테스트 사용자");
+
+        System.out.println("✅ 생성된 사용자 코드: " + responseDto.getUserId());
     }
 
     @Test
@@ -49,7 +52,7 @@ class BackApplicationTests {
     @Test
     void 사용자_삭제_성공() {
         // given
-        String userId = "testuser100";
+        String userId = "15F8E094";
 
         // when
         userService.deleteUser(userId);
@@ -57,5 +60,23 @@ class BackApplicationTests {
         // then
         boolean exists = userService.existsByUserId(userId);
         assertThat(exists).isFalse();
+    }
+
+    @Test
+    void 사용자_회원가입_성공() {
+        // given
+        UserSignupRequestDto request = UserSignupRequestDto.builder()
+                .name("테스트 사용자")
+                .build();
+
+        // when
+        UserSignupResponseDto response = userService.signup(request);
+
+        // then
+        assertThat(response).isNotNull();
+        assertThat(response.getUserId()).isNotBlank();
+        assertThat(response.getName()).isEqualTo("테스트 사용자");
+
+        System.out.println("✅ 회원가입 완료 - 사용자 코드: " + response.getUserId());
     }
 }

@@ -8,6 +8,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SignupRequestDto {
-    private String userId;
     private String name;
 }

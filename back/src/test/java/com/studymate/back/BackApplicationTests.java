@@ -79,4 +79,18 @@ class BackApplicationTests {
 
         System.out.println("✅ 회원가입 완료 - 사용자 코드: " + response.getUserId());
     }
+
+    @Test
+    void 사용자_로그인_성공() {
+        // 테스트용 사용자 ID
+        String userId = "ABCD1234";
+
+        // 로그인 메소드 호출
+        UserResponseDto response = userService.login(userId);
+
+        // 반환된 응답을 검증
+        assertThat(response).isNotNull();
+        assertThat(response.getUserId()).isEqualTo(userId);
+        assertThat(response.getName()).isNotNull();  // 이름이 있는지 확인
+    }
 }

@@ -1,5 +1,6 @@
 package com.studymate.back.service;
 
+import com.studymate.back.dto.GuardianResponseDto;
 import com.studymate.back.dto.GuardianSignupRequestDto;
 import com.studymate.back.entity.Guardian;
 import com.studymate.back.entity.User;
@@ -43,5 +44,23 @@ public class GuardianService {
         Guardian guardian = guardianRepository.findById(guardianId)
                 .orElseThrow(() -> new RuntimeException("해당 보호자가 존재하지 않습니다."));
         guardianRepository.delete(guardian);
+    }
+
+    public GuardianResponseDto login(String guardianId, String Password) {
+        Guardian guardian = guardianRepository.findByGuardianId(guardianId)
+                .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
+
+        if (!passwordEncoder.matches(Password, guardian.getPasswordHash())) {
+            throw new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다.");
+        }
+
+        // ✅ 연결된 사용자 코드 받아오기
+        String userId = guardian.getUser().getUserId();
+
+        return new GuardianResponseDto(
+                guardian.getGuardianId(),
+                guardian.getUser().getUserId()
+        );
+
     }
 }

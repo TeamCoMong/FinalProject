@@ -1,9 +1,6 @@
 package com.studymate.back.service;
 
-import com.studymate.back.dto.SignupRequestDto;
-import com.studymate.back.dto.UserResponseDto;
-import com.studymate.back.dto.UserSignupRequestDto;
-import com.studymate.back.dto.UserSignupResponseDto;
+import com.studymate.back.dto.*;
 import com.studymate.back.entity.User;
 import com.studymate.back.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -52,5 +49,18 @@ public class UserService {
 
     public boolean existsByUserId(String userId) {
         return userRepository.findByUserId(userId).isPresent();
+    }
+
+    // 로그인 처리 메소드 추가
+    public UserResponseDto login(String userId) {
+        // 클라이언트에서 Face ID 인증을 처리했다고 가정하고,
+        // User ID에 해당하는 사용자가 존재하는지 확인 후, 존재하면 로그인 성공
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("사용자가 존재하지 않습니다."));
+
+        // 여기서 실제 Face ID 인증 처리 코드가 들어가야 하는 부분입니다.
+        // Face ID 인증 성공 후, 인증된 사용자 정보를 리턴합니다.
+
+        return new UserResponseDto(user); // 인증 성공 후 사용자 정보 반환
     }
 }

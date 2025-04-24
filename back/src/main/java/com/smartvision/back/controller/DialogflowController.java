@@ -56,9 +56,11 @@ public class DialogflowController {
 
     // ✅ Dialogflow intent 요청 + SSE 푸시
     @GetMapping("/message")
-    public ResponseEntity<Map<String, String>> getMessageFromDialogflow(@RequestParam("query") String query) {
+    public ResponseEntity<Map<String, String>> getMessageFromDialogflow(
+            @RequestParam("query") String query,
+            @RequestParam(value = "sessionId", defaultValue = "test-session") String sessionId) {
         try {
-            String answer = dialogflowService.sendMessageToDialogflow(query);
+            String answer = dialogflowService.sendMessageToDialogflow(query, sessionId);
             String intent = query;
 
             Map<String, String> response = Map.of(
@@ -66,7 +68,6 @@ public class DialogflowController {
                     "message", answer
             );
 
-            // 🔐 안전하게 emitter 전송 및 제거
             Iterator<SseEmitter> iterator = emitters.iterator();
             while (iterator.hasNext()) {
                 SseEmitter emitter = iterator.next();
@@ -78,7 +79,7 @@ public class DialogflowController {
                 } catch (IOException e) {
                     System.out.println("❌ 이벤트 전송 실패 → emitter 제거");
                     emitter.completeWithError(e);
-                    iterator.remove(); // 💣 필수!
+                    iterator.remove();
                 }
             }
 
@@ -143,5 +144,24 @@ public class DialogflowController {
         response.put("fulfillmentText", fulfillmentText);
 
         return ResponseEntity.ok(response);
+    }
+
+    // 트리거 테스트
+    @GetMapping("/triggerEvent")
+    public ResponseEntity<Map<String, String>> triggerEvent(
+            @RequestParam String event,
+            @RequestParam(value = "sessionId", defaultValue = "test-session") String sessionId) {
+        try {
+            String message = dialogflowService.triggerEvent(event, sessionId);
+
+            return ResponseEntity.ok(Map.of(
+                    "intent", event,
+                    "message", message
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(
+                    Map.of("intent", "fallback", "message", "Dialogflow 오류: " + e.getMessage())
+            );
+        }
     }
 }

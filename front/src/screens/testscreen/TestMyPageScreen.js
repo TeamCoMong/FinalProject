@@ -12,7 +12,7 @@ const TestMyPageScreen = ({ navigation }) => {
 
                 return <Image source={iconPath} style={{ width: size, height: size }} />;
             },
-            tabBarLabel: '마이페이지', // 탭 라벨
+            tabBarLabel: '기타 설정', // 탭 라벨
             tabBarActiveTintColor: '#007AFF', // 활성화된 탭 색상
             tabBarInactiveTintColor: '#8E8E93', // 비활성화된 탭 색상
         });

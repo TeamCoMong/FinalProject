@@ -19,6 +19,13 @@ import FindAccountScreen from "./src/screens/auth/FindAccountScreen";
 import ResetPasswordScreen from "./src/screens/auth/ResetPasswordScreen";
 import KakaoMapScreen from "./src/screens/location/KakaoMapScreen";
 
+
+import GuardianModeSelectionScreen from './src/screens/mode/GuardianModeSelectionScreen';
+import UserModeSelectionScreen from './src/screens/mode/UserModeSelectScreen'
+import GuardianLoginScreen from './src/screens/auth/GuardianLoginScreen';
+import GuardianRegisterScreen from './src/screens/auth/GuardianRegisterScreen';
+import UserLoginScreen from './src/screens/auth/UserLoginScreen';
+import UserRegisterScreen from './src/screens/auth/UserRegisterScreen';
 import TestHomeScreen from "./src/screens/testscreen/TestHomeScreen";
 import TestMyPageScreen from "./src/screens/testscreen/TestMyPageScreen";
 import TestCommunityScreen from "./src/screens/testscreen/TestCommunityScreen";
@@ -33,16 +40,16 @@ const screenOptions = ({ route }) => ({
     tabBarIcon: ({ focused, size }) => {
         let iconPath;
         switch (route.name) {
-            case 'TestHomeScreen':
+            case '홈 키':
                 iconPath = require('./src/assets/home.png');
                 break;
-            case 'TestSearchScreen':
+            case '지폐 인식':
                 iconPath = require('./src/assets/search.png');
                 break;
-            case 'TestCommunityScreen':
+            case '보호자 설정':
                 iconPath = require('./src/assets/community.png');
                 break;
-            case 'TestMyPageScreen':
+            case '기타 설정':
                 iconPath = require('./src/assets/mypage.png');
                 break;
         }
@@ -67,10 +74,10 @@ const screenOptions = ({ route }) => ({
 // ✅ 메인 탭 네비게이터
 const MainTabNavigator = () => (
     <Tab.Navigator screenOptions={screenOptions}>
-        <Tab.Screen name="TestHomeScreen" component={TestHomeScreen} />
-        <Tab.Screen name="TestSearchScreen" component={TestSearchScreen} />
-        <Tab.Screen name="TestCommunityScreen" component={TestCommunityScreen} />
-        <Tab.Screen name="TestMyPageScreen" component={TestMyPageScreen} />
+        <Tab.Screen name="홈 키" component={TestHomeScreen} />
+        <Tab.Screen name="지폐 인식" component={TestSearchScreen} />
+        <Tab.Screen name="보호자 설정" component={TestCommunityScreen} />
+        <Tab.Screen name="기타 설정" component={TestMyPageScreen} />
     </Tab.Navigator>
 );
 
@@ -108,6 +115,19 @@ const App = () => {
                 <Stack.Screen name="TestCommunityScreen" component={TestCommunityScreen} />
                 <Stack.Screen name="TestMyPageScreen" component={TestMyPageScreen} />
                 <Stack.Screen name="TestSearchScreen" component={TestSearchScreen} />
+
+                {/* 4/24 메인 이전 로그인/회원가입 화면 */}
+                <Stack.Screen name="GuardianModeSelectionScreen" component={GuardianModeSelectionScreen} />
+                <Stack.Screen name="UserModeSelectionScreen" component={UserModeSelectionScreen} />
+
+                {/* 4/24 프론트화면*/}
+
+                <Stack.Screen name="GuardianRegisterScreen" component={GuardianRegisterScreen} />
+                <Stack.Screen name="GuardianLoginScreen" component={GuardianLoginScreen} />
+                <Stack.Screen name="UserRegisterScreen" component={UserRegisterScreen} />
+                <Stack.Screen name="UserLoginScreen" component={UserLoginScreen} />
+
+
 
                 {/* 메인 탭 */}
                 <Stack.Screen name="Main" component={MainTabNavigator} />

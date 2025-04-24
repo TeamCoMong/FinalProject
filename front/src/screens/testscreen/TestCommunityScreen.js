@@ -11,7 +11,7 @@ const TestCommunityScreen = ({ navigation }) => {
 
                 return <Image source={iconPath} style={{ width: size, height: size}} />;
             },
-            tabBarLabel: '커뮤니티', // 탭 라벨
+            tabBarLabel: '보호자 설정', // 탭 라벨
             tabBarActiveTintColor: '#007AFF', // 활성화된 탭 색상
             tabBarInactiveTintColor: '#8E8E93', // 비활성화된 탭 색상
         });

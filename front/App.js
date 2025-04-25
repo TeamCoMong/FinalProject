@@ -8,7 +8,7 @@ import { navigationRef } from './src/navigation/NavigationService';
 import { AppState } from 'react-native';
 
 // 스크린 import
-import CommunityScreen from './src/screens/community/CommunityMainScreen';
+
 import PersonalStudyMainScreen from './src/screens/personal/PersonalStudyMainScreen';
 import GroupStudyMainScreen from './src/screens/group/GroupStudyMainScreen';
 import MyPageMainScreen from './src/screens/mypage/MyPageMainScreen';
@@ -27,9 +27,7 @@ import GuardianRegisterScreen from './src/screens/auth/GuardianRegisterScreen';
 import UserLoginScreen from './src/screens/auth/UserLoginScreen';
 import UserRegisterScreen from './src/screens/auth/UserRegisterScreen';
 import TestHomeScreen from "./src/screens/testscreen/TestHomeScreen";
-import TestMyPageScreen from "./src/screens/testscreen/TestMyPageScreen";
-import TestCommunityScreen from "./src/screens/testscreen/TestCommunityScreen";
-import TestSearchScreen from "./src/screens/testscreen/TestSearchScreen";
+import FavoriteScreen from "./src/screens/favorite/FavoriteScreen";
 import TestLoginScreen from "./src/screens/testscreen/TestLoginScreen";
 
 const Tab = createBottomTabNavigator();
@@ -46,11 +44,11 @@ const screenOptions = ({ route }) => ({
             case '지폐 인식':
                 iconPath = require('./src/assets/search.png');
                 break;
-            case '보호자 설정':
-                iconPath = require('./src/assets/community.png');
+            case '즐겨찾기':
+                iconPath = require('./src/assets/star.png');
                 break;
             case '기타 설정':
-                iconPath = require('./src/assets/mypage.png');
+                iconPath = require('./src/assets/gear.png');
                 break;
         }
 
@@ -75,9 +73,9 @@ const screenOptions = ({ route }) => ({
 const MainTabNavigator = () => (
     <Tab.Navigator screenOptions={screenOptions}>
         <Tab.Screen name="홈 키" component={TestHomeScreen} />
-        <Tab.Screen name="지폐 인식" component={TestSearchScreen} />
-        <Tab.Screen name="보호자 설정" component={TestCommunityScreen} />
-        <Tab.Screen name="기타 설정" component={TestMyPageScreen} />
+        <Tab.Screen name="지폐 인식" component={BillScanScreen} />
+        <Tab.Screen name="즐겨찾기" component={FavoriteScreen} />
+        <Tab.Screen name="기타 설정" component={SettingScreen} />
     </Tab.Navigator>
 );
 
@@ -112,7 +110,7 @@ const App = () => {
                 {/* 테스트 전용 */}
                 <Stack.Screen name="TestLoginScreen" component={TestLoginScreen} />
                 <Stack.Screen name="TestHomeScreen" component={TestHomeScreen} />
-                <Stack.Screen name="TestCommunityScreen" component={TestCommunityScreen} />
+                <Stack.Screen name="FavoriteScreen" component={FavoriteScreen} />
                 <Stack.Screen name="TestMyPageScreen" component={TestMyPageScreen} />
                 <Stack.Screen name="TestSearchScreen" component={TestSearchScreen} />
 

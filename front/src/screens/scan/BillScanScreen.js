@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const CommunityMainScreen = () => {
+const BillScanScreen = () => {
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>커뮤니티 페이지입니다</Text>
+            <Text style={styles.text}>지폐 인식 페이지 </Text>
         </View>
     );
 };
@@ -23,4 +23,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default CommunityMainScreen;
+export default BillScanScreen;

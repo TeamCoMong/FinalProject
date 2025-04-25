@@ -1,6 +1,5 @@
 package com.studymate.back;
 
-import com.studymate.back.dto.SignupRequestDto;
 import com.studymate.back.dto.UserResponseDto;
 import com.studymate.back.dto.UserSignupRequestDto;
 import com.studymate.back.dto.UserSignupResponseDto;

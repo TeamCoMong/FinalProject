@@ -22,6 +22,7 @@ import TestMyPageScreen from "./src/screens/testscreen/TestMyPageScreen";
 import TestCommunityScreen from "./src/screens/testscreen/TestCommunityScreen";
 import TestSearchScreen from "./src/screens/testscreen/TestSearchScreen";
 import TestLoginScreen from "./src/screens/testscreen/TestLoginScreen";
+import TestBiometricsScreen from "./src/screens/testscreen/TestBiometricsScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -93,6 +94,7 @@ const App = () => (
             <Stack.Screen name="TestCommunityScreen" component={TestCommunityScreen} />
             <Stack.Screen name="TestMyPageScreen" component={TestMyPageScreen} />
             <Stack.Screen name="TestSearchScreen" component={TestSearchScreen} />
+            <Stack.Screen name="TestBiometricsScreen" component={TestBiometricsScreen} />
 
             {/* MainTabNavigator는 StackNavigator 내에 포함 */}
             <Stack.Screen

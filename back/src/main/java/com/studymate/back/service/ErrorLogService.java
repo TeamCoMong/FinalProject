@@ -27,6 +27,13 @@ public class ErrorLogService {
         User user = userRepository.findByUserId(dto.getUserId())
                 .orElseThrow(() -> new RuntimeException("해당 사용자 없음"));
 
+        // ✅ 5분 이내 중복 체크
+        boolean isRecentDuplicate = errorLogRepository.existsRecentError(user.getUserId(), dto.getErrorType());
+        if (isRecentDuplicate) {
+            System.out.println("⚠️ 최근 5분 이내 동일 에러 발생 기록 있음 - 중복 저장 방지됨");
+            return;
+        }
+
         // 2. 에러 로그 저장
         ErrorLog errorLog = ErrorLog.builder()
                 .errorId(UUID.randomUUID().toString())
@@ -52,6 +59,10 @@ public class ErrorLogService {
 
         // 5. (옵션) 푸시 알림 or WebSocket 전송
         // pushService.sendToGuardian(guardian.getEmail(), "에러 발생: " + dto.getErrorType());
+
+
     }
+
+
 
 }

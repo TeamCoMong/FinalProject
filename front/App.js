@@ -12,13 +12,19 @@ import { AppState } from 'react-native';
 import PersonalStudyMainScreen from './src/screens/personal/PersonalStudyMainScreen';
 import GroupStudyMainScreen from './src/screens/group/GroupStudyMainScreen';
 import MyPageMainScreen from './src/screens/mypage/MyPageMainScreen';
+
+import HomeStartScreen from "./src/screens/start/HomeStartScreen";
+import FavoriteScreen from "./src/screens/favorite/FavoriteScreen";
+import BillScanScreen from "./src/screens/scan/BillScanScreen";
+import SettingScreen from "./src/screens/Setting/SettingScreen";
+
 import IntroScreen from './src/screens/IntroScreen';
 import LoginScreen from './src/screens/auth/LoginScreen';
 import RegisterScreen from './src/screens/auth/RegisterScreen';
 import FindAccountScreen from "./src/screens/auth/FindAccountScreen";
 import ResetPasswordScreen from "./src/screens/auth/ResetPasswordScreen";
 import KakaoMapScreen from "./src/screens/location/KakaoMapScreen";
-import TmapScreen from "./src/screens/location/TmapScreen";
+
 
 import GuardianModeSelectionScreen from './src/screens/mode/GuardianModeSelectionScreen';
 import UserModeSelectionScreen from './src/screens/mode/UserModeSelectScreen'
@@ -26,8 +32,7 @@ import GuardianLoginScreen from './src/screens/auth/GuardianLoginScreen';
 import GuardianRegisterScreen from './src/screens/auth/GuardianRegisterScreen';
 import UserLoginScreen from './src/screens/auth/UserLoginScreen';
 import UserRegisterScreen from './src/screens/auth/UserRegisterScreen';
-// import TestHomeScreen from "./src/screens/testscreen/TestHomeScreen";
-import FavoriteScreen from "./src/screens/favorite/FavoriteScreen";
+
 import TestLoginScreen from "./src/screens/testscreen/TestLoginScreen";
 
 const Tab = createBottomTabNavigator();
@@ -72,9 +77,10 @@ const screenOptions = ({ route }) => ({
 // ✅ 메인 탭 네비게이터
 const MainTabNavigator = () => (
     <Tab.Navigator screenOptions={screenOptions}>
-         {/*메인 프론트 테스트*/}
-        <Tab.Screen name="홈 키" component={TmapScreen} />
+        <Tab.Screen name="홈 키" component={HomeStartScreen} />
+        <Tab.Screen name="지폐 인식" component={BillScanScreen} />
         <Tab.Screen name="즐겨찾기" component={FavoriteScreen} />
+        <Tab.Screen name="기타 설정" component={SettingScreen} />
     </Tab.Navigator>
 );
 
@@ -108,8 +114,7 @@ const App = () => {
 
                 {/* 테스트 전용 */}
                 <Stack.Screen name="TestLoginScreen" component={TestLoginScreen} />
-                <Stack.Screen name="TestHomeScreen" component={TmapScreen} />
-                <Stack.Screen name="FavoriteScreen" component={FavoriteScreen} />
+
 
                 {/* 4/24 메인 이전 로그인/회원가입 화면 */}
                 <Stack.Screen name="GuardianModeSelectionScreen" component={GuardianModeSelectionScreen} />
@@ -123,9 +128,12 @@ const App = () => {
                 <Stack.Screen name="UserLoginScreen" component={UserLoginScreen} />
 
 
-
                 {/* 메인 탭 */}
                 <Stack.Screen name="Main" component={MainTabNavigator} />
+
+                {/*<Stack.Screen name="HomeStartScreen" component={HomeStartScreen} />*/}
+                {/*<Stack.Screen name="FavoriteScreen" component={FavoriteScreen} />*/}
+
             </Stack.Navigator>
         </NavigationContainer>
     );

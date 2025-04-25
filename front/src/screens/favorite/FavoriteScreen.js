@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const PersonalStudyMainScreen = () => {
+const FavoriteScreen = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.text}>즐겨찾기 페이지입니다</Text>
@@ -23,4 +23,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default PersonalStudyMainScreen;
+export default FavoriteScreen;

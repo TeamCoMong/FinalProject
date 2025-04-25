@@ -18,7 +18,7 @@ import RegisterScreen from './src/screens/auth/RegisterScreen';
 import FindAccountScreen from "./src/screens/auth/FindAccountScreen";
 import ResetPasswordScreen from "./src/screens/auth/ResetPasswordScreen";
 import KakaoMapScreen from "./src/screens/location/KakaoMapScreen";
-
+import TmapScreen from "./src/screens/location/TmapScreen";
 
 import GuardianModeSelectionScreen from './src/screens/mode/GuardianModeSelectionScreen';
 import UserModeSelectionScreen from './src/screens/mode/UserModeSelectScreen'
@@ -26,7 +26,7 @@ import GuardianLoginScreen from './src/screens/auth/GuardianLoginScreen';
 import GuardianRegisterScreen from './src/screens/auth/GuardianRegisterScreen';
 import UserLoginScreen from './src/screens/auth/UserLoginScreen';
 import UserRegisterScreen from './src/screens/auth/UserRegisterScreen';
-import TestHomeScreen from "./src/screens/testscreen/TestHomeScreen";
+// import TestHomeScreen from "./src/screens/testscreen/TestHomeScreen";
 import FavoriteScreen from "./src/screens/favorite/FavoriteScreen";
 import TestLoginScreen from "./src/screens/testscreen/TestLoginScreen";
 
@@ -72,10 +72,9 @@ const screenOptions = ({ route }) => ({
 // ✅ 메인 탭 네비게이터
 const MainTabNavigator = () => (
     <Tab.Navigator screenOptions={screenOptions}>
-        <Tab.Screen name="홈 키" component={TestHomeScreen} />
-        <Tab.Screen name="지폐 인식" component={BillScanScreen} />
+         {/*메인 프론트 테스트*/}
+        <Tab.Screen name="홈 키" component={TmapScreen} />
         <Tab.Screen name="즐겨찾기" component={FavoriteScreen} />
-        <Tab.Screen name="기타 설정" component={SettingScreen} />
     </Tab.Navigator>
 );
 
@@ -109,7 +108,7 @@ const App = () => {
 
                 {/* 테스트 전용 */}
                 <Stack.Screen name="TestLoginScreen" component={TestLoginScreen} />
-                <Stack.Screen name="TestHomeScreen" component={TestHomeScreen} />
+                <Stack.Screen name="TestHomeScreen" component={TmapScreen} />
                 <Stack.Screen name="FavoriteScreen" component={FavoriteScreen} />
 
                 {/* 4/24 메인 이전 로그인/회원가입 화면 */}

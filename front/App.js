@@ -2,13 +2,11 @@ import React, { useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { Image } from 'react-native';
-import {startSSE, stopSSE} from './src/services/SSEService';
+import { Image, AppState } from 'react-native';
+import { startSSE, stopSSE } from './src/services/SSEService';
 import { navigationRef } from './src/navigation/NavigationService';
-import { AppState } from 'react-native';
 
 // 스크린 import
-
 import PersonalStudyMainScreen from './src/screens/personal/PersonalStudyMainScreen';
 import GroupStudyMainScreen from './src/screens/group/GroupStudyMainScreen';
 import MyPageMainScreen from './src/screens/mypage/MyPageMainScreen';
@@ -25,9 +23,8 @@ import FindAccountScreen from "./src/screens/auth/FindAccountScreen";
 import ResetPasswordScreen from "./src/screens/auth/ResetPasswordScreen";
 import KakaoMapScreen from "./src/screens/location/KakaoMapScreen";
 
-
 import GuardianModeSelectionScreen from './src/screens/mode/GuardianModeSelectionScreen';
-import UserModeSelectionScreen from './src/screens/mode/UserModeSelectScreen'
+import UserModeSelectionScreen from './src/screens/mode/UserModeSelectScreen';
 import GuardianLoginScreen from './src/screens/auth/GuardianLoginScreen';
 import GuardianRegisterScreen from './src/screens/auth/GuardianRegisterScreen';
 import UserLoginScreen from './src/screens/auth/UserLoginScreen';
@@ -114,31 +111,26 @@ const App = () => {
                 <Stack.Screen name="KakaoMap" component={KakaoMapScreen} />
 
                 {/* 테스트 전용 */}
-                <Stack.Screen name="TestLoginScreen" component={TestLoginScreen} />
-
+                {/* <Stack.Screen name="TestLoginScreen" component={TestLoginScreen} /> */}
 
                 {/* 4/24 메인 이전 로그인/회원가입 화면 */}
                 <Stack.Screen name="GuardianModeSelectionScreen" component={GuardianModeSelectionScreen} />
                 <Stack.Screen name="UserModeSelectionScreen" component={UserModeSelectionScreen} />
 
-                {/* 4/24 프론트화면*/}
-            {/* 테스트 화면들 */}
-            <Stack.Screen name="TestLoginScreen" component={TestLoginScreen} />
-
-            <Stack.Screen name="TestBiometricsScreen" component={TestBiometricsScreen} />
+                {/* 4/24 프론트화면 */}
+                <Stack.Screen name="TestLoginScreen" component={TestLoginScreen} />
+                <Stack.Screen name="TestBiometricsScreen" component={TestBiometricsScreen} />
 
                 <Stack.Screen name="GuardianRegisterScreen" component={GuardianRegisterScreen} />
                 <Stack.Screen name="GuardianLoginScreen" component={GuardianLoginScreen} />
                 <Stack.Screen name="UserRegisterScreen" component={UserRegisterScreen} />
                 <Stack.Screen name="UserLoginScreen" component={UserLoginScreen} />
 
-
                 {/* 메인 탭 */}
                 <Stack.Screen name="Main" component={MainTabNavigator} />
 
-                {/*<Stack.Screen name="HomeStartScreen" component={HomeStartScreen} />*/}
-                {/*<Stack.Screen name="FavoriteScreen" component={FavoriteScreen} />*/}
-
+                {/* <Stack.Screen name="HomeStartScreen" component={HomeStartScreen} /> */}
+                {/* <Stack.Screen name="FavoriteScreen" component={FavoriteScreen} /> */}
             </Stack.Navigator>
         </NavigationContainer>
     );

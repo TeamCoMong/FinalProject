@@ -1,23 +1,25 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 
-const IntroScreen = ({ navigation }) => {
+const GuardianModeSelectionScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.logoContainer}>
-                <Image source={require('../assets/appicon2.png')} style={styles.logo} />
-                <Text style={styles.appName}>SafeWalk</Text>
+                <Image source={require('../../assets/protector.png')} style={styles.logo} />
+                <View style={styles.textWrapper}>
+                    <Text style={styles.appName}>보호자 모드</Text>
+                </View>
             </View>
 
             <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.loginButton} onPress={() => navigation.navigate('UserModeSelectionScreen')}>
-                    <Image source={require('../assets/blindness.png')} style={styles.buttonIcon} />
-                    <Text style={styles.buttonText}>사용자 모드</Text>
+                <TouchableOpacity style={styles.loginButton} onPress={() => navigation.navigate('GuardianLoginScreen')}>
+                    <Image source={require('../../assets/login.png')} style={styles.buttonIcon} />
+                    <Text style={styles.buttonText}>로그인</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.signUpButton} onPress={() => navigation.navigate('GuardianModeSelectionScreen')}>
-                    <Image source={require('../assets/protector.png')} style={styles.buttonIcon} />
-                    <Text style={styles.buttonText}>보호자 모드</Text>
+                <TouchableOpacity style={styles.signUpButton} onPress={() => navigation.navigate('GuardianRegisterScreen')}>
+                    <Image source={require('../../assets/join.png')} style={styles.buttonIcon} />
+                    <Text style={styles.buttonText}>회원가입</Text>
                 </TouchableOpacity>
 
                 {/*<TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('TestLoginScreen')}>*/}
@@ -27,33 +29,22 @@ const IntroScreen = ({ navigation }) => {
 
             <View style={styles.iconSection}>
                 <View style={styles.iconCard}>
-                    <Image source={require('../assets/joomin_map.png')} style={styles.icon} />
+                    <Image source={require('../../assets/joomin_map.png')} style={styles.icon} />
                     <Text style={styles.iconLabel}>길안내</Text>
                 </View>
                 <View style={styles.iconCard}>
-                    <Image source={require('../assets/technology.png')} style={styles.icon} />
+                    <Image source={require('../../assets/technology.png')} style={styles.icon} />
                     <Text style={styles.iconLabel}>음성 안내</Text>
                 </View>
                 <View style={styles.iconCard}>
-                    <Image source={require('../assets/login_obstacles.png')} style={styles.icon} />
+                    <Image source={require('../../assets/login_obstacles.png')} style={styles.icon} />
                     <Text style={styles.iconLabel}>장애물 감지</Text>
                 </View>
             </View>
 
-
-             {/* face id 테스트*/}
-                        <View style={styles.singleButtonContainer}>
-                            <TouchableOpacity
-                                style={styles.testButton2}
-                                onPress={() => navigation.navigate('TestBiometricsScreen')}
-                            >
-                                <Text style={styles.buttonText}>face id 테스트</Text>
-                            </TouchableOpacity>
-                        </View>
-
             <View style={styles.footerContainer}>
                 <Text style={styles.footerText}>Created by CoMong</Text>
-                <Image source={require('../assets/copyright.png')} style={styles.footerIcon} />
+                <Image source={require('../../assets/copyright.png')} style={styles.footerIcon} />
             </View>
         </View>
     );
@@ -78,13 +69,26 @@ const styles = StyleSheet.create({
         width: 110,
         height: 110,
     },
+    textWrapper: {
+        backgroundColor: '#B0E0E6',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 10,
+        marginTop: 10,
+        width: '98%',
+        alignItems: 'center',
+        alignSelf: 'center',
+        justifyContent: 'center', // ✅ 세로 방향 중앙 정렬
+    },
+
+
     appName: {
-        fontSize: 25,
+        fontSize: 35,
         fontWeight: 'bold',
         color: '#cd5c5c',
-        marginTop: 10,
-        marginBottom: 20,
+        marginTop: -5, // ⬅️ 숫자를 조절하면서 테스트 (예: -2, -3, -5)
     },
+
     subAppName: {
         fontSize: 20,
         fontWeight: 'bold',
@@ -218,4 +222,4 @@ const styles = StyleSheet.create({
 });
 
 
-export default IntroScreen;
+export default GuardianModeSelectionScreen;

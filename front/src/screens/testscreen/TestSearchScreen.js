@@ -10,7 +10,7 @@ const TestSearchScreen = ({ navigation }) => {
                 const iconPath = require('../../assets/search.png'); // 원하는 아이콘 설정
                 return <Image source={iconPath} style={{ width: size, height: size}} />;
             },
-            tabBarLabel: '건물 찾기', // 탭 라벨
+            tabBarLabel: '지폐 인식', // 탭 라벨
             tabBarActiveTintColor: '#007AFF', // 활성화된 탭 색상
             tabBarInactiveTintColor: '#8E8E93', // 비활성화된 탭 색상
         });

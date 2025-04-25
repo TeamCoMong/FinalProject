@@ -111,8 +111,6 @@ const App = () => {
                 <Stack.Screen name="TestLoginScreen" component={TestLoginScreen} />
                 <Stack.Screen name="TestHomeScreen" component={TestHomeScreen} />
                 <Stack.Screen name="FavoriteScreen" component={FavoriteScreen} />
-                <Stack.Screen name="TestMyPageScreen" component={TestMyPageScreen} />
-                <Stack.Screen name="TestSearchScreen" component={TestSearchScreen} />
 
                 {/* 4/24 메인 이전 로그인/회원가입 화면 */}
                 <Stack.Screen name="GuardianModeSelectionScreen" component={GuardianModeSelectionScreen} />

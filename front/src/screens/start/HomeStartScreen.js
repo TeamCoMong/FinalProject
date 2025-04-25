@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
-import TestMyPageScreen from "./TestMyPageScreen";
 
-const TestHomeScreen = ({ navigation }) => {
+const HomeStartScreen = ({ navigation }) => {
     // 상태 변수 선언
     const [currentTime, setCurrentTime] = useState('');  // 현재 시간
     const [currentLocation, setCurrentLocation] = useState('서울, 대한민국'); // 기본 위치 설정
@@ -130,4 +129,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default TestHomeScreen;
+export default HomeStartScreen;

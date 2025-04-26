@@ -150,9 +150,10 @@ public class DialogflowController {
     @GetMapping("/triggerEvent")
     public ResponseEntity<Map<String, String>> triggerEvent(
             @RequestParam String event,
+            @RequestParam(required = false) String code,
             @RequestParam(value = "sessionId", defaultValue = "test-session") String sessionId) {
         try {
-            String message = dialogflowService.triggerEvent(event, sessionId);
+            String message = dialogflowService.triggerEvent(event, sessionId, code);
 
             return ResponseEntity.ok(Map.of(
                     "intent", event,

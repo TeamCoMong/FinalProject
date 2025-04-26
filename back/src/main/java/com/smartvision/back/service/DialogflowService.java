@@ -4,6 +4,8 @@ import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.dialogflow.v2.*;
 
+import com.google.protobuf.Struct;
+import com.google.protobuf.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
@@ -50,12 +52,7 @@ public class DialogflowService {
         }
     }
 
-    public String triggerEvent(String eventName, String sessionId) throws Exception {
-
-        // 로그인 시
-//        String sessionId = user.getId(); // 로그인한 사용자 기준 고정된 세션 ID 사용
-//        SessionsClient sessionsClient = SessionsClient.create();
-//        SessionName session = SessionName.of(PROJECT_ID, sessionId);
+    public String triggerEvent(String eventName, String sessionId, String code) throws Exception {
 
         GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(CREDENTIALS_PATH));
         SessionsSettings sessionsSettings = SessionsSettings.newBuilder()
@@ -65,12 +62,22 @@ public class DialogflowService {
         try (SessionsClient sessionsClient = SessionsClient.create(sessionsSettings)) {
             SessionName session = SessionName.of(PROJECT_ID, sessionId);
 
-            EventInput eventInput = EventInput.newBuilder()
+            EventInput.Builder eventInputBuilder = EventInput.newBuilder()
                     .setName(eventName)
-                    .setLanguageCode(LANGUAGE_CODE)
-                    .build();
+                    .setLanguageCode(LANGUAGE_CODE);
 
-            QueryInput queryInput = QueryInput.newBuilder().setEvent(eventInput).build();
+            // ✅ 특정 이벤트일 때만 파라미터 추가
+            if ("signup_complete".equals(eventName) && code != null && !code.isEmpty()) {
+                Struct parameters = Struct.newBuilder()
+                        .putFields("code", Value.newBuilder().setStringValue(code).build())
+                        .build();
+                eventInputBuilder.setParameters(parameters);
+                System.out.println("전달 코드: " + code);
+            }
+
+            QueryInput queryInput = QueryInput.newBuilder()
+                    .setEvent(eventInputBuilder.build())
+                    .build();
 
             DetectIntentRequest request = DetectIntentRequest.newBuilder()
                     .setSession(session.toString())

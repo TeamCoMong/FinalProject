@@ -2,13 +2,27 @@ import React, { useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Image } from 'react-native';
+
+// 마이크 권한
+import { PermissionsAndroid, Platform } from 'react-native';
+
+
+import { View } from 'react-native';
+
+
+// 👉 기존 import
+import { startSSE, stopSSE } from './src/services/SSEService';
 import { startSSE, stopSSE } from './src/services/SSEService';
 import { navigationRef } from './src/navigation/NavigationService';
 import { AppState } from 'react-native';
 
 // 스크린 import
+
 import PersonalStudyMainScreen from './src/screens/personal/PersonalStudyMainScreen';
+import GroupStudyMainScreen from './src/screens/group/GroupStudyMainScreen';
 import MyPageMainScreen from './src/screens/mypage/MyPageMainScreen';
 import HomeStartScreen from "./src/screens/start/HomeStartScreen";
 import FavoriteScreen from "./src/screens/favorite/FavoriteScreen";
@@ -30,6 +44,7 @@ import UserLoginScreen from './src/screens/auth/UserLoginScreen';
 import UserRegisterScreen from './src/screens/auth/UserRegisterScreen';
 import TestLoginScreen from "./src/screens/testscreen/TestLoginScreen";
 
+// ✅ 탭 & 스택 네비게이터
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
@@ -118,20 +133,80 @@ const GuardianTabNavigator = () => (
 // ✅ 앱 전체 구성
 const App = () => {
     useEffect(() => {
-        startSSE(); // 앱 실행 시 최초 연결
+        Tts.setDefaultLanguage('ko-KR');
 
-        const subscription = AppState.addEventListener('change', (nextAppState) => {
-            if (nextAppState === 'active') {
-                console.log("🔙 앱이 포그라운드로 돌아옴 → SSE 재연결 시도");
-                startSSE(); // 이미 연결돼 있으면 무시됨
+        const requestPermissions = async () => {
+            if (Platform.OS === 'android') {
+                const granted = await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+                    {
+                        title: '마이크 권한 요청',
+                        message: '음성 인식을 위해 마이크 접근 권한이 필요합니다.',
+                        buttonNeutral: '나중에',
+                        buttonNegative: '거부',
+                        buttonPositive: '허용',
+                    },
+                );
+                console.log('🔐 마이크 권한:', granted);
+
+                if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                    Tts.speak('TTS 테스트입니다.');
+                }
+            }
+        };
+
+        requestPermissions();
+
+        Voice.onSpeechResults = (e) => {
+            const text = e.value?.[0];
+            if (!text) {
+                console.log("⚠️ 음성 인식 결과 없음");
+                return;
+            }
+
+            console.log('🎤 인식된 말:', text);
+            fetch(`http://10.0.2.2:8080/dialogflow/message?query=${encodeURIComponent(text)}`)
+                .then(res => res.json())
+                .then(data => {
+                    console.log('🧠 응답:', data.message);
+                    Tts.speak(data.message);
+                })
+                .catch(err => {
+                    console.error('❌ 서버 오류:', err);
+                    Tts.speak('서버에 연결할 수 없습니다.');
+                });
+        };
+
+        Voice.onSpeechError = (e) => {
+            console.log('❌ 음성 인식 에러:', e.error);
+        };
+
+        startSSE();
+        const subscription = AppState.addEventListener('change', (nextState) => {
+            if (nextState === 'active') {
+                startSSE();
             }
         });
 
         return () => {
-            stopSSE(); // 앱 unmount 시 SSE 정리
-            subscription.remove(); // 이벤트 리스너 해제
+            stopSSE();
+            Voice.destroy().then(Voice.removeAllListeners);
+            subscription.remove();
         };
     }, []);
+
+
+    // ✅ 전체 화면 터치 시 STT 시작
+    const handleStartListening = async () => {
+        try {
+            console.log('🟢 음성 인식이 시작되었습니다');
+            Tts.speak('음성 인식이 시작되었습니다.');
+            await Voice.start('ko-KR');
+        } catch (e) {
+            console.error('🎤 음성인식 시작 실패:', e);
+            Tts.speak('음성 인식 시작에 실패했습니다.');
+        }
+    };
 
     return (
         <NavigationContainer ref={navigationRef}>

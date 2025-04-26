@@ -3,42 +3,37 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Image } from 'react-native';
-import {startSSE, stopSSE} from './src/services/SSEService';
+import { startSSE, stopSSE } from './src/services/SSEService';
 import { navigationRef } from './src/navigation/NavigationService';
 import { AppState } from 'react-native';
 
 // 스크린 import
-
 import PersonalStudyMainScreen from './src/screens/personal/PersonalStudyMainScreen';
-import GroupStudyMainScreen from './src/screens/group/GroupStudyMainScreen';
 import MyPageMainScreen from './src/screens/mypage/MyPageMainScreen';
-
 import HomeStartScreen from "./src/screens/start/HomeStartScreen";
 import FavoriteScreen from "./src/screens/favorite/FavoriteScreen";
 import BillScanScreen from "./src/screens/scan/BillScanScreen";
 import SettingScreen from "./src/screens/Setting/SettingScreen";
-
 import IntroScreen from './src/screens/IntroScreen';
 import LoginScreen from './src/screens/auth/LoginScreen';
 import RegisterScreen from './src/screens/auth/RegisterScreen';
 import FindAccountScreen from "./src/screens/auth/FindAccountScreen";
 import ResetPasswordScreen from "./src/screens/auth/ResetPasswordScreen";
 import KakaoMapScreen from "./src/screens/location/KakaoMapScreen";
-
-
+import GuardianSettingScreen from "./src/screens/Setting/GuardianSettingScreen";
+import GuardianHomeScreen from "./src/screens/start/GuardianHomeScreen";
 import GuardianModeSelectionScreen from './src/screens/mode/GuardianModeSelectionScreen';
-import UserModeSelectionScreen from './src/screens/mode/UserModeSelectScreen'
+import UserModeSelectionScreen from './src/screens/mode/UserModeSelectScreen';
 import GuardianLoginScreen from './src/screens/auth/GuardianLoginScreen';
 import GuardianRegisterScreen from './src/screens/auth/GuardianRegisterScreen';
 import UserLoginScreen from './src/screens/auth/UserLoginScreen';
 import UserRegisterScreen from './src/screens/auth/UserRegisterScreen';
-
 import TestLoginScreen from "./src/screens/testscreen/TestLoginScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-// ✅ 탭 아이콘 및 스타일 설정
+// ✅ 공통 탭 아이콘 및 스타일 설정
 const screenOptions = ({ route }) => ({
     tabBarIcon: ({ focused, size }) => {
         let iconPath;
@@ -65,7 +60,6 @@ const screenOptions = ({ route }) => ({
                 style={{
                     width: size,
                     height: size,
-                    // tintColor: iconColor  // 아이콘 색상 조정 필요 시 사용
                 }}
             />
         );
@@ -74,13 +68,50 @@ const screenOptions = ({ route }) => ({
     tabBarInactiveTintColor: '#A9A9A9',
 });
 
-// ✅ 메인 탭 네비게이터
+// ✅ 보호자 탭 아이콘 및 스타일 설정
+const guardianScreenOptions = ({ route }) => ({
+    tabBarIcon: ({ focused, size }) => {
+        let iconPath;
+        switch (route.name) {
+            case '사용자 위치보기':
+                iconPath = require('./src/assets/home.png');
+                break;
+            case '설정':
+                iconPath = require('./src/assets/gear.png');
+                break;
+        }
+
+        const iconColor = focused ? '#007AFF' : '#A9A9A9';
+
+        return (
+            <Image
+                source={iconPath}
+                style={{
+                    width: size,
+                    height: size,
+                }}
+            />
+        );
+    },
+    tabBarActiveTintColor: '#007AFF',
+    tabBarInactiveTintColor: '#A9A9A9',
+});
+
+// ✅ 사용자 메인 탭 네비게이터
 const MainTabNavigator = () => (
     <Tab.Navigator screenOptions={screenOptions}>
         <Tab.Screen name="홈 키" component={HomeStartScreen} />
         <Tab.Screen name="지폐 인식" component={BillScanScreen} />
         <Tab.Screen name="즐겨찾기" component={FavoriteScreen} />
         <Tab.Screen name="기타 설정" component={SettingScreen} />
+    </Tab.Navigator>
+);
+
+// ✅ 보호자 메인 탭 네비게이터
+const GuardianTabNavigator = () => (
+    <Tab.Navigator screenOptions={guardianScreenOptions}>
+        <Tab.Screen name="사용자 위치보기" component={GuardianHomeScreen} />
+        <Tab.Screen name="설정" component={GuardianSettingScreen} />
     </Tab.Navigator>
 );
 
@@ -115,25 +146,19 @@ const App = () => {
                 {/* 테스트 전용 */}
                 <Stack.Screen name="TestLoginScreen" component={TestLoginScreen} />
 
-
                 {/* 4/24 메인 이전 로그인/회원가입 화면 */}
                 <Stack.Screen name="GuardianModeSelectionScreen" component={GuardianModeSelectionScreen} />
                 <Stack.Screen name="UserModeSelectionScreen" component={UserModeSelectionScreen} />
 
-                {/* 4/24 프론트화면*/}
-
+                {/* 4/24 프론트화면 */}
                 <Stack.Screen name="GuardianRegisterScreen" component={GuardianRegisterScreen} />
                 <Stack.Screen name="GuardianLoginScreen" component={GuardianLoginScreen} />
                 <Stack.Screen name="UserRegisterScreen" component={UserRegisterScreen} />
                 <Stack.Screen name="UserLoginScreen" component={UserLoginScreen} />
 
-
                 {/* 메인 탭 */}
-                <Stack.Screen name="Main" component={MainTabNavigator} />
-
-                {/*<Stack.Screen name="HomeStartScreen" component={HomeStartScreen} />*/}
-                {/*<Stack.Screen name="FavoriteScreen" component={FavoriteScreen} />*/}
-
+                <Stack.Screen name="UserMain" component={MainTabNavigator} />
+                <Stack.Screen name="GuardianMain" component={GuardianTabNavigator} />
             </Stack.Navigator>
         </NavigationContainer>
     );

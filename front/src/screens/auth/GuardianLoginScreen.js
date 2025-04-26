@@ -99,11 +99,17 @@ const GuardianLoginScreen = ({ navigation }) => {
             {/*    </TouchableOpacity>*/}
             {/*</View>*/}
 
+
+            <TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('GuardianMain')}>
+                <Text style={styles.buttonText}>(보호자)프론트 테스트</Text>
+            </TouchableOpacity>
+
             {/* 계정 찾기 및 회원가입 */}
             <View style={styles.footer}>
                 <TouchableOpacity onPress={() => navigation.navigate('FindAccount')}>
                     <Text style={styles.footerText}>계정 찾기</Text>
                 </TouchableOpacity>
+
                 <TouchableOpacity onPress={() => navigation.navigate('Register')}>
                     <Text style={styles.footerText}>회원가입</Text>
                 </TouchableOpacity>

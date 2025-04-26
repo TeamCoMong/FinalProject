@@ -72,8 +72,8 @@ const UserLoginScreen = ({ navigation }) => {
 
 
 
-            <TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('Main')}>
-                <Text style={styles.buttonText}>프론트 테스트</Text>
+            <TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('UserMain')}>
+                <Text style={styles.buttonText}>(사용자)프론트 테스트</Text>
             </TouchableOpacity>
 
 

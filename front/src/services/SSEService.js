@@ -6,9 +6,11 @@ let lastPingTime = Date.now();
 let heartbeatChecker = null;
 
 const intentToRoute = {
-    '로그인': 'TestLoginScreen',
-    '회원가입': 'Register',
-    '길안내': 'KakaoMap',
+    '로그인': 'UserLoginScreen',
+    '회원가입': 'UserRegisterScreen',
+    '길안내': 'HomeStartScreen',
+    '지폐인식':'BillScanScreen',
+
 };
 
 // 1. SSE 연결
@@ -20,7 +22,7 @@ export const startSSE = () => {
 
     console.log("🚀 SSE 연결 시작");
 
-    eventSource = new EventSource('https://5918-61-34-253-238.ngrok-free.app/dialogflow/sse');
+    eventSource = new EventSource('https://c7c6-61-34-253-238.ngrok-free.app/dialogflow/sse');
 
     eventSource.onmessage = (event) => {
         console.log("📩 [onmessage] raw 이벤트:", event);

@@ -1,14 +1,15 @@
 import React, { useEffect } from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Image } from 'react-native';
+import { TouchableWithoutFeedback } from 'react-native';
 
 // 마이크 권한
 import { PermissionsAndroid, Platform } from 'react-native';
-
+import Voice from '@react-native-voice/voice';
+import Tts from 'react-native-tts';
 
 import { View } from 'react-native';
 
@@ -44,9 +45,7 @@ import GuardianRegisterScreen from './src/screens/auth/GuardianRegisterScreen';
 import UserLoginScreen from './src/screens/auth/UserLoginScreen';
 import UserRegisterScreen from './src/screens/auth/UserRegisterScreen';
 
-import TestHomeScreen from "./src/screens/testscreen/TestHomeScreen";
-import TestMyPageScreen from "./src/screens/testscreen/TestMyPageScreen";
-import TestCommunityScreen from "./src/screens/testscreen/TestCommunityScreen";
+
 import TestSearchScreen from "./src/screens/testscreen/TestSearchScreen";
 import TestLoginScreen from "./src/screens/testscreen/TestLoginScreen";
 
@@ -135,7 +134,7 @@ const App = () => {
             }
 
             console.log('🎤 인식된 말:', text);
-            fetch(`http://10.0.2.2:8080/dialogflow/message?query=${encodeURIComponent(text)}`)
+            fetch(`https://c7c6-61-34-253-238.ngrok-free.app/dialogflow/message?query=${encodeURIComponent(text)}`)
                 .then(res => res.json())
                 .then(data => {
                     console.log('🧠 응답:', data.message);
@@ -179,39 +178,45 @@ const App = () => {
     };
 
     return (
-        <NavigationContainer ref={navigationRef}>
-            <Stack.Navigator initialRouteName="Intro" screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="Intro" component={IntroScreen} />
-                <Stack.Screen name="Login" component={LoginScreen} />
-                <Stack.Screen name="Register" component={RegisterScreen} />
-                <Stack.Screen name="FindAccount" component={FindAccountScreen} />
-                <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
-                <Stack.Screen name="KakaoMap" component={KakaoMapScreen} />
+        <GestureHandlerRootView style={{ flex: 1 }}>
+            <TouchableWithoutFeedback onPress={handleStartListening}>
+                <View style={{ flex: 1 }}>
+                    <NavigationContainer ref={navigationRef}>
+                        <Stack.Navigator initialRouteName="Intro" screenOptions={{ headerShown: false }}>
+                            <Stack.Screen name="Intro" component={IntroScreen} />
+                            <Stack.Screen name="Login" component={LoginScreen} />
+                            <Stack.Screen name="Register" component={RegisterScreen} />
+                            <Stack.Screen name="FindAccount" component={FindAccountScreen} />
+                            <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+                            <Stack.Screen name="KakaoMap" component={KakaoMapScreen} />
 
-                {/* 테스트 전용 */}
-                <Stack.Screen name="TestLoginScreen" component={TestLoginScreen} />
-
-
-                {/* 4/24 메인 이전 로그인/회원가입 화면 */}
-                <Stack.Screen name="GuardianModeSelectionScreen" component={GuardianModeSelectionScreen} />
-                <Stack.Screen name="UserModeSelectionScreen" component={UserModeSelectionScreen} />
-
-                {/* 4/24 프론트화면*/}
-
-                <Stack.Screen name="GuardianRegisterScreen" component={GuardianRegisterScreen} />
-                <Stack.Screen name="GuardianLoginScreen" component={GuardianLoginScreen} />
-                <Stack.Screen name="UserRegisterScreen" component={UserRegisterScreen} />
-                <Stack.Screen name="UserLoginScreen" component={UserLoginScreen} />
+                            {/* 테스트 전용 */}
+                            <Stack.Screen name="TestLoginScreen" component={TestLoginScreen} />
 
 
-                {/* 메인 탭 */}
-                <Stack.Screen name="Main" component={MainTabNavigator} />
+                            {/* 4/24 메인 이전 로그인/회원가입 화면 */}
+                            <Stack.Screen name="GuardianModeSelectionScreen" component={GuardianModeSelectionScreen} />
+                            <Stack.Screen name="UserModeSelectionScreen" component={UserModeSelectionScreen} />
 
-                {/*<Stack.Screen name="HomeStartScreen" component={HomeStartScreen} />*/}
-                {/*<Stack.Screen name="FavoriteScreen" component={FavoriteScreen} />*/}
+                            {/* 4/24 프론트화면*/}
 
-            </Stack.Navigator>
-        </NavigationContainer>
+                            <Stack.Screen name="GuardianRegisterScreen" component={GuardianRegisterScreen} />
+                            <Stack.Screen name="GuardianLoginScreen" component={GuardianLoginScreen} />
+                            <Stack.Screen name="UserRegisterScreen" component={UserRegisterScreen} />
+                            <Stack.Screen name="UserLoginScreen" component={UserLoginScreen} />
+
+
+                            {/* 메인 탭 */}
+                            <Stack.Screen name="Main" component={MainTabNavigator} />
+
+                            {/*<Stack.Screen name="HomeStartScreen" component={HomeStartScreen} />*/}
+                            {/*<Stack.Screen name="FavoriteScreen" component={FavoriteScreen} />*/}
+
+                        </Stack.Navigator>
+                    </NavigationContainer>
+                </View>
+            </TouchableWithoutFeedback>
+        </GestureHandlerRootView>
     );
 };
 

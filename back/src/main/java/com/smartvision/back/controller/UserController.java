@@ -1,8 +1,8 @@
 // UserController.java
-package com.studymate.back.controller;
+package com.smartvision.back.controller;
 
-import com.studymate.back.dto.*;
-import com.studymate.back.service.UserService;
+import com.smartvision.back.dto.*;
+import com.smartvision.back.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

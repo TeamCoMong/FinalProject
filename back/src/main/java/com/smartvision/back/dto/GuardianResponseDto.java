@@ -1,4 +1,4 @@
-package com.studymate.back.dto;
+package com.smartvision.back.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,4 +10,6 @@ import lombok.Getter;
 public class GuardianResponseDto {
     private String guardianId;
     private String userId;
+    private String accessToken;
+    private String refreshToken;
 }

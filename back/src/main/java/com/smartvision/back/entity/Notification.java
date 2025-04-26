@@ -1,4 +1,4 @@
-package com.studymate.back.entity;
+package com.smartvision.back.entity;
 
 import groovyjarjarantlr4.v4.tool.ANTLRMessage;
 import jakarta.persistence.*;

@@ -1,4 +1,4 @@
-package com.studymate.back.entity;
+package com.smartvision.back.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -31,14 +31,19 @@ public class ErrorLog {
     @Column(name = "TIMESTAMP")
     private LocalDateTime timestamp;
 
-    @Column(name = "RESOLVED", length = 1)
+    @Column(name = "RESOLVED", length = 1) // ✅ 다시 String
     private String resolved = "N";
 
     @PrePersist
     public void onCreate() {
         this.timestamp = LocalDateTime.now();
         if (resolved == null) {
-            resolved = "N";
+            resolved = "N"; // ✅ 기본값 "N"
         }
+    }
+
+    // ✅ 편의 메서드 추가 추천
+    public boolean isResolvedBoolean() {
+        return "Y".equals(this.resolved);
     }
 }

@@ -1,14 +1,14 @@
-package com.studymate.back.repository;
+package com.smartvision.back.repository;
 
-import com.studymate.back.entity.Guardian;
-import com.studymate.back.entity.User;
+import com.smartvision.back.entity.Guardian;
+import com.smartvision.back.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
 public interface GuardianRepository extends JpaRepository<Guardian, String> {
-    Optional<Guardian> findByEmail(String email);
 
     Optional<Guardian> findByGuardianId(String guardianId);
-    Optional<Guardian> findByUser(User user); // 가디언 아이디 찾아주는 메소드
+    // 수정: User의 userId를 통해 찾는다
+    Optional<Guardian> findByUser_UserId(String userId);
 }

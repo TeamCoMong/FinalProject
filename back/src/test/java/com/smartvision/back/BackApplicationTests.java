@@ -1,9 +1,9 @@
 package com.smartvision.back;
 
-import com.studymate.back.dto.UserResponseDto;
-import com.studymate.back.dto.UserSignupRequestDto;
-import com.studymate.back.dto.UserSignupResponseDto;
-import com.studymate.back.service.UserService;
+import com.smartvision.back.dto.UserResponseDto;
+import com.smartvision.back.dto.UserSignupRequestDto;
+import com.smartvision.back.dto.UserSignupResponseDto;
+import com.smartvision.back.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -51,7 +51,7 @@ class BackApplicationTests {
     @Test
     void 사용자_삭제_성공() {
         // given
-        String userId = "15F8E094";
+        String userId = "9400F9FE";
 
         // when
         userService.deleteUser(userId);

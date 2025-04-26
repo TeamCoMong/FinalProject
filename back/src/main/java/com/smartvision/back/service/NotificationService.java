@@ -1,8 +1,8 @@
-package com.studymate.back.service;
+package com.smartvision.back.service;
 
-import com.studymate.back.dto.NotificationDto;
-import com.studymate.back.entity.Notification;
-import com.studymate.back.repository.NotificationRepository;
+import com.smartvision.back.dto.NotificationDto;
+import com.smartvision.back.entity.Notification;
+import com.smartvision.back.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

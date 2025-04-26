@@ -1,11 +1,12 @@
-package com.studymate.back.service;
+package com.smartvision.back.service;
 
-import com.studymate.back.dto.GuardianResponseDto;
-import com.studymate.back.dto.GuardianSignupRequestDto;
-import com.studymate.back.entity.Guardian;
-import com.studymate.back.entity.User;
-import com.studymate.back.repository.GuardianRepository;
-import com.studymate.back.repository.UserRepository;
+import com.smartvision.back.config.JwtProvider;
+import com.smartvision.back.dto.GuardianResponseDto;
+import com.smartvision.back.dto.GuardianSignupRequestDto;
+import com.smartvision.back.entity.Guardian;
+import com.smartvision.back.entity.User;
+import com.smartvision.back.repository.GuardianRepository;
+import com.smartvision.back.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ public class GuardianService {
     private final GuardianRepository guardianRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtProvider jwtProvider;
 
     public void signup(GuardianSignupRequestDto dto) {
         // 이메일 인증로직 구현 필요
@@ -40,27 +42,28 @@ public class GuardianService {
         guardianRepository.save(guardian);
     }
 
-    public void deleteGuardian(String guardianId) {
-        Guardian guardian = guardianRepository.findById(guardianId)
-                .orElseThrow(() -> new RuntimeException("해당 보호자가 존재하지 않습니다."));
-        guardianRepository.delete(guardian);
-    }
-
-    public GuardianResponseDto login(String guardianId, String Password) {
+    public GuardianResponseDto login(String guardianId, String password) {
+        System.out.println("로그인 시도: " + guardianId);  // 로그 출력
         Guardian guardian = guardianRepository.findByGuardianId(guardianId)
                 .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
-
-        if (!passwordEncoder.matches(Password, guardian.getPasswordHash())) {
+        // 비밀번호 검증
+        if (!passwordEncoder.matches(password, guardian.getPasswordHash())) {
             throw new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다.");
         }
 
         // ✅ 연결된 사용자 코드 받아오기
         String userId = guardian.getUser().getUserId();
+        // 로그 출력
+        System.out.println("로그인 성공: " + guardianId);
+        // ✅ JWT 발급
+        String accessToken = jwtProvider.generateAccessToken(guardianId);
+        String refreshToken = jwtProvider.generateRefreshToken(guardianId);
 
-        return new GuardianResponseDto(
-                guardian.getGuardianId(),
-                guardian.getUser().getUserId()
-        );
-
+        return GuardianResponseDto.builder()
+                .guardianId(guardian.getGuardianId())
+                .userId(userId)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 }

@@ -1,4 +1,4 @@
-package com.studymate.back;
+package com.smartvision.back;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,9 @@ class GuardianControllerTest {
                                 .content(loginRequestJson)  // loginRequestJson 정의된 변수
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.guardianId").value("guardian001"))
-                .andExpect(jsonPath("$.userId").value("ABCD1234"));
+                .andExpect(jsonPath("$.guardianId").value("guardian001"))  // 반환된 응답에서 guardianId가 test123인지 확인
+                .andExpect(jsonPath("$.userId").value("ABCD1234"))    // 반환된 응답에서 userId가 user002인지 확인
+                .andExpect(jsonPath("$.accessToken").exists()) // accessToken이 반환되는지 확인
+                .andExpect(jsonPath("$.refreshToken").exists()); // refreshToken이 반환되는지 확인
     }
 }

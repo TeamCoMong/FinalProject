@@ -1,14 +1,14 @@
-package com.studymate.back.service;
+package com.smartvision.back.service;
 
-import com.studymate.back.dto.ErrorLogDto;
-import com.studymate.back.entity.ErrorLog;
-import com.studymate.back.entity.Guardian;
-import com.studymate.back.entity.Notification;
-import com.studymate.back.entity.User;
-import com.studymate.back.repository.ErrorLogRepository;
-import com.studymate.back.repository.GuardianRepository;
-import com.studymate.back.repository.NotificationRepository;
-import com.studymate.back.repository.UserRepository;
+import com.smartvision.back.dto.ErrorLogDto;
+import com.smartvision.back.entity.ErrorLog;
+import com.smartvision.back.entity.Guardian;
+import com.smartvision.back.entity.Notification;
+import com.smartvision.back.entity.User;
+import com.smartvision.back.repository.ErrorLogRepository;
+import com.smartvision.back.repository.GuardianRepository;
+import com.smartvision.back.repository.NotificationRepository;
+import com.smartvision.back.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +27,9 @@ public class ErrorLogService {
         User user = userRepository.findByUserId(dto.getUserId())
                 .orElseThrow(() -> new RuntimeException("해당 사용자 없음"));
 
-        // ✅ 5분 이내 중복 체크
-        boolean isRecentDuplicate = errorLogRepository.existsRecentError(user.getUserId(), dto.getErrorType());
-        if (isRecentDuplicate) {
+        // ✅ 5분 이내 중복 체크 (int로 받아서 == 1 비교)
+        int recentCount = errorLogRepository.existsRecentError(user.getUserId(), dto.getErrorType());
+        if (recentCount == 1) {
             System.out.println("⚠️ 최근 5분 이내 동일 에러 발생 기록 있음 - 중복 저장 방지됨");
             return;
         }
@@ -45,7 +45,7 @@ public class ErrorLogService {
         errorLogRepository.save(errorLog);
 
         // 3. 보호자 찾기
-        Guardian guardian = guardianRepository.findByUser(user)
+        Guardian guardian = guardianRepository.findByUser_UserId(user.getUserId())
                 .orElseThrow(() -> new RuntimeException("해당 유저의 보호자 없음"));
 
         // 4. 알림 저장
@@ -59,10 +59,5 @@ public class ErrorLogService {
 
         // 5. (옵션) 푸시 알림 or WebSocket 전송
         // pushService.sendToGuardian(guardian.getEmail(), "에러 발생: " + dto.getErrorType());
-
-
     }
-
-
-
 }

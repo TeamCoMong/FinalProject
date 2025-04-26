@@ -1,4 +1,4 @@
-package com.studymate.back.entity;
+package com.smartvision.back.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

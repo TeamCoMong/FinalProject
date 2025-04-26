@@ -1,7 +1,7 @@
-package com.studymate.back.controller;
+package com.smartvision.back.controller;
 
-import com.studymate.back.dto.NotificationDto;
-import com.studymate.back.service.NotificationService;
+import com.smartvision.back.dto.NotificationDto;
+import com.smartvision.back.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

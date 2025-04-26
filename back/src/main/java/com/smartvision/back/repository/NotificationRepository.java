@@ -1,6 +1,6 @@
-package com.studymate.back.repository;
+package com.smartvision.back.repository;
 
-import com.studymate.back.entity.Notification;
+import com.smartvision.back.entity.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

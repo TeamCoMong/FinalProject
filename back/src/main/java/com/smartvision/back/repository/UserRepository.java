@@ -1,7 +1,7 @@
 // UserRepository.java
-package com.studymate.back.repository;
+package com.smartvision.back.repository;
 
-import com.studymate.back.entity.User;
+import com.smartvision.back.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

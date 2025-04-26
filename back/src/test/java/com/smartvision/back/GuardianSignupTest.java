@@ -1,12 +1,12 @@
-package com.studymate.back;
+package com.smartvision.back;
 
-import com.studymate.back.dto.GuardianResponseDto;
-import com.studymate.back.dto.GuardianSignupRequestDto;
-import com.studymate.back.entity.Guardian;
-import com.studymate.back.entity.User;
-import com.studymate.back.repository.GuardianRepository;
-import com.studymate.back.repository.UserRepository;
-import com.studymate.back.service.GuardianService;
+import com.smartvision.back.dto.GuardianResponseDto;
+import com.smartvision.back.dto.GuardianSignupRequestDto;
+import com.smartvision.back.entity.Guardian;
+import com.smartvision.back.entity.User;
+import com.smartvision.back.repository.GuardianRepository;
+import com.smartvision.back.repository.UserRepository;
+import com.smartvision.back.service.GuardianService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,16 +58,6 @@ public class GuardianSignupTest {
         guardianService.signup(dto);
 
         assertThat(guardianRepository.findByGuardianId("guardian001")).isPresent();
-    }
-
-    @Test
-    void 보호자_삭제_성공() {
-        String guardianId = "guardian002";
-        // when
-        guardianService.deleteGuardian(guardianId);
-
-        Guardian deletedGuardian = guardianRepository.findByGuardianId(guardianId).orElse(null);
-        assertThat(deletedGuardian).isNull();
     }
 
     @Test

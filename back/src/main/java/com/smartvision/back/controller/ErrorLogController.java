@@ -1,8 +1,7 @@
-package com.studymate.back.controller;
+package com.smartvision.back.controller;
 
-import com.studymate.back.dto.ErrorLogDto;
-import com.studymate.back.dto.NotificationDto;
-import com.studymate.back.service.ErrorLogService;
+import com.smartvision.back.dto.ErrorLogDto;
+import com.smartvision.back.service.ErrorLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

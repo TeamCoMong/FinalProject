@@ -1,8 +1,8 @@
-package com.studymate.back.controller;
+package com.smartvision.back.controller;
 
-import com.studymate.back.dto.GuardianLoginRequestDto;
-import com.studymate.back.dto.GuardianResponseDto;
-import com.studymate.back.service.GuardianService;
+import com.smartvision.back.dto.GuardianLoginRequestDto;
+import com.smartvision.back.dto.GuardianResponseDto;
+import com.smartvision.back.service.GuardianService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

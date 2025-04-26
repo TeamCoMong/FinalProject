@@ -1,4 +1,4 @@
-package com.studymate.back.dto;
+package com.smartvision.back.dto;
 
 import lombok.*;
 

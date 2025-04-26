@@ -1,6 +1,6 @@
-package com.studymate.back.dto;
+package com.smartvision.back.dto;
 
-import com.studymate.back.entity.User;
+import com.smartvision.back.entity.User;
 import lombok.*;
 
 @Getter

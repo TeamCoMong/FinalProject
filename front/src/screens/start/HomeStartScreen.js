@@ -74,7 +74,7 @@ const HomeStartScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fffacd',  // 배경색 설정
+        backgroundColor: '#f0f8ff',  // 배경색 설정
         alignItems: 'center',
         justifyContent: 'center',
     },

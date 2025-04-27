@@ -63,17 +63,17 @@ const UserLoginScreen = ({ navigation }) => {
             <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
                 <View style={styles.buttonContent}>
                     <Image
-                        source={require('../../assets/UserFaceId.png')} // PNG 파일 경로
+                        source={require('../../assets/fingerprint.png')} // PNG 파일 경로
                         style={styles.buttonIcon}
                     />
-                    <Text style={styles.loginButtonText}>유저  FACE ID 로그인</Text>
+                    <Text style={styles.loginButtonText}>지문인식 로그인</Text>
                 </View>
             </TouchableOpacity>
 
 
 
-            <TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('Main')}>
-                <Text style={styles.buttonText}>프론트 테스트</Text>
+            <TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('UserMain')}>
+                <Text style={styles.buttonText}>(사용자)프론트 테스트</Text>
             </TouchableOpacity>
 
 
@@ -174,21 +174,25 @@ const styles = StyleSheet.create({
         width: 24,
         height: 24,
     },
+
+
     loginButton: {
         backgroundColor: '#66cdaa',
-        paddingVertical: 80,
+        paddingVertical: 120, // 버튼 높이를 더 키움
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        width: '100%',
-        borderRadius: 25,
+        width: '100%', // 너비는 그대로 두거나 원하는 크기로 변경
+        borderRadius: 35, // 모서리 둥글기를 더 키움
         marginBottom: 20,
+        marginTop: 60, // 버튼을 더 아래로 내리기 위해 marginTop을 60으로 설정
         elevation: 6, // 안드로이드 그림자
         shadowColor: '#000', // iOS 그림자
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: { width: 0, height: 4 }, // 그림자 위치를 더 아래로
         shadowOpacity: 0.25,
-        shadowRadius: 3.84,
+        shadowRadius: 6, // 그림자 크기 더 크게 설정
     },
+
 
     loginButtonText: {
         color: 'black',

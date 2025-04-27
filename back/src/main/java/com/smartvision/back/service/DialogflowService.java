@@ -4,6 +4,7 @@ import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.dialogflow.v2.*;
 
+import com.smartvision.back.dto.DialogflowResult;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ public class DialogflowService {
     private static final String CREDENTIALS_PATH = "C:/ngrok/j--fmtv-7b0423872e2c.json"; //
     private static final String LANGUAGE_CODE = "ko";
 
-    public String sendMessageToDialogflow(String userMessage, String sessionId) throws Exception {
+    public DialogflowResult sendMessageToDialogflow(String userMessage, String sessionId) throws Exception {
         GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(CREDENTIALS_PATH));
         SessionsSettings sessionsSettings = SessionsSettings.newBuilder()
                 .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
@@ -42,13 +43,14 @@ public class DialogflowService {
             DetectIntentResponse response = sessionsClient.detectIntent(request);
             QueryResult result = response.getQueryResult();
 
-            System.out.println("📨 사용자 입력: " + userMessage);
-            System.out.println("🔍 인텐트 이름: " + result.getIntent().getDisplayName());
-            System.out.println("📈 Confidence: " + result.getIntentDetectionConfidence());
-            System.out.println("💬 Fulfillment Text: " + result.getFulfillmentText());
-            System.out.println("📦 전체 응답 객체: " + result);
+            String intent = result.getIntent().getDisplayName();
+            String answer = result.getFulfillmentText();
 
-            return result.getFulfillmentText();
+            System.out.println("📨 사용자 입력: " + userMessage);
+            System.out.println("🔍 인텐트 이름: " + intent);
+            System.out.println("💬 Fulfillment Text: " + answer);
+
+            return new DialogflowResult(intent, answer);
         }
     }
 

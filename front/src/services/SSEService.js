@@ -22,7 +22,7 @@ export const startSSE = () => {
 
     console.log("🚀 SSE 연결 시작");
 
-    eventSource = new EventSource('https://c7c6-61-34-253-238.ngrok-free.app/dialogflow/sse');
+    eventSource = new EventSource('https://a6fe-61-34-253-238.ngrok-free.app/dialogflow/sse');
 
     eventSource.onmessage = (event) => {
         console.log("📩 [onmessage] raw 이벤트:", event);

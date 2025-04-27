@@ -3,18 +3,15 @@ package com.smartvision.back.controller;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import com.smartvision.back.dto.DialogflowResult;
 
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.smartvision.back.service.DialogflowService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/dialogflow")
@@ -60,8 +57,10 @@ public class DialogflowController {
             @RequestParam("query") String query,
             @RequestParam(value = "sessionId", defaultValue = "test-session") String sessionId) {
         try {
-            String answer = dialogflowService.sendMessageToDialogflow(query, sessionId);
-            String intent = query;
+            DialogflowResult dialogflowResult = dialogflowService.sendMessageToDialogflow(query, sessionId);
+
+            String intent = dialogflowResult.getIntent();
+            String answer = dialogflowResult.getAnswer();
 
             Map<String, String> response = Map.of(
                     "intent", intent,
@@ -93,20 +92,22 @@ public class DialogflowController {
     }
 
     // ping
-    @Scheduled(fixedRate = 10000) // 10초마다 실행
+    @Scheduled(fixedRate = 10000)
     public void sendPingToClients() {
-        Iterator<SseEmitter> iterator = emitters.iterator();
-        while (iterator.hasNext()) {
-            SseEmitter emitter = iterator.next();
+        List<SseEmitter> deadEmitters = new ArrayList<>();
+
+        for (SseEmitter emitter : emitters) {
             try {
                 emitter.send(SseEmitter.event().name("ping").data("💓"));
-                System.out.println("📡 ping 전송 중 → 현재 연결 수: " + emitters.size());
-            } catch (IOException e) {
-                System.out.println("❌ ping 실패 → emitter 제거");
-                emitter.completeWithError(e);
-                emitters.remove(emitter);
+                System.out.println("📡 ping 전송 성공 → 현재 연결 수: " + emitters.size());
+            } catch (IOException | IllegalStateException e) {
+                System.out.println("⚠️ ping 실패 → emitter 제거");
+                emitter.completeWithError(e);  // 안전하게 종료
+                deadEmitters.add(emitter);     // 죽은 emitter 모으기
             }
         }
+
+        emitters.removeAll(deadEmitters);
     }
 
     // ✅ POST Webhook용

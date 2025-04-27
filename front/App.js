@@ -134,7 +134,7 @@ const App = () => {
             }
 
             console.log('🎤 인식된 말:', text);
-            fetch(`https://c7c6-61-34-253-238.ngrok-free.app/dialogflow/message?query=${encodeURIComponent(text)}`)
+            fetch(`https://a6fe-61-34-253-238.ngrok-free.app/dialogflow/message?query=${encodeURIComponent(text)}`)
                 .then(res => res.json())
                 .then(data => {
                     console.log('🧠 응답:', data.message);

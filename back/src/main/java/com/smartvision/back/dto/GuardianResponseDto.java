@@ -12,4 +12,8 @@ public class GuardianResponseDto {
     private String userId;
     private String accessToken;
     private String refreshToken;
+
+    public GuardianResponseDto() {
+
+    }
 }

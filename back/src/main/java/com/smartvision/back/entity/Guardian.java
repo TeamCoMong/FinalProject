@@ -25,4 +25,7 @@ public class Guardian {
     @ManyToOne
     @JoinColumn(name = "USER_ID")
     private User user;
+
+    @Column(name = "EMAIL_VERIFIED", length = 1, nullable = false)
+    private String emailVerified; // "Y" or "N"
 }

@@ -73,6 +73,9 @@ dependencies {
     implementation 'com.google.cloud:google-cloud-dialogflow:3.3.0'
     // Google 인증 (보통 자동으로 같이 들어가지만 명시적으로 추가해도 좋음)
     implementation 'com.google.auth:google-auth-library-oauth2-http:1.17.0'
+    // Google 이메일 인증
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 }
 
 tasks.named('test') {

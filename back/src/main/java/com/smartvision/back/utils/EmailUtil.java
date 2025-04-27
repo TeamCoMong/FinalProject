@@ -23,7 +23,7 @@ public class EmailUtil {
     @Value("${spring.mail.username}") // 발신자 이메일을 yml에서 가져오기
     private String fromEmail;
 
-    @Value("${spring.mail.sender-name:StudyMate}") // 발신자 이름 (기본값: StudyMate)
+    @Value("${spring.mail.sender-name:CoMong}") // 발신자 이름 (기본값: StudyMate)
     private String senderName;
 
     /**

@@ -66,7 +66,7 @@ const UserLoginScreen = ({ navigation }) => {
                         source={require('../../assets/UserFaceId.png')} // PNG 파일 경로
                         style={styles.buttonIcon}
                     />
-                    <Text style={styles.loginButtonText}>유저  FACE ID 로그인</Text>
+                    <Text style={styles.loginButtonText}>유저 지문인식 로그인</Text>
                 </View>
             </TouchableOpacity>
 

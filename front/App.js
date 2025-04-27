@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -47,13 +46,11 @@ import UserLoginScreen from './src/screens/auth/UserLoginScreen'; // 사용자 �
 import UserRegisterScreen from './src/screens/auth/UserRegisterScreen'; // 사용자 회원가입 페이지
 
 
-import TestSearchScreen from "./src/screens/testscreen/TestSearchScreen";
-import TestLoginScreen from "./src/screens/testscreen/TestLoginScreen";
+
 import GuardianHomeScreen from "./src/screens/start/GuardianHomeScreen";
 import GuardianSettingScreen from "./src/screens/Setting/GuardianSettingScreen";
 import AddNewUserScreen from "./src/screens/Setting/AddNewUserScreen";
 
-import TestLoginScreen from "./src/screens/testscreen/TestLoginScreen"; // 박주민 전용 프론트 테스트 ( 사용 x )
 
 // ✅ 탭 & 스택 네비게이터
 const Tab = createBottomTabNavigator();
@@ -221,7 +218,7 @@ const App = () => {
                             <Stack.Screen name="KakaoMap" component={KakaoMapScreen} />
 
                             {/* 테스트 전용 */}
-                            <Stack.Screen name="TestLoginScreen" component={TestLoginScreen} />
+                            {/*<Stack.Screen name="TestLoginScreen" component={TestLoginScreen} />*/}
 
 
                             {/* 4/24 메인 이전 로그인/회원가입 화면 */}

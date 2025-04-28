@@ -28,6 +28,9 @@ const LinkedUserListScreen = () => {
 
     // 사용자 선택 함수
     const handleSelectUser = (user) => {
+        // 선택된 사용자를 맨 위로 올리기
+        const updatedUsers = users.filter(u => u.id !== user.id);
+        setUsers([user, ...updatedUsers]); // 선택된 사용자 먼저 배열에 추가
         setSelectedUser(user); // 사용자가 선택되면 선택된 사용자 상태 업데이트
     };
 
@@ -53,18 +56,19 @@ const LinkedUserListScreen = () => {
                     <View style={styles.userBox}>
                         <Text style={styles.userName}>{user.name}</Text>
 
-                        {/* X 아이콘 버튼을 추가하여 사용자 삭제 */}
-                        <TouchableOpacity
-                            style={styles.deleteButton}
-                            onPress={() => handleDeleteUser(user.id)}
-                        >
-                            <Image source={require('../../assets/x.png')} style={styles.icon} />
-                        </TouchableOpacity>
+                        {/* "선택" 버튼 */}
+                        {selectedUser?.id !== user.id && (
+                            <TouchableOpacity onPress={() => handleSelectUser(user)}>
+                                <Text style={styles.selectButton}>선택</Text>
+                            </TouchableOpacity>
+                        )}
 
-                        {/* 사용자 선택 버튼 */}
-                        <TouchableOpacity onPress={() => handleSelectUser(user)}>
-                            <Text style={styles.selectButton}>선택</Text>
-                        </TouchableOpacity>
+                        {/* "삭제" 버튼 */}
+                        {selectedUser?.id !== user.id && (
+                            <TouchableOpacity onPress={() => handleDeleteUser(user.id)}>
+                                <Text style={styles.deleteButton}>삭제</Text>
+                            </TouchableOpacity>
+                        )}
                     </View>
                 </View>
             ))}
@@ -133,14 +137,17 @@ const styles = StyleSheet.create({
         color: '#333',
     },
 
-    deleteButton: {
-        padding: 5,
-    },
-
     selectButton: {
         fontSize: 16,
         color: '#007BFF',
         fontWeight: 'bold',
+    },
+
+    deleteButton: {
+        fontSize: 16,
+        color: '#FF0000', // 빨간색 텍스트
+        fontWeight: 'bold',
+        marginLeft: 10,
     },
 
     icon: {

@@ -39,26 +39,27 @@ const KakaoMapScreen = () => {
         );
     }, []);
 
-    // 목적지 검색 요청을 WebView로 보냄
+    // 목적지 검색 및 WebView에 전달
     const fetchDestinations = async () => {
         if (!destination.trim()) {
             Alert.alert("🚨 목적지를 입력하세요!");
             return;
         }
         try {
-            const response = await api.get(`/api/destinations/search`, { params: { name: destination } });
+            const response = await api.get(`/destinations/search`, { params: { name: destination }, withCredentials: false });
 
-            const data = response.data; // Axios는 response.data로 데이터 접근
-            console.log("📥 목적지 데이터:", data);
+            console.log("📥 서버 응답:", response.data);
 
-            if (data.length > 0) {
-                const firstDestination = data[0];
+            if (response.data && response.data.latitude && response.data.longitude) {
+                console.log("📍 백엔드 좌표 사용:", response.data.latitude, response.data.longitude);
+
+                // ✅ 백엔드에서 받은 좌표를 바로 WebView로 전송
                 if (webViewRef.current) {
                     webViewRef.current.postMessage(
                         JSON.stringify({
                             type: "DESTINATION_SEARCH",
-                            latitude: firstDestination.latitude,
-                            longitude: firstDestination.longitude,
+                            latitude: response.data.latitude,
+                            longitude: response.data.longitude,
                         })
                     );
                 }
@@ -66,15 +67,8 @@ const KakaoMapScreen = () => {
                 Alert.alert("❌ 검색 결과 없음", "해당 목적지를 찾을 수 없습니다.");
             }
         } catch (error) {
-            console.error("❌ API 요청 오류:", error); // 콘솔에 오류 로그 출력
-
-            if (error.response) {
-                Alert.alert("❌ 서버 오류", `상태 코드: ${error.response.status}\n메시지: ${error.response.data}`);
-            } else if (error.request) {
-                Alert.alert("❌ 네트워크 오류", "서버와 연결할 수 없습니다.");
-            } else {
-                Alert.alert("❌ 요청 오류", error.message);
-            }
+            console.error("❌ API 요청 오류:", error);
+            Alert.alert("❌ 오류 발생", "서버 요청 중 문제가 발생했습니다.");
         }
     };
 
@@ -104,8 +98,6 @@ const KakaoMapScreen = () => {
                     strokeOpacity: 0.7,
                     strokeStyle: "solid"
                 });
-                var places = new kakao.maps.services.Places();
-                var geocoder = new kakao.maps.services.Geocoder();
 
                 function initMap() {
                     var mapContainer = document.getElementById('map');
@@ -116,37 +108,19 @@ const KakaoMapScreen = () => {
                 }
                 initMap();
                 
-             document.addEventListener("message", function(event) {
-                var data = JSON.parse(event.data);
-                
-                if (data.type === "CURRENT_LOCATION") {
-                    var currentPosition = new kakao.maps.LatLng(data.latitude, data.longitude);
-                    marker.setPosition(currentPosition);
-                    map.setCenter(currentPosition);
-                }
-            
-                if (data.type === "DESTINATION_SEARCH") {
-                    processRoute(data.latitude, data.longitude);
-                }
-            });
-
-                function searchDestination(destination) {
-                    places.keywordSearch(destination, function(result, status) {
-                    console.log("📍 Kakao API 검색 결과:", result, "상태:", status); // 🔥 추가
-                    if (status === kakao.maps.services.Status.OK && result.length > 0) {
-                        processLocation(result[0].y, result[0].x);
-                    } else {
-                        geocoder.addressSearch(destination, function(result, status) {
-                            console.log("📍 주소 검색 결과:", result, "상태:", status); // 🔥 추가
-                            if (status === kakao.maps.services.Status.OK && result.length > 0) {
-                                processLocation(result[0].y, result[0].x);
-                            } else {
-                                alert("목적지를 찾을 수 없습니다.");
-                            }
-                        });
+                document.addEventListener("message", function(event) {
+                    var data = JSON.parse(event.data);
+                    
+                    if (data.type === "CURRENT_LOCATION") {
+                        var currentPosition = new kakao.maps.LatLng(data.latitude, data.longitude);
+                        marker.setPosition(currentPosition);
+                        map.setCenter(currentPosition);
                     }
-                    });
-                }
+                
+                    if (data.type === "DESTINATION_SEARCH") {
+                        processRoute(data.latitude, data.longitude);
+                    }
+                });
 
                 function processRoute(destLat, destLon) {
                     var currentLat = marker.getPosition().getLat();
@@ -200,7 +174,7 @@ const KakaoMapScreen = () => {
                     domStorageEnabled
                     style={styles.webview}
                     onMessage={(event) => {
-                        console.log("📩 WebView에서 받은 메시지:", event.nativeEvent.data); // 🔥 확인용 로그
+                        console.log("📩 WebView에서 받은 메시지:", event.nativeEvent.data);
                     }}
                 />
             )}
@@ -208,6 +182,11 @@ const KakaoMapScreen = () => {
     );
 };
 
-const styles = StyleSheet.create({ container: { flex: 1 }, inputContainer: { flexDirection: "row", padding: 10 }, input: { flex: 1, borderWidth: 1, borderColor: "#ccc", padding: 8 }, webview: { flex: 1 } });
+const styles = StyleSheet.create({
+    container: { flex: 1 },
+    inputContainer: { flexDirection: "row", padding: 10 },
+    input: { flex: 1, borderWidth: 1, borderColor: "#ccc", padding: 8 },
+    webview: { flex: 1 }
+});
 
 export default KakaoMapScreen;

@@ -4,26 +4,25 @@ import api from '../../api/api'; // 서버 API 호출 파일 import
 import EncryptedStorage from 'react-native-encrypted-storage';
 
 const GuardianLoginScreen = ({ navigation }) => {
-    const [username, setUsername] = useState('');
+    const [guardianId, setGuardianId] = useState('');
     const [password, setPassword] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
 
     // 일반 로그인 처리
     const handleLogin = async () => {
         try {
-            const response = await api.post('/auth/login', { username, password });
+            const response = await api.post('/guardians/login', { guardianId, password });
 
             if (response.status === 200) {
-                const { accessToken, refreshToken, username, email, name } = response.data;
+                const { accessToken, refreshToken, guardianId, userId } = response.data;
 
                 // 🔒 보안 저장소에 Refresh Token 저장
                 await EncryptedStorage.setItem('refreshToken', refreshToken);
 
                 // 🔄 홈 화면으로 이동하며 사용자 데이터 전달
                 navigation.replace('Main', {
-                    username: username,
-                    email: email,
-                    name: name,
+                    guardianId: guardianId,
+                    userId:userId,
                     accessToken: accessToken,
                 });
             }
@@ -56,8 +55,8 @@ const GuardianLoginScreen = ({ navigation }) => {
                 style={styles.input}
                 placeholder="아이디"
                 placeholderTextColor="#999"
-                value={username}
-                onChangeText={setUsername}
+                value={guardianId}
+                onChangeText={setGuardianId}
             />
             <View style={styles.passwordContainer}>
                 <TextInput

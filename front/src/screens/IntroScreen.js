@@ -40,6 +40,17 @@ const IntroScreen = ({ navigation }) => {
                 </View>
             </View>
 
+
+             {/* face id 테스트*/}
+                        <View style={styles.singleButtonContainer}>
+                            <TouchableOpacity
+                                style={styles.testButton2}
+                                onPress={() => navigation.navigate('TestBiometricsScreen')}
+                            >
+                                <Text style={styles.buttonText}>face id 테스트</Text>
+                            </TouchableOpacity>
+                        </View>
+
             <View style={styles.footerContainer}>
                 <Text style={styles.footerText}>Created by CoMong</Text>
                 <Image source={require('../assets/copyright.png')} style={styles.footerIcon} />

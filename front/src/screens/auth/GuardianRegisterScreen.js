@@ -26,16 +26,17 @@ const GuardianRegisterScreen = () => {
 
     // 아이디 중복 확인
     const handleUserIdCheck = async () => {
-        try{
-            const response = await api.post('/auth/check-username', {username});
-            if(!response.data.success){
+        try {
+            const response = await api.post('/guardians/check-username', { username });
+            // available 값을 확인해야 합니다.
+            if (response.data.available) {  // true일 때 사용 가능
                 setIsUsernameValid(true);
                 Alert.alert('중복 확인', '사용 가능한 아이디입니다.');
-            } else {
+            } else {  // false일 때 중복된 아이디
                 setIsUsernameValid(false);
                 Alert.alert('중복 확인', '이미 사용 중인 아이디입니다.');
             }
-        } catch(error){
+        } catch (error) {
             Alert.alert('오류', '아이디 확인 중 문제가 발생했습니다.');
         }
     };
@@ -71,7 +72,7 @@ const GuardianRegisterScreen = () => {
             const fullEmail = `${email}@${emailDomain}`;
 
             try {
-                const response = await api.post('/auth/send-email-code', { email: fullEmail });
+                const response = await api.post('/guardians/send-email-code', { email: fullEmail });
 
                 if (!response.data.success) {
                     setIsAuthSent(true); // 인증번호 발송 상태 설정
@@ -112,12 +113,12 @@ const GuardianRegisterScreen = () => {
     const checkEmailVerificationCode = async () => {
         try {
             const fullEmail = `${email}@${emailDomain}`; // 이메일 주소 조합
-            const response = await api.post('/auth/verify-email-code', {
+            const response = await api.post('/guardians/verify-email-code', {
                 email: fullEmail,
                 code: authInput,
             });
 
-            if (!response.data.success) {
+            if (response.data.success) {
                 Alert.alert('인증 성공', '인증이 완료되었습니다.');
             } else {
                 Alert.alert('인증 실패', '인증번호가 일치하지 않습니다.');
@@ -128,20 +129,19 @@ const GuardianRegisterScreen = () => {
         }
     };
 
-
-    // 회원가입 처리 ( FACE ID 추가 여부 )
+    // 회원가입
     const handleRegister = async () => {
+        const fullEmail = `${email}@${emailDomain}`;
         const userData = {
-            username,
-            password,
-            name,
-            phone,
-            email: `${email}@${emailDomain}`,
+            guardianId: username,
+            password: password,
+            userCode: name,
+            email: fullEmail,
+            emailVerificationCode: authInput,
         };
 
         try {
-            const response = await api.post('/auth/register', userData);
-
+            const response = await api.post('/guardians/signup');
             if (response.data.success) {
                 Alert.alert(
                     '회원가입 완료 🎉',
@@ -166,6 +166,7 @@ const GuardianRegisterScreen = () => {
             Alert.alert('오류', '회원가입 중 문제가 발생했습니다.');
         }
     };
+
 
     // 회원가입 버튼 활성화 여부 확인
     useEffect(() => {

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -17,10 +18,15 @@ import { NGROK_URL } from './src/config/ngrok';
 
 // 👉 기존 import
 import { startSSE, stopSSE } from './src/services/SSEService';
+import { Image, AppState } from 'react-native';
+import { startSSE, stopSSE } from './src/services/SSEService';
 import { navigationRef } from './src/navigation/NavigationService';
 import { AppState } from 'react-native';
 
 // 스크린 import
+import PersonalStudyMainScreen from './src/screens/personal/PersonalStudyMainScreen';
+import GroupStudyMainScreen from './src/screens/group/GroupStudyMainScreen';
+import MyPageMainScreen from './src/screens/mypage/MyPageMainScreen';
 
 //사용자 탭 네비게이션 4개 (그중 하나를 즐겨찾기,도움말 중 뭐 넣을지 고민중 4/27 -주민-
 
@@ -30,6 +36,10 @@ import FavoriteScreen from "./src/screens/favorite/FavoriteScreen"; // 사용자
 import SettingScreen from "./src/screens/Setting/SettingScreen"; // 사용자 환경설정 페이지
 import UserHelpScreen from "./src/screens/help/UserHelpScreen"; // 사용자 도움말 페이지
 
+import HomeStartScreen from "./src/screens/start/HomeStartScreen";
+import FavoriteScreen from "./src/screens/favorite/FavoriteScreen";
+import BillScanScreen from "./src/screens/scan/BillScanScreen";
+import SettingScreen from "./src/screens/Setting/SettingScreen";
 
 import IntroScreen from './src/screens/IntroScreen'; // 어플리케이션 시작 페이지 ( 사용자,보호자 모드 설정)
 import LoginScreen from './src/screens/auth/LoginScreen';  // 사용 x
@@ -47,6 +57,7 @@ import UserLoginScreen from './src/screens/auth/UserLoginScreen'; // 사용자 �
 import UserRegisterScreen from './src/screens/auth/UserRegisterScreen'; // 사용자 회원가입 페이지
 
 
+import TestLoginScreen from "./src/screens/testscreen/TestLoginScreen";
 
 import GuardianHomeScreen from "./src/screens/start/GuardianHomeScreen";
 import GuardianSettingScreen from "./src/screens/Setting/GuardianSettingScreen";

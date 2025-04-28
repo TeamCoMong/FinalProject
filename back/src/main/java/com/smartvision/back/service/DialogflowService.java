@@ -19,6 +19,21 @@ public class DialogflowService {
     private static final String CREDENTIALS_PATH = "C:/ngrok/j--fmtv-7b0423872e2c.json"; //
     private static final String LANGUAGE_CODE = "ko";
 
+
+    private String extractPersonName(Struct parameters) {
+        if (parameters == null) return null;
+        Value personValue = parameters.getFieldsOrDefault("person", null);
+        if (personValue == null || personValue.getKindCase() != Value.KindCase.STRUCT_VALUE) {
+            return null;
+        }
+        Struct personStruct = personValue.getStructValue();
+        Value nameValue = personStruct.getFieldsOrDefault("name", null);
+        if (nameValue == null || nameValue.getKindCase() != Value.KindCase.STRING_VALUE) {
+            return null;
+        }
+        return nameValue.getStringValue();
+    }
+
     public DialogflowResult sendMessageToDialogflow(String userMessage, String sessionId) throws Exception {
         GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(CREDENTIALS_PATH));
         SessionsSettings sessionsSettings = SessionsSettings.newBuilder()
@@ -45,12 +60,22 @@ public class DialogflowService {
 
             String intent = result.getIntent().getDisplayName();
             String answer = result.getFulfillmentText();
+            String personName = extractPersonName(result.getParameters());
+
+//            String personName = null;
+//            if (result.getParameters().getFieldsMap().containsKey("person")) {
+//                Struct personStruct = result.getParameters().getFieldsMap().get("person").getStructValue();
+//                if (personStruct.getFieldsMap().containsKey("name")) {
+//                    personName = personStruct.getFieldsMap().get("name").getStringValue();
+//                }
+//            }
 
             System.out.println("📨 사용자 입력: " + userMessage);
             System.out.println("🔍 인텐트 이름: " + intent);
             System.out.println("💬 Fulfillment Text: " + answer);
+            System.out.println("🙋 인식된 이름 (person): " + personName);
 
-            return new DialogflowResult(intent, answer);
+            return new DialogflowResult(intent, answer, personName);
         }
     }
 

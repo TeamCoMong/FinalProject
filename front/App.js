@@ -13,6 +13,7 @@ import Tts from 'react-native-tts';
 
 import { View } from 'react-native';
 
+import { NGROK_URL } from './src/config/ngrok';
 
 // 👉 기존 import
 import { startSSE, stopSSE } from './src/services/SSEService';
@@ -161,7 +162,7 @@ const App = () => {
                 return;
             }
             console.log('🎤 인식된 말:', text);
-            fetch(`https://a6fe-61-34-253-238.ngrok-free.app/dialogflow/message?query=${encodeURIComponent(text)}`)
+            fetch(`${NGROK_URL}/dialogflow/message?query=${encodeURIComponent(text)}`)
                 .then(res => res.json())
                 .then(data => {
                     console.log('🧠 응답:', data.message);
@@ -196,7 +197,7 @@ const App = () => {
     const handleStartListening = async () => {
         try {
             console.log('🟢 음성 인식이 시작되었습니다');
-            Tts.speak('음성 인식이 시작되었습니다.');
+            Tts.speak('네?');
             await Voice.start('ko-KR');
         } catch (e) {
             console.error('🎤 음성인식 시작 실패:', e);

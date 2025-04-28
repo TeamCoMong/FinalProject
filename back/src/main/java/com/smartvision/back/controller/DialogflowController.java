@@ -1,5 +1,7 @@
 package com.smartvision.back.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -61,11 +63,16 @@ public class DialogflowController {
 
             String intent = dialogflowResult.getIntent();
             String answer = dialogflowResult.getAnswer();
+            String person = dialogflowResult.getPerson();
 
             Map<String, String> response = Map.of(
                     "intent", intent,
-                    "message", answer
+                    "message", answer,
+                    "person", person == null ? "" : person
             );
+
+            ObjectMapper objectMapper = new ObjectMapper(); // ✅ 추가
+            String jsonResponse = objectMapper.writeValueAsString(response); // ✅ Map -> JSON 변환
 
             Iterator<SseEmitter> iterator = emitters.iterator();
             while (iterator.hasNext()) {
@@ -73,7 +80,7 @@ public class DialogflowController {
                 try {
                     emitter.send(SseEmitter.event()
                             .name("intent")
-                            .data(response));
+                            .data(jsonResponse)); // ✅ JSON 문자열 전송
                     System.out.println("📤 이벤트 전송 성공 → " + intent);
                 } catch (IOException e) {
                     System.out.println("❌ 이벤트 전송 실패 → emitter 제거");

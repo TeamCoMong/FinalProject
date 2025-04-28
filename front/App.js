@@ -20,7 +20,7 @@ import { navigationRef } from './src/navigation/NavigationService';
 import { AppState } from 'react-native';
 
 // 스크린 import
-
+import LoadingScreen from "./src/screens/LoadingScreen"
 //사용자 탭 네비게이션 4개 (그중 하나를 즐겨찾기,도움말 중 뭐 넣을지 고민중 4/27 -주민-
 
 import HomeStartScreen from "./src/screens/start/HomeStartScreen";  // 사용자 시작페이지 (길안내)
@@ -37,7 +37,6 @@ import SettingsHelpScreen from "./src/screens/help/SettingsHelpScreen"; // 기�
 
 import MyGuardianListScreen from "./src/screens/list/MyGuardianListScreen";
 
-
 import IntroScreen from './src/screens/IntroScreen'; // 어플리케이션 시작 페이지 ( 사용자,보호자 모드 설정)
 import LoginScreen from './src/screens/auth/LoginScreen';  // 사용 x
 import RegisterScreen from './src/screens/auth/RegisterScreen'; // 사용 x
@@ -52,7 +51,7 @@ import LinkedUserListScreen from "./src/screens/list/LinkedUserListScreen"; // �
 import AddNewUserScreen from "./src/screens/list/AddNewUserScreen"; // 보호자 모드 - 새로운 사용자 추가
 
 import GuardianModeSelectionScreen from './src/screens/mode/GuardianModeSelectionScreen'; // 보호자 모드 (로그인/회원가입) 페이지
-import UserModeSelectionScreen from './src/screens/mode/UserModeSelectScreen' // 사용자 모드 (로그인/회원가입) 페이지
+import UserModeSelectionScreen from './src/screens/mode/UserModeSelectionScreen' // 사용자 모드 (로그인/회원가입) 페이지
 
 import GuardianLoginScreen from './src/screens/auth/GuardianLoginScreen'; // 보호자 로그인 페이지
 import GuardianRegisterScreen from './src/screens/auth/GuardianRegisterScreen'; // 보호자 회원가입 페이지
@@ -60,15 +59,15 @@ import UserLoginScreen from './src/screens/auth/UserLoginScreen'; // 사용자 �
 import UserRegisterScreen from './src/screens/auth/UserRegisterScreen'; // 사용자 회원가입 페이지
 import MyUniqueCodeScreen from "./src/screens/Setting/MyUniqueCodeScreen"; // 사용자 고유 코드 보기 페이지
 
-
-
-
+import ManagerTempScreen from "./src/screens/testscreen/ManagerTempScreeen";
+import ManagerTempScreen2 from "./src/screens/testscreen/ManagerTempScreen2";
+import ManagerSettingScreen from "./src/screens/Setting/ManagerSettingScreen";
 
 // ✅ 탭 & 스택 네비게이터
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-// ✅ 탭 아이콘 및 스타일 설정
+// ✅ 사용자 탭 아이콘 및 스타일 설정
 const userScreenOptions = ({ route }) => ({
     tabBarIcon: ({ focused, size }) => {
         let iconPath;
@@ -94,6 +93,7 @@ const userScreenOptions = ({ route }) => ({
     tabBarInactiveTintColor: '#A9A9A9',
 });
 
+// ✅ 보호자 탭 아이콘 및 스타일 설정
 const guardianScreenOptions = ({ route }) => ({
     tabBarIcon: ({ focused, size }) => {
         let iconPath;
@@ -105,6 +105,29 @@ const guardianScreenOptions = ({ route }) => ({
                 iconPath = require('./src/assets/userList.png');
                 break;
             case '기타 설정':
+                iconPath = require('./src/assets/gear.png');
+                break;
+        }
+        return (
+            <Image source={iconPath} style={{ width: size, height: size }} />
+        );
+    },
+    tabBarActiveTintColor: '#007AFF',
+    tabBarInactiveTintColor: '#A9A9A9',
+});
+
+// ✅ 관리자 탭 아이콘 및 스타일 설정
+const ManagerScreenOptions = ({ route }) => ({
+    tabBarIcon: ({ focused, size }) => {
+        let iconPath;
+        switch (route.name) {
+            case '통계 데이터':
+                iconPath = require('./src/assets/manage-data.png');
+                break;
+            case 'AI객체감지 데이터' :
+                iconPath = require('./src/assets/manage-data2.png');
+                break;
+            case '관리자 설정':
                 iconPath = require('./src/assets/gear.png');
                 break;
         }
@@ -135,6 +158,14 @@ const GuardianMainTabNavigator = () => (
     </Tab.Navigator>
 );
 
+// ✅  관리자 메인 탭 네비게이터
+const ManagerMainTabNavigator = () => (
+    <Tab.Navigator screenOptions={ManagerScreenOptions}>
+        <Tab.Screen name="통계 데이터" component={ManagerTempScreen} />
+        <Tab.Screen name="AI객체감지 데이터" component={ManagerTempScreen2} />
+        <Tab.Screen name="관리자 설정" component={ManagerSettingScreen} />
+    </Tab.Navigator>
+);
 
 // ✅ 앱 전체 구성
 const App = () => {
@@ -218,7 +249,8 @@ const App = () => {
             <TouchableWithoutFeedback onPress={handleStartListening}>
                 <View style={{ flex: 1 }}>
                     <NavigationContainer ref={navigationRef}>
-                        <Stack.Navigator initialRouteName="Intro" screenOptions={{ headerShown: false }}>
+                        <Stack.Navigator initialRouteName="Loading" screenOptions={{ headerShown: false }}>
+                            <Stack.Screen name="Loading" component={LoadingScreen} />
                             <Stack.Screen name="Intro" component={IntroScreen} />
                             <Stack.Screen name="Login" component={LoginScreen} />
                             <Stack.Screen name="Register" component={RegisterScreen} />
@@ -255,8 +287,7 @@ const App = () => {
                             {/* 메인 탭  (사용자 / 보호자 / 관리자 */}
                             <Stack.Screen name="UserMain" component={MainTabNavigator} />
                             <Stack.Screen name="GuardianMain" component={GuardianMainTabNavigator} />
-                            {/*<Stack.Screen name="ManagerMain" component={ManagerMainTabNavigator} />*/}
-
+                            <Stack.Screen name="ManagerMain" component={ManagerMainTabNavigator} />
                         </Stack.Navigator>
                     </NavigationContainer>
                 </View>

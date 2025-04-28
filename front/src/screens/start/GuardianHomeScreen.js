@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 
-const HomeStartScreen = ({ navigation }) => {
+const GuardianHomeScreen = ({ navigation }) => {
     // 상태 변수 선언
     const [currentTime, setCurrentTime] = useState('');  // 현재 시간
-    const [currentLocation, setCurrentLocation] = useState('서울, 대한민국'); // 기본 위치 설정
+    const [currentLocation, setCurrentLocation] = useState('검, 보호자'); // 기본 위치 설정
     const [weather, setWeather] = useState('맑음'); // 날씨 예시
     const [date, setDate] = useState('');  // 날짜
 
@@ -12,10 +12,10 @@ const HomeStartScreen = ({ navigation }) => {
         // navigation.setOptions를 사용하여 탭 아이콘 설정
         navigation.setOptions({
             tabBarIcon: ({ focused, size }) => {
-                const iconPath = require('../../assets/home.png'); // 탭 아이콘
+                const iconPath = require('../../assets/schoolboy2.png'); // 탭 아이콘
                 return <Image source={iconPath} style={{ width: size, height: size }} />;
             },
-            tabBarLabel: '홈 키', // 탭 라벨 설정
+            tabBarLabel: '사용자 위치확인', // 탭 라벨 설정
             tabBarActiveTintColor: '#007AFF', // 활성화된 탭 색상
             tabBarInactiveTintColor: '#8E8E93', // 비활성화된 탭 색상
         });
@@ -58,7 +58,7 @@ const HomeStartScreen = ({ navigation }) => {
             <View style={styles.textContainer}>
                 {/* 날짜와 위치, 날씨를 두 줄로 나누어 표시 */}
                 <View style={styles.row}>
-                    <Text style={styles.text}>오늘 날짜: {date}</Text>
+                    <Text style={styles.text}>보호자화면 : {date}</Text>
                     <Text style={styles.text}>현재 위치: {currentLocation}</Text>
                 </View>
                 <View style={styles.row}>
@@ -74,7 +74,7 @@ const HomeStartScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f0f8ff',  // 배경색 설정
+        backgroundColor: '#fffacd',  // 배경색 설정
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -129,4 +129,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default HomeStartScreen;
+export default GuardianHomeScreen;

@@ -1,19 +1,17 @@
 package com.smartvision.back.controller;
 
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import com.smartvision.back.dto.DialogflowResult;
 
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.smartvision.back.service.DialogflowService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/dialogflow")
@@ -55,17 +53,20 @@ public class DialogflowController {
 
     // ✅ Dialogflow intent 요청 + SSE 푸시
     @GetMapping("/message")
-    public ResponseEntity<Map<String, String>> getMessageFromDialogflow(@RequestParam("query") String query) {
+    public ResponseEntity<Map<String, String>> getMessageFromDialogflow(
+            @RequestParam("query") String query,
+            @RequestParam(value = "sessionId", defaultValue = "test-session") String sessionId) {
         try {
-            String answer = dialogflowService.sendMessageToDialogflow(query);
-            String intent = query;
+            DialogflowResult dialogflowResult = dialogflowService.sendMessageToDialogflow(query, sessionId);
+
+            String intent = dialogflowResult.getIntent();
+            String answer = dialogflowResult.getAnswer();
 
             Map<String, String> response = Map.of(
                     "intent", intent,
                     "message", answer
             );
 
-            // 🔐 안전하게 emitter 전송 및 제거
             Iterator<SseEmitter> iterator = emitters.iterator();
             while (iterator.hasNext()) {
                 SseEmitter emitter = iterator.next();
@@ -77,7 +78,7 @@ public class DialogflowController {
                 } catch (IOException e) {
                     System.out.println("❌ 이벤트 전송 실패 → emitter 제거");
                     emitter.completeWithError(e);
-                    iterator.remove(); // 💣 필수!
+                    iterator.remove();
                 }
             }
 
@@ -90,30 +91,24 @@ public class DialogflowController {
         }
     }
 
+    // ping
+    @Scheduled(fixedRate = 10000)
+    public void sendPingToClients() {
+        List<SseEmitter> deadEmitters = new ArrayList<>();
 
-//    // ✅ GET 테스트용
-//    @GetMapping("/message")
-//    public ResponseEntity<Map<String, String>> getMessageFromDialogflow(@RequestParam String query) {
-//        try {
-//            // Dialogflow로부터 응답 메시지 수신
-//            String answer = dialogflowService.sendMessageToDialogflow(query);
-//
-//            // 👉 인텐트 이름도 함께 반환하도록 구성해도 됨 (option)
-//            String intent = query; // 또는 dialogflowService.detectIntentName(query)
-//
-//            // JSON 응답 구성
-//            Map<String, String> response = new HashMap<>();
-//            response.put("intent", intent);          // 핵심! → 앱에서 res.data.intent로 읽음
-//            response.put("message", answer);         // 필요 시 안내 음성용
-//
-//            return ResponseEntity.ok(response);
-//
-//        } catch (Exception e) {
-//            return ResponseEntity.status(500).body(
-//                    Map.of("intent", "fallback", "message", "Dialogflow 오류: " + e.getMessage())
-//            );
-//        }
-//    }
+        for (SseEmitter emitter : emitters) {
+            try {
+                emitter.send(SseEmitter.event().name("ping").data("💓"));
+                System.out.println("📡 ping 전송 성공 → 현재 연결 수: " + emitters.size());
+            } catch (IOException | IllegalStateException e) {
+                System.out.println("⚠️ ping 실패 → emitter 제거");
+                emitter.completeWithError(e);  // 안전하게 종료
+                deadEmitters.add(emitter);     // 죽은 emitter 모으기
+            }
+        }
+
+        emitters.removeAll(deadEmitters);
+    }
 
     // ✅ POST Webhook용
     @PostMapping("/webhook")
@@ -150,5 +145,25 @@ public class DialogflowController {
         response.put("fulfillmentText", fulfillmentText);
 
         return ResponseEntity.ok(response);
+    }
+
+    // 트리거 테스트
+    @GetMapping("/triggerEvent")
+    public ResponseEntity<Map<String, String>> triggerEvent(
+            @RequestParam String event,
+            @RequestParam(required = false) String code,
+            @RequestParam(value = "sessionId", defaultValue = "test-session") String sessionId) {
+        try {
+            String message = dialogflowService.triggerEvent(event, sessionId, code);
+
+            return ResponseEntity.ok(Map.of(
+                    "intent", event,
+                    "message", message
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(
+                    Map.of("intent", "fallback", "message", "Dialogflow 오류: " + e.getMessage())
+            );
+        }
     }
 }

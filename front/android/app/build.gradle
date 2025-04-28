@@ -84,6 +84,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+
+        multiDexEnabled true
     }
     signingConfigs {
         debug {
@@ -120,4 +122,6 @@ dependencies {
     // ✅ 여기에 추가: Biometric API
     implementation("androidx.biometric:biometric:1.1.0")
 //    implementation("androidx.biometric:biometric-ktx:1.4.0-alpha02") // (선택사항, Kotlin 사용 시)
+
+    implementation 'androidx.multidex:multidex:2.0.1'
 }

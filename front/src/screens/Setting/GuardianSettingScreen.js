@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Switch } from 'react-native';
 
-const SettingScreen = ({ navigation }) => {
+const GuardianSettingScreen = ({ navigation }) => {
     // 설정 상태 관리
     const [language, setLanguage] = useState('한국어'); // 기본 언어 설정
     const [isNotificationEnabled, setIsNotificationEnabled] = useState(true); // 알림 설정
@@ -50,19 +50,6 @@ const SettingScreen = ({ navigation }) => {
                 />
             </View>
 
-            {/* 내 고유 코드 번호 보기 버튼 (열쇠 아이콘) */}
-            <TouchableOpacity
-                style={styles.button}
-                onPress={() => navigation.navigate('MyUniqueCodeScreen')}>
-                <Text style={styles.buttonText}>🔑 내 고유 코드 번호 보기</Text>
-            </TouchableOpacity>
-
-            {/* 나를 등록한 보호자 보기 버튼 */}
-            <TouchableOpacity
-                style={styles.button}
-                onPress={() => navigation.navigate('MyGuardianListScreen')}>
-                <Text style={styles.buttonText}>👨‍👩‍👧‍👦 나를 등록한 보호자 보기</Text>
-            </TouchableOpacity>
 
             {/* 로그아웃 버튼 */}
             <TouchableOpacity
@@ -166,4 +153,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default SettingScreen;
+export default GuardianSettingScreen;

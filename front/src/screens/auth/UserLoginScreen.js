@@ -62,7 +62,7 @@ const UserLoginScreen = ({ navigation }) => {
                 await EncryptedStorage.setItem('refreshToken', refreshToken);
 
                 // 로그인 성공 후 메인 화면으로 이동
-                navigation.replace('Main', {
+                navigation.replace('UserMain', {
                     username: userId,
                     name: name,
                     accessToken: accessToken,

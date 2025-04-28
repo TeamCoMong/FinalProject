@@ -1,5 +1,6 @@
 package com.smartvision.back.utils;
 
+import com.smartvision.back.dto.EmailVerificationRequest;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -41,14 +42,15 @@ public class EmailUtil {
      * @param verificationCode 이메일 인증번호
      * @throws MessagingException 이메일 전송 실패 시 예외 발생
      */
-    public void sendVerificationEmail(String recipientEmail, String verificationCode) throws MessagingException, UnsupportedEncodingException {
+    public void sendVerificationEmail(EmailVerificationRequest recipientEmail, String verificationCode) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");
 
-        helper.setTo(recipientEmail);
+        helper.setTo(recipientEmail.getEmail());
         helper.setFrom(fromEmail, senderName); // yml에서 가져온 발신자 이메일과 이름 설정
-        helper.setSubject("StudyMate 이메일 인증번호입니다.");
+        helper.setSubject("Smart Vision 이메일 인증번호입니다.");
         helper.setText(buildEmailContent(verificationCode), true);
+        System.out.println("Sending email to: " + recipientEmail.getEmail());
 
         mailSender.send(message);
     }
@@ -60,7 +62,7 @@ public class EmailUtil {
      */
     private String buildEmailContent(String verificationCode) {
         return "<div style='font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd;'>"
-                + "<h2>StudyMate를 이용해 주셔서 감사합니다.</h2>"
+                + "<h2>Smart Vision을 이용해 주셔서 감사합니다.</h2>"
                 + "<p>아래의 인증번호를 정확히 입력해주세요.</p>"
                 + "<h3 style='color: #007bff; font-size: 24px;'>" + verificationCode + "</h3>"
                 + "<p>감사합니다.</p>"

@@ -8,15 +8,14 @@ import com.smartvision.back.entity.Guardian;
 import com.smartvision.back.entity.User;
 import com.smartvision.back.repository.GuardianRepository;
 import com.smartvision.back.repository.UserRepository;
-import com.smartvision.back.utils.EmailUtil;
+import com.smartvision.back.utils.EmailUtil;  // 이메일 유틸
+import com.smartvision.back.utils.RedisEmailAuthentication;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,9 +28,8 @@ public class GuardianService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final EmailUtil emailUtil;  // 이메일 보내는 유틸
-
-    // ✅ 메모리에 인증코드 저장할 Map 추가
-    private final Map<String, String> verificationCodes = new HashMap<>();
+    private final RedisEmailAuthentication redisEmailAuthentication;
+    private static final long CODE_EXPIRE_MINUTES = 5; // 인증코드 만료 시간 (5분)
 
     // 아이디 중복 확인
     public boolean checkUsername(String username) {
@@ -43,30 +41,27 @@ public class GuardianService {
         return true;
     }
 
-    // 이메일로 인증코드 전송
-    public String sendVerificationEmail(String email) throws MessagingException, UnsupportedEncodingException {
-        String code = createRandomCode();
-        email = email.trim().toLowerCase(); // 여기 추가
-
-        emailUtil.sendVerificationEmail(email, code);
-        verificationCodes.put(email, code);  // 메모리에 저장
-        return code;
+    /**
+     * 이메일 인증코드 전송
+     */
+    public void sendVerificationEmail(EmailVerificationRequest email) throws MessagingException, UnsupportedEncodingException {
+        String code = emailUtil.generateVerificationCode(); // 인증 코드 생성
+        emailUtil.sendVerificationEmail(email, code); // 이메일 발송
+        redisEmailAuthentication.setEmailAuthenticationExpire(email.getEmail(), code, CODE_EXPIRE_MINUTES);
     }
 
+    /**
+     * 이메일 인증 코드 검증
+     */
     public boolean verifyEmail(EmailVerificationRequest request) {
-        String email = request.getEmail().trim().toLowerCase(); // 여기 toLowerCase 추가
-        String inputCode = request.getCode().trim();
+        String storedCode = redisEmailAuthentication.getEmailAuthenticationCode(request.getEmail());
 
-        String savedCode = verificationCodes.get(email);
-
-        if (savedCode == null) {
-            System.out.println("저장된 코드 없음: " + email);
+        if (storedCode != null && storedCode.equalsIgnoreCase(request.getCode().trim())) {
+            redisEmailAuthentication.setEmailAuthenticationComplete(request.getEmail()); // 인증 완료 처리
+            return true;
+        } else {
             return false;
         }
-
-        System.out.println("서버 저장 코드: " + savedCode + ", 입력한 코드: " + inputCode);
-
-        return savedCode.equals(inputCode);
     }
 
     // 회원가입
@@ -78,6 +73,8 @@ public class GuardianService {
                 .guardianId(dto.getGuardianId() != null ? dto.getGuardianId() : UUID.randomUUID().toString())
                 .email(dto.getEmail())
                 .passwordHash(passwordEncoder.encode(dto.getPassword()))
+                .phone(dto.getPhone()) // ✅ 전화번호 추가
+                .emailVerified("N") // ✅ 새로 추가! 기본 "N" (미인증 상태)
                 .user(user)
                 .build();
 
@@ -107,10 +104,5 @@ public class GuardianService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
-    }
-
-    // 랜덤 6자리 코드 생성
-    private String createRandomCode() {
-        return String.valueOf((int)(Math.random() * 900000) + 100000);
     }
 }

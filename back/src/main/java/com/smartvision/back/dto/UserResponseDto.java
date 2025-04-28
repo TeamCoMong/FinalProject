@@ -10,6 +10,9 @@ import lombok.*;
 public class UserResponseDto {
     private String userId;
     private String name;
+    private String accessToken;
+    private String refreshToken;
+
     private boolean isAuthenticated; // 인증 상태 추가
 
     // 기존 생성자

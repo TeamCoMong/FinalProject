@@ -11,4 +11,5 @@ public class GuardianSignupRequestDto {
     private String password;
     private String userCode; // 사용자(장애인)의 USER_ID
     private String verificationCode;
+    private String phone; // ✅ 전화번호 추가
 }

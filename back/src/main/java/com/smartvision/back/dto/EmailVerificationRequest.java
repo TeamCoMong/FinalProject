@@ -1,6 +1,5 @@
 package com.smartvision.back.dto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,4 +24,9 @@ public class EmailVerificationRequest {
      */
     @NotBlank(message = "인증번호를 입력해주세요")
     private String code;
+
+    @Override
+    public String toString() {
+        return "EmailVerificationRequest{email='" + email + "'}";
+    }
 }

@@ -1,16 +1,16 @@
 package com.smartvision.back.controller;
 
 import com.smartvision.back.dto.*;
-import com.smartvision.back.service.EmailService;
+import com.smartvision.back.exception.BadRequestException;
 import com.smartvision.back.service.GuardianService;
-import jakarta.mail.MessagingException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.MessagingException;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,7 +18,6 @@ import java.util.Map;
 
 public class GuardianController {
 
-    private final EmailService emailService;
     private final GuardianService guardianService;
 
     @PostMapping("/login")
@@ -29,9 +28,9 @@ public class GuardianController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<GuardianResponseDto> signup(@RequestBody GuardianSignupRequestDto dto) {
+    public ResponseEntity<GuardianSignupResponseDto> signup(@RequestBody GuardianSignupRequestDto dto) {
         guardianService.signup(dto);
-        return ResponseEntity.ok(new GuardianResponseDto());
+        return ResponseEntity.ok(new GuardianSignupResponseDto(true, "회원가입이 완료되었습니다."));
     }
 
     @PostMapping("/check-username")
@@ -40,31 +39,50 @@ public class GuardianController {
         return ResponseEntity.ok(new UsernameCheckResponse(isAvailable));
     }
 
-//    @PostMapping("/send-email-code")
-//    public ResponseEntity<EmailVerificationResponse> sendVerificationEmail(@RequestBody EmailVerificationRequest request) {
-//        guardianService.sendVerificationEmail(request.getEmail());
-//        return ResponseEntity.ok(new EmailVerificationResponse("인증번호가 이메일로 전송되었습니다."));
-//    }
+    @PostMapping("/send-email-code")
+    public ResponseEntity<EmailVerificationResponse> sendVerificationEmail(@RequestBody EmailVerificationRequest request) {
+        try {
+            // 이메일 인증 코드 전송 처리 로직
+            guardianService.sendVerificationEmail(request);
 
+            // 성공적으로 이메일 인증 코드가 전송되었을 때 응답을 EmailVerificationResponse 객체로 반환
+            EmailVerificationResponse response = new EmailVerificationResponse(false,"이메일 인증 코드가 전송되었습니다.");
+            return ResponseEntity.ok(response);
+
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            EmailVerificationResponse response = new EmailVerificationResponse(false,"이메일 전송 중 오류가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        } catch (jakarta.mail.MessagingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 이메일 인증코드 검증
+     */
     @PostMapping("/verify-email-code")
-    public ResponseEntity<VerifyEmailResponse> verifyEmail(@RequestBody EmailVerificationRequest request) {
+    public ResponseEntity<EmailVerificationResponse> verifyEmailCode(@RequestBody EmailVerificationRequest request) {
+        System.out.println("받은 이메일: " + request.getEmail());
+        System.out.println("받은 인증번호: " + request.getCode());
+
+        if (request.getEmail() == null || request.getEmail().isBlank()) {
+            throw new BadRequestException("이메일이 비어있습니다."); // ❗ 예외 던지기
+        }
+        if (request.getCode() == null || request.getCode().isBlank()) {
+            throw new BadRequestException("인증번호가 비어있습니다."); // ❗ 예외 던지기
+        }
+
         boolean success = guardianService.verifyEmail(request);
 
         if (success) {
-            return ResponseEntity.ok(new VerifyEmailResponse("이메일 인증이 완료되었습니다."));
+            return ResponseEntity.ok(new EmailVerificationResponse(true, "이메일 인증이 완료되었습니다."));
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new VerifyEmailResponse("인증 실패했습니다."));
+            throw new BadRequestException("인증 실패했습니다."); // ❗ 예외 던지기
         }
     }
 
 
-    @PostMapping("/send-email-code")
-    public ResponseEntity<Map<String, String>> sendEmailCode(@RequestBody Map<String, String> req) throws MessagingException, UnsupportedEncodingException {
-        String email = req.get("email");
-        String code = guardianService.sendVerificationEmail(email);
-        return ResponseEntity.ok(Map.of(
-                "message", "인증 코드가 전송되었습니다.",
-                "code", code // 테스트용, 나중에 삭제해도 됨
-        ));
-    }
+
+
+
 }

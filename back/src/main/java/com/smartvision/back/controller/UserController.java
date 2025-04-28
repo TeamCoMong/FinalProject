@@ -1,7 +1,10 @@
 // UserController.java
 package com.smartvision.back.controller;
 
+import com.smartvision.back.config.JwtProvider;
 import com.smartvision.back.dto.*;
+import com.smartvision.back.entity.User;
+import com.smartvision.back.repository.UserRepository;
 import com.smartvision.back.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +15,9 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
 
+    private final UserRepository userRepository;
     private final UserService userService;
+    private final JwtProvider jwtProvider; // ✅ JWT 토큰 발급해줄 컴포넌트
 
     @PostMapping("/signup")
     public ResponseEntity<UserSignupResponseDto> signup(@RequestBody UserSignupRequestDto dto) {
@@ -20,12 +25,19 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    // 로그인 API (실제 인증은 클라이언트에서 처리)
-    @PostMapping("/login")
-    public ResponseEntity<UserResponseDto> login(@RequestBody String userId) {
-        // 여기서 Face ID는 클라이언트에서 이미 인증이 완료되었다고 가정하고
-        // 전달된 userId를 기반으로 유효한 사용자인지 확인
-        UserResponseDto response = userService.login(userId);
+    @PostMapping("/biometric-login")
+    public ResponseEntity<UserResponseDto> biometricLogin(@RequestBody BiometricLoginRequestDto request) {
+        User user = userRepository.findByUserId(request.getUserId())
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+
+        String accessToken = jwtProvider.generateAccessToken(user.getUserId()); // ✅
+        String refreshToken = jwtProvider.generateRefreshToken(user.getUserId()); // ✅
+
+        UserResponseDto response = new UserResponseDto();
+        response.setUserId(user.getUserId());
+        response.setName(user.getName());
+        response.setAccessToken(accessToken);
+        response.setRefreshToken(refreshToken);
 
         return ResponseEntity.ok(response);
     }

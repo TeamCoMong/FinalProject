@@ -1,3 +1,5 @@
+import EncryptedStorage from 'react-native-encrypted-storage'; // ⬅️ 이거 상단에 import 추가!
+
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, Dimensions } from 'react-native';
 import ReactNativeBiometrics from 'react-native-biometrics';
@@ -6,7 +8,7 @@ import api from '../../api/api';
 const { width, height } = Dimensions.get('window');
 const rnBiometrics = new ReactNativeBiometrics();
 
-const UserRegisterScreen = () => {
+const UserRegisterScreen = ({ navigation }) => {
     const [name, setName] = useState('');
     const [isNameValid, setIsNameValid] = useState(true); // 이름 입력 유효성 체크
     const [isAuthSuccess, setIsAuthSuccess] = useState(false); // 인증 성공 여부
@@ -35,7 +37,7 @@ const UserRegisterScreen = () => {
         }
     };
 
-    // 회원가입 처리
+    //회원가입 처리
     const handleRegister = async () => {
         if (!name) {
             setIsNameValid(false);
@@ -43,22 +45,30 @@ const UserRegisterScreen = () => {
             return;
         }
         if (!isAuthSuccess) {
-            // 지문 인증을 건너뛰고 싶다면, 아래 라인 추가
-            setIsAuthSuccess(true); // 강제로 인증 성공 상태로 변경
+            setIsAuthSuccess(true); // 테스트용 강제 성공
+            // Alert.alert('오류', '지문 인증을 먼저 진행해주세요.'); 나중에 바꾸기 위에 지우고
+            // return;
         }
         if (isAuthSuccess) {
             try {
-                // 회원가입 요청
                 const response = await api.post('/users/signup', { name });
 
-                // 응답에서 userId 추출
                 if (response.status === 200 && response.data.userId) {
-                    setUserId(response.data.userId); // userId 상태 업데이트
-                    Alert.alert('회원가입 성공', `회원가입이 완료되었습니다.\n사용자 ID: ${response.data.userId}`);
+                    const newUserId = response.data.userId;
+
+                    // ✅ userId 안전 저장
+                    await EncryptedStorage.setItem('userId', newUserId);
+
+                    // ✅ 알림 띄우고
+                    Alert.alert('회원가입 성공', `회원가입이 완료되었습니다.`);
+
+                    // ✅ 로그인 화면으로 이동
+                    navigation.replace('UserLoginScreen');
                 } else {
                     Alert.alert('회원가입 실패', response.data.message);
                 }
             } catch (error) {
+                console.error(error);
                 setError('회원가입 중 문제가 발생했습니다.');
                 Alert.alert('오류', '회원가입 중 문제가 발생했습니다.');
             }
@@ -66,6 +76,7 @@ const UserRegisterScreen = () => {
             Alert.alert('오류', '지문 인증을 먼저 진행해주세요.');
         }
     };
+
 
     return (
         <View style={styles.container}>

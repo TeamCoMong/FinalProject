@@ -27,4 +27,12 @@ public class User {
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
+
+    public String getUsername() {
+        return "";
+    }
+
+    public String getPassword() {
+        return "";
+    }
 }

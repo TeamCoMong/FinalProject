@@ -35,7 +35,7 @@ import MoneyRecognitionHelpScreen from "./src/screens/help/MoneyRecognitionHelpS
 import GuardianRegisterHelpScreen from "./src/screens/help/GuardianRegisterHelpScreen"; // 보호자 연동 기능
 import SettingsHelpScreen from "./src/screens/help/SettingsHelpScreen"; // 기타 설정 기능
 
-import MyGuardianListScreen from "./src/screens/list/MyGuardianListScreen";
+import MyGuardianListScreen from "./src/screens/list/MyGuardianListScreen"; // 사용자 - 나를 등록한 보호자 (설정)
 
 import IntroScreen from './src/screens/IntroScreen'; // 어플리케이션 시작 페이지 ( 사용자,보호자 모드 설정)
 import LoginScreen from './src/screens/auth/LoginScreen';  // 사용 x
@@ -59,9 +59,9 @@ import UserLoginScreen from './src/screens/auth/UserLoginScreen'; // 사용자 �
 import UserRegisterScreen from './src/screens/auth/UserRegisterScreen'; // 사용자 회원가입 페이지
 import MyUniqueCodeScreen from "./src/screens/Setting/MyUniqueCodeScreen"; // 사용자 고유 코드 보기 페이지
 
-import ManagerTempScreen from "./src/screens/testscreen/ManagerTempScreeen";
-import ManagerTempScreen2 from "./src/screens/testscreen/ManagerTempScreen2";
-import ManagerSettingScreen from "./src/screens/Setting/ManagerSettingScreen";
+import ManagerTempScreen from "./src/screens/testscreen/ManagerTempScreeen"; // 관리자 임시 통계탭 1
+import ManagerTempScreen2 from "./src/screens/testscreen/ManagerTempScreen2"; // 관리자 임시 통계탭 2
+import ManagerSettingScreen from "./src/screens/Setting/ManagerSettingScreen"; // 관리자 세팅 페이지
 
 // ✅ 탭 & 스택 네비게이터
 const Tab = createBottomTabNavigator();

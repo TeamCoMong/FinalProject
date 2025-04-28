@@ -22,6 +22,9 @@ public class Guardian {
     @Column(name = "PASSWORD_HASH", length = 100, nullable = false)
     private String passwordHash;
 
+    @Column(name = "PHONE", length = 20)
+    private String phone;
+
     @ManyToOne
     @JoinColumn(name = "USER_ID")
     private User user;

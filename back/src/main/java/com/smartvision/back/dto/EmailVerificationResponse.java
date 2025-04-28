@@ -5,15 +5,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 이메일 인증번호 전송 결과를 반환하는 DTO
+ * 이메일 인증 결과를 반환하는 DTO
  */
 @Getter
 @Setter
 @AllArgsConstructor
 public class EmailVerificationResponse {
-
-    /**
-     * 이메일 인증번호 전송 결과 메시지
-     */
-    private String message;
+    private boolean success; // ✅ 성공 여부 추가
+    private String message;  // ✅ 결과 메시지
 }

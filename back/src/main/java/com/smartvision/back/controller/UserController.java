@@ -3,13 +3,18 @@ package com.smartvision.back.controller;
 
 import com.smartvision.back.config.JwtProvider;
 import com.smartvision.back.dto.*;
+import com.smartvision.back.entity.GuardianUserRelation;
 import com.smartvision.back.entity.User;
 import com.smartvision.back.repository.UserRepository;
+import com.smartvision.back.service.GuardianUserRelationService;
 import com.smartvision.back.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.MediaType;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -19,6 +24,7 @@ public class UserController {
     private final UserRepository userRepository;
     private final UserService userService;
     private final JwtProvider jwtProvider; // ✅ JWT 토큰 발급해줄 컴포넌트
+    private final GuardianUserRelationService relationService;
 
     @PostMapping(value = "/signup", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserSignupResponseDto> signup(@RequestBody UserSignupRequestDto dto) {
@@ -42,4 +48,20 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
+    // ✅ 사용자 기준으로 나를 등록한 보호자 리스트 조회
+    @GetMapping("/{userId}/guardians")
+    public ResponseEntity<List<GuardianSimpleDto>> getGuardiansByUser(@PathVariable String userId) {
+        List<GuardianUserRelation> relations = relationService.getGuardiansByUserId(userId);
+
+        List<GuardianSimpleDto> guardians = relations.stream()
+                .map(relation -> new GuardianSimpleDto(
+                        relation.getGuardian().getGuardianId(),
+                        relation.getGuardian().getGuardianName(),
+                        relation.getGuardian().getPhone()  // 필요 시 이름도 추가
+                ))
+                .toList();
+
+        return ResponseEntity.ok(guardians);
+    }
+
 }

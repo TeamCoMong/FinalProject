@@ -9,7 +9,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class GuardianResponseDto {
     private String guardianId;
-    private String userId;
+    private String guardianName; // 이름 필드 추가
     private String accessToken;
     private String refreshToken;
 

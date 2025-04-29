@@ -50,19 +50,13 @@ const SettingScreen = ({ navigation }) => {
                 />
             </View>
 
-            {/* 내 고유 코드 번호 보기 버튼 (열쇠 아이콘) */}
+            {/* 내 고유 코드 번호, 등록한 사용자 보기 버튼 (열쇠 아이콘) */}
             <TouchableOpacity
                 style={styles.button}
-                onPress={() => navigation.navigate('MyUniqueCodeScreen')}>
-                <Text style={styles.buttonText}>🔑 내 고유 코드 번호 보기</Text>
+                onPress={() => navigation.navigate('MyProfileInfoScreen')}>
+                <Text style={styles.buttonText}>🔑상세 정보</Text>
             </TouchableOpacity>
 
-            {/* 나를 등록한 보호자 보기 버튼 */}
-            <TouchableOpacity
-                style={styles.button}
-                onPress={() => navigation.navigate('MyGuardianListScreen')}>
-                <Text style={styles.buttonText}>👨‍👩‍👧‍👦 나를 등록한 보호자 보기</Text>
-            </TouchableOpacity>
 
             {/* 로그아웃 버튼 */}
             <TouchableOpacity

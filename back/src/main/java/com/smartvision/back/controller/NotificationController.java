@@ -22,10 +22,4 @@ public class NotificationController {
         return ResponseEntity.ok(notifications);
     }
 
-    // 알림 읽음 처리
-    @PatchMapping("/{notificationId}")
-    public ResponseEntity<String> markAsRead(@PathVariable String notificationId) {
-        notificationService.markAsRead(notificationId);
-        return ResponseEntity.ok("알림이 읽음으로 처리되었습니다.");
-    }
 }

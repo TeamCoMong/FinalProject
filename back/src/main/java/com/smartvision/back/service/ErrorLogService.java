@@ -44,19 +44,6 @@ public class ErrorLogService {
 
         errorLogRepository.save(errorLog);
 
-        // 3. 보호자 찾기
-        Guardian guardian = guardianRepository.findByUser_UserId(user.getUserId())
-                .orElseThrow(() -> new RuntimeException("해당 유저의 보호자 없음"));
-
-        // 4. 알림 저장
-        Notification notification = Notification.builder()
-                .notificationId(UUID.randomUUID().toString())
-                .guardian(guardian)
-                .errorLog(errorLog)
-                .build();
-
-        notificationRepository.save(notification);
-
         // 5. (옵션) 푸시 알림 or WebSocket 전송
         // pushService.sendToGuardian(guardian.getEmail(), "에러 발생: " + dto.getErrorType());
     }

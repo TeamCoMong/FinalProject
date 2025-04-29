@@ -9,6 +9,7 @@ import com.smartvision.back.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.MediaType;
 
 @RestController
 @RequestMapping("/api/users")
@@ -19,7 +20,7 @@ public class UserController {
     private final UserService userService;
     private final JwtProvider jwtProvider; // ✅ JWT 토큰 발급해줄 컴포넌트
 
-    @PostMapping("/signup")
+    @PostMapping(value = "/signup", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserSignupResponseDto> signup(@RequestBody UserSignupRequestDto dto) {
         UserSignupResponseDto response = userService.signup(dto);
         return ResponseEntity.ok(response);

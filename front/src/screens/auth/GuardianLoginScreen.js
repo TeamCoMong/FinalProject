@@ -20,7 +20,7 @@ const GuardianLoginScreen = ({ navigation }) => {
                 await EncryptedStorage.setItem('refreshToken', refreshToken);
 
                 // 🔄 홈 화면으로 이동하며 사용자 데이터 전달
-                navigation.replace('Main', {
+                navigation.replace('GuardianMain', {
                     guardianId: guardianId,
                     userId:userId,
                     accessToken: accessToken,

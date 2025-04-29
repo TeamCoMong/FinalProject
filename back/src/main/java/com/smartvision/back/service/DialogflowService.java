@@ -10,6 +10,8 @@ import com.google.protobuf.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -61,21 +63,20 @@ public class DialogflowService {
             String intent = result.getIntent().getDisplayName();
             String answer = result.getFulfillmentText();
             String personName = extractPersonName(result.getParameters());
+            String outputContext  = "";
+            if (!result.getOutputContextsList().isEmpty()) {
+                String fullContextName = result.getOutputContexts(0).getName(); // projects/.../agent/sessions/.../contexts/awaiting_name
+                outputContext  = fullContextName.substring(fullContextName.lastIndexOf("/") + 1);
+            }
 
-//            String personName = null;
-//            if (result.getParameters().getFieldsMap().containsKey("person")) {
-//                Struct personStruct = result.getParameters().getFieldsMap().get("person").getStructValue();
-//                if (personStruct.getFieldsMap().containsKey("name")) {
-//                    personName = personStruct.getFieldsMap().get("name").getStringValue();
-//                }
-//            }
 
             System.out.println("📨 사용자 입력: " + userMessage);
             System.out.println("🔍 인텐트 이름: " + intent);
             System.out.println("💬 Fulfillment Text: " + answer);
             System.out.println("🙋 인식된 이름 (person): " + personName);
+            System.out.println("📦 Output Contexts: " + outputContext );
 
-            return new DialogflowResult(intent, answer, personName);
+            return new DialogflowResult(intent, answer, personName, outputContext);
         }
     }
 

@@ -74,8 +74,6 @@ public class GuardianService {
                 .email(dto.getEmail())
                 .passwordHash(passwordEncoder.encode(dto.getPassword()))
                 .phone(dto.getPhone()) // ✅ 전화번호 추가
-                .emailVerified("N") // ✅ 새로 추가! 기본 "N" (미인증 상태)
-                .user(user)
                 .build();
 
         guardianRepository.save(guardian);
@@ -92,7 +90,6 @@ public class GuardianService {
             throw new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다.");
         }
 
-        String userId = guardian.getUser().getUserId();
         System.out.println("로그인 성공: " + guardianId);
 
         String accessToken = jwtProvider.generateAccessToken(guardianId);
@@ -100,7 +97,6 @@ public class GuardianService {
 
         return GuardianResponseDto.builder()
                 .guardianId(guardian.getGuardianId())
-                .userId(userId)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();

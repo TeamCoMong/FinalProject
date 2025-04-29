@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Image } from 'react-native';
+
 import { TouchableWithoutFeedback } from 'react-native';
 
 // 마이크 권한
@@ -16,34 +15,28 @@ import { View } from 'react-native';
 
 import { NGROK_URL } from './src/config/ngrok';
 
+import Sound from 'react-native-sound';
+
 // 👉 기존 import
-import { startSSE, stopSSE } from './src/services/SSEService';
+
 import { Image, AppState } from 'react-native';
 import { startSSE, stopSSE } from './src/services/SSEService';
 import { navigationRef } from './src/navigation/NavigationService';
-import { AppState } from 'react-native';
+
 
 // 스크린 import
-import PersonalStudyMainScreen from './src/screens/personal/PersonalStudyMainScreen';
-import GroupStudyMainScreen from './src/screens/group/GroupStudyMainScreen';
-import MyPageMainScreen from './src/screens/mypage/MyPageMainScreen';
+
 
 //사용자 탭 네비게이션 4개 (그중 하나를 즐겨찾기,도움말 중 뭐 넣을지 고민중 4/27 -주민-
 
-import HomeStartScreen from "./src/screens/start/HomeStartScreen";  // 사용자 시작페이지 (길안내)
-import BillScanScreen from "./src/screens/scan/BillScanScreen"; //사용자 지폐인식 페이지
-import FavoriteScreen from "./src/screens/favorite/FavoriteScreen"; // 사용자 즐겨찾기 페이지
-import SettingScreen from "./src/screens/Setting/SettingScreen"; // 사용자 환경설정 페이지
+
 import UserHelpScreen from "./src/screens/help/UserHelpScreen"; // 사용자 도움말 페이지
 
 import HomeStartScreen from "./src/screens/start/HomeStartScreen";
-import FavoriteScreen from "./src/screens/favorite/FavoriteScreen";
 import BillScanScreen from "./src/screens/scan/BillScanScreen";
 import SettingScreen from "./src/screens/Setting/SettingScreen";
 
 import IntroScreen from './src/screens/IntroScreen'; // 어플리케이션 시작 페이지 ( 사용자,보호자 모드 설정)
-import LoginScreen from './src/screens/auth/LoginScreen';  // 사용 x
-import RegisterScreen from './src/screens/auth/RegisterScreen'; // 사용 x
 import FindAccountScreen from "./src/screens/auth/FindAccountScreen"; // 계정 찾기 ( 제작 x )
 import ResetPasswordScreen from "./src/screens/auth/ResetPasswordScreen"; //  현재 제작 x
 import KakaoMapScreen from "./src/screens/location/KakaoMapScreen"; // 창현 테스트 파일
@@ -56,8 +49,6 @@ import GuardianRegisterScreen from './src/screens/auth/GuardianRegisterScreen'; 
 import UserLoginScreen from './src/screens/auth/UserLoginScreen'; // 사용자 로그인 페이지
 import UserRegisterScreen from './src/screens/auth/UserRegisterScreen'; // 사용자 회원가입 페이지
 
-
-import TestLoginScreen from "./src/screens/testscreen/TestLoginScreen";
 
 import GuardianHomeScreen from "./src/screens/start/GuardianHomeScreen";
 import GuardianSettingScreen from "./src/screens/Setting/GuardianSettingScreen";
@@ -93,6 +84,21 @@ const userScreenOptions = ({ route }) => ({
     tabBarActiveTintColor: '#007AFF',
     tabBarInactiveTintColor: '#A9A9A9',
 });
+
+const playSound = (filename) => {
+    const sound = new Sound(filename, Sound.MAIN_BUNDLE, (error) => {
+        if (error) {
+            console.error('❌ 사운드 로드 실패:', error);
+            return;
+        }
+        sound.play((success) => {
+            if (!success) {
+                console.error('❌ 사운드 재생 실패');
+            }
+            sound.release();
+        });
+    });
+};
 
 const guardianScreenOptions = ({ route }) => ({
     tabBarIcon: ({ focused, size }) => {
@@ -134,10 +140,6 @@ const GuardianMainTabNavigator = () => (
         <Tab.Screen name="기타 설정" component={GuardianSettingScreen} />
     </Tab.Navigator>
 );
-
-
-
-
 
 // ✅ 앱 전체 구성
 const App = () => {
@@ -189,6 +191,12 @@ const App = () => {
             console.log('❌ 음성 인식 에러:', e.error);
         };
 
+        Voice.onSpeechEnd = () => {
+            console.log('🛑 음성 인식이 끝났습니다');
+
+            playSound('end'); // end.mp3 (띠롱)
+        };
+
         startSSE();
         const subscription = AppState.addEventListener('change', (nextState) => {
             if (nextState === 'active') {
@@ -208,13 +216,15 @@ const App = () => {
     const handleStartListening = async () => {
         try {
             console.log('🟢 음성 인식이 시작되었습니다');
-            Tts.speak('네?');
+            playSound('start');
             await Voice.start('ko-KR');
         } catch (e) {
             console.error('🎤 음성인식 시작 실패:', e);
             Tts.speak('음성 인식 시작에 실패했습니다.');
         }
     };
+
+
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
@@ -223,14 +233,9 @@ const App = () => {
                     <NavigationContainer ref={navigationRef}>
                         <Stack.Navigator initialRouteName="Intro" screenOptions={{ headerShown: false }}>
                             <Stack.Screen name="Intro" component={IntroScreen} />
-                            <Stack.Screen name="Login" component={LoginScreen} />
-                            <Stack.Screen name="Register" component={RegisterScreen} />
                             <Stack.Screen name="FindAccount" component={FindAccountScreen} />
                             <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
                             <Stack.Screen name="KakaoMap" component={KakaoMapScreen} />
-
-                            {/* 테스트 전용 */}
-                            {/*<Stack.Screen name="TestLoginScreen" component={TestLoginScreen} />*/}
 
 
                             {/* 4/24 메인 이전 로그인/회원가입 화면 */}

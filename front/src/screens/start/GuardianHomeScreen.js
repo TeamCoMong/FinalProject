@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, Image } from 'react-native';
 const GuardianHomeScreen = ({ navigation }) => {
     // 상태 변수 선언
     const [currentTime, setCurrentTime] = useState('');  // 현재 시간
-    const [currentLocation, setCurrentLocation] = useState('검, 보호자'); // 기본 위치 설정
+    const [currentLocation, setCurrentLocation] = useState('서울, 대한민국'); // 기본 위치 설정
     const [weather, setWeather] = useState('맑음'); // 날씨 예시
     const [date, setDate] = useState('');  // 날짜
 
@@ -51,14 +51,18 @@ const GuardianHomeScreen = ({ navigation }) => {
         <View style={styles.container}>
             {/* 가장자리에 완전히 붙고, 위쪽은 살짝 내려서 여백을 추가 */}
             <View style={styles.mapContainer}>
-                {/* 나중에 여기에 지도 컴포넌트를 추가할 예정 */}
+                <Image
+                    source={require('../../assets/testmap.png')}
+                    style={styles.mapImage}
+                    resizeMode="cover"  // 또는 "contain"도 가능 (필요에 따라)
+                />
             </View>
 
             {/* 지도 위에 텍스트를 표시할 컨테이너 */}
             <View style={styles.textContainer}>
                 {/* 날짜와 위치, 날씨를 두 줄로 나누어 표시 */}
                 <View style={styles.row}>
-                    <Text style={styles.text}>보호자화면 : {date}</Text>
+                    <Text style={styles.text}>현재 시각 : {date}</Text>
                     <Text style={styles.text}>현재 위치: {currentLocation}</Text>
                 </View>
                 <View style={styles.row}>

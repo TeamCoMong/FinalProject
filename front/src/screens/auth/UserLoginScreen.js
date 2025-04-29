@@ -215,6 +215,49 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: 'black',
     },
+    bottomButtonBack: {
+        backgroundColor: '#87cefa',
+        paddingVertical: 15,
+        paddingHorizontal: 30,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 25,
+        position: 'absolute',
+        width: '80%',
+        alignSelf: 'center',
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        marginBottom: 10, // ★ 버튼 아래에 간격 추가
+    },
+
+    bottomButtonHome: {
+        backgroundColor: '#ffb6c1',
+        paddingVertical: 15,
+        paddingHorizontal: 30,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 25,
+        position: 'absolute',
+        width: '80%',
+        alignSelf: 'center',
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        bottom: 20, // ★ 화면 하단 기준 위치
+    },
+
+    bottomButtonText: {
+        color: 'black',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
 });
 
 export default UserLoginScreen;

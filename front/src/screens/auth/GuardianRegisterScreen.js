@@ -201,6 +201,17 @@ const GuardianRegisterScreen = () => {
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
+
+            {/* 뒤로가기 버튼 */}
+            <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => navigation.goBack()}>
+                <Image
+                    source={require('../../assets/back-button.png')}
+                    style={styles.backButtonIcon}
+                />
+            </TouchableOpacity>
+
             <Text style={styles.title}>보호자 - 회원가입</Text>
 
             <View style={styles.inputGroupRow}>
@@ -535,6 +546,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: width * 0.02,
+    },
+    backButton: {
+        position: 'absolute',
+        top: 30,
+        left: 16,
+        zIndex: 1,
+    },
+    backButtonIcon: {
+        width: 30,
+        height: 30,
     },
 
 });

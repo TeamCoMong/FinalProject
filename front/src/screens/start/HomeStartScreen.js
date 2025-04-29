@@ -51,7 +51,11 @@ const HomeStartScreen = ({ navigation }) => {
         <View style={styles.container}>
             {/* 가장자리에 완전히 붙고, 위쪽은 살짝 내려서 여백을 추가 */}
             <View style={styles.mapContainer}>
-                {/* 나중에 여기에 지도 컴포넌트를 추가할 예정 */}
+                <Image
+                    source={require('../../assets/testmap.png')}
+                    style={styles.mapImage}
+                    resizeMode="cover"  // 또는 "contain"도 가능 (필요에 따라)
+                />
             </View>
 
             {/* 지도 위에 텍스트를 표시할 컨테이너 */}

@@ -4,6 +4,17 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 const GuardianModeSelectionScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
+
+            <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => navigation.replace('GuardianModeSelectionScreen')}
+            >
+                <Image
+                    source={require('../../assets/back-button.png')}
+                    style={styles.backIcon}
+                />
+            </TouchableOpacity>
+
             <View style={styles.logoContainer}>
                 <Image source={require('../../assets/protector.png')} style={styles.logo} />
                 <View style={styles.textWrapper}>
@@ -218,6 +229,18 @@ const styles = StyleSheet.create({
     footerIcon: {
         width: 14, // 아이콘 크기 조정
         height: 14,
+    },
+    backButton: {
+        position: 'absolute',
+        top: 30, // 기기 상태바 아래
+        left: 20,
+        zIndex: 10,
+    },
+
+    backIcon: {
+        width: 24,
+        height: 24,
+        tintColor: '#333', // 필요 시 색상 입히기
     },
 });
 

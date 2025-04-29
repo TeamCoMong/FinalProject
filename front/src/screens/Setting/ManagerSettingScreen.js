@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Switch } from 'react-native';
 
-const GuardianSettingScreen = ({ navigation }) => {
+const ManagerSettingScreen = ({ navigation }) => {
     // 설정 상태 관리
     const [language, setLanguage] = useState('한국어'); // 기본 언어 설정
     const [isNotificationEnabled, setIsNotificationEnabled] = useState(true); // 알림 설정
@@ -153,4 +153,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default GuardianSettingScreen;
+export default ManagerSettingScreen;

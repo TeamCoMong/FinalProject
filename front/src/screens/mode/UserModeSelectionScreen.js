@@ -4,6 +4,11 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 const UserModeSelectionScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
+            {/* 뒤로 가기 버튼 추가 */}
+            <TouchableOpacity style={styles.backButton} onPress={() => navigation.replace('Intro')}>
+                <Image source={require('../../assets/back-button.png')} style={styles.backButtonIcon} />
+            </TouchableOpacity>
+
             <View style={styles.logoContainer}>
                 <Image source={require('../../assets/schoolboy2.png')} style={styles.logo} />
                 <View style={styles.textWrapper}>
@@ -21,10 +26,6 @@ const UserModeSelectionScreen = ({ navigation }) => {
                     <Image source={require('../../assets/join.png')} style={styles.buttonIcon} />
                     <Text style={styles.buttonText}>회원가입</Text>
                 </TouchableOpacity>
-
-                {/*<TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('TestLoginScreen')}>*/}
-                {/*    <Text style={styles.buttonText}>프론트 테스트</Text>*/}
-                {/*</TouchableOpacity>*/}
             </View>
 
             <View style={styles.iconSection}>
@@ -81,7 +82,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center', // ✅ 세로 방향 중앙 정렬
     },
 
-
     appName: {
         fontSize: 35,
         fontWeight: 'bold',
@@ -89,48 +89,6 @@ const styles = StyleSheet.create({
         marginTop: -5, // ⬅️ 숫자를 조절하면서 테스트 (예: -2, -3, -5)
     },
 
-    subAppName: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#cd5c5c',
-        marginTop: 10,
-        marginBottom: 10,
-    },
-    mainDescription: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: '#D51',
-        textAlign: 'center',
-        marginBottom: 10,
-    },
-    subDescription: {
-        fontSize: 16,
-        color: '#666',
-        textAlign: 'center',
-        marginBottom: 30,
-    },
-    iconSection: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        width: '90%',
-        marginTop: 30, // 마진 탑을 적당히 설정
-        marginBottom: 10,
-        alignSelf: 'center',  // 가운데 정렬을 위해 추가
-
-    },
-    iconCard: {
-        alignItems: 'center',
-    },
-    icon: {
-        width: 60,
-        height: 60,
-        marginBottom: 10,
-    },
-    iconLabel: {
-        fontSize: 14,
-        color: '#555',
-        fontWeight: '600', // 글씨 굵게
-    },
     buttonContainer: {
         flexDirection: 'column',
         width: '90%',
@@ -179,24 +137,32 @@ const styles = StyleSheet.create({
         marginLeft: 50, // 이미지와 텍스트 사이의 간격을 늘림
     },
 
-// 이미지 스타일
+    // 이미지 스타일
     buttonIcon: {
         width: 120,
         height: 120, // 이미지 크기 설정
     },
-    // 주민 프론트 테스트 버튼 컨테이너
-    singleButtonContainer: {
-        width: '80%',
-        marginTop: 100,
-        borderRadius: 25,
+
+    iconSection: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        width: '90%',
+        marginTop: 30, // 마진 탑을 적당히 설정
+        marginBottom: 10,
+        alignSelf: 'center',  // 가운데 정렬을 위해 추가
     },
-    // 주민 프론트 테스트 버튼 위치(임시)
-    testButton2 : {
-        backgroundColor: '#007BFF',
-        paddingVertical: 15,
-        width: '100%', // 가득 차도록 설정
-        borderRadius: 25,
-        alignItems: 'center', // 내부 텍스트 중앙 정렬
+    iconCard: {
+        alignItems: 'center',
+    },
+    icon: {
+        width: 60,
+        height: 60,
+        marginBottom: 10,
+    },
+    iconLabel: {
+        fontSize: 14,
+        color: '#555',
+        fontWeight: '600', // 글씨 굵게
     },
 
     footerContainer: {
@@ -206,7 +172,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 10,
         width: '100%',
-
     },
     footerText: {
         fontSize: 12,
@@ -219,7 +184,18 @@ const styles = StyleSheet.create({
         width: 14, // 아이콘 크기 조정
         height: 14,
     },
-});
 
+    // 뒤로 가기 버튼 스타일
+    backButton: {
+        position: 'absolute',
+        top: 20, // 상단에서의 거리 조정
+        left: 10, // 좌측에서의 거리 조정
+        zIndex: 1, // 버튼이 다른 요소들 위에 위치하도록 설정
+    },
+    backButtonIcon: {
+        width: 30, // 작은 크기로 설정
+        height: 30, // 작은 크기로 설정
+    },
+});
 
 export default UserModeSelectionScreen;

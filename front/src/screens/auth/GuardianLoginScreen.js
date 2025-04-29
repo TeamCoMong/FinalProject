@@ -82,26 +82,8 @@ const GuardianLoginScreen = ({ navigation }) => {
                 <Text style={styles.loginButtonText}>로그인</Text>
             </TouchableOpacity>
 
-            {/* 소셜 로그인 */}
-            {/*<View style={styles.socialLoginContainer}>*/}
-            {/*    <TouchableOpacity onPress={() => handleSocialLogin('google')}>*/}
-            {/*        <Image source={require('../../assets/google.png')} style={styles.socialIcon} />*/}
-            {/*    </TouchableOpacity>*/}
-            {/*    <TouchableOpacity onPress={() => handleSocialLogin('kakao')}>*/}
-            {/*        <Image source={require('../../assets/kakao.png')} style={styles.socialIcon} />*/}
-            {/*    </TouchableOpacity>*/}
-            {/*    <TouchableOpacity onPress={() => handleSocialLogin('naver')}>*/}
-            {/*        <Image source={require('../../assets/naver.png')} style={styles.socialIcon} />*/}
-            {/*    </TouchableOpacity>*/}
-            {/*    <TouchableOpacity onPress={() => handleSocialLogin('github')}>*/}
-            {/*        <Image source={require('../../assets/github.png')} style={styles.socialIcon} />*/}
-            {/*    </TouchableOpacity>*/}
-            {/*</View>*/}
 
 
-            <TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('GuardianMain')}>
-                <Text style={styles.buttonText}>(보호자)프론트 테스트</Text>
-            </TouchableOpacity>
 
             {/* 계정 찾기 및 회원가입 */}
             <View style={styles.footer}>
@@ -113,6 +95,29 @@ const GuardianLoginScreen = ({ navigation }) => {
                     <Text style={styles.footerText}>회원가입</Text>
                 </TouchableOpacity>
             </View>
+
+            <TouchableOpacity style={styles.Back_Button} onPress={() => navigation.replace('GuardianModeSelectionScreen')}>
+                <Text style={styles.buttonText}>뒤로 가기</Text>
+            </TouchableOpacity>
+
+            {/* (관리자) 프론트 테스트 버튼 추가 */}
+            <TouchableOpacity style={styles.Home_Button} onPress={() => navigation.replace('Intro')}>
+                <Text style={styles.buttonText}>메인 홈으로 이동</Text>
+            </TouchableOpacity>
+
+
+
+
+
+            <TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('GuardianMain')}>
+                <Text style={styles.buttonText}>(보호자)프론트 테스트</Text>
+            </TouchableOpacity>
+
+            {/* (관리자) 프론트 테스트 버튼 추가 */}
+            <TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('ManagerMain')}>
+                <Text style={styles.buttonText}>(관리자)프론트 테스트</Text>
+            </TouchableOpacity>
+
         </View>
     );
 };
@@ -189,6 +194,47 @@ const styles = StyleSheet.create({
     footerText: {
         color: '#007BFF',
         fontSize: 16,
+    },
+    testButton2: {
+        width: '80%',
+        height: 50,
+        backgroundColor: '#FF8C00', // 원하는 색으로 변경
+        borderRadius: 25,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 15,
+    },
+
+    Back_Button: {
+        width: '80%',
+        height: 50,
+        backgroundColor: '#87cefa', // 원하는 색으로 변경
+        borderRadius: 25,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 15,
+    },
+
+    Home_Button: {
+        width: '80%',
+        height: 50,
+        backgroundColor: '#ffb6c1', // 원하는 색으로 변경
+        borderRadius: 25,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 15,
+    },
+    buttonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+
+
+    bottomButtonText: {
+        color: 'black',
+        fontSize: 18,
+        fontWeight: 'bold',
     },
 });
 

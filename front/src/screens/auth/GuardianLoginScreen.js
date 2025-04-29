@@ -14,35 +14,21 @@ const GuardianLoginScreen = ({ navigation }) => {
             const response = await api.post('/guardians/login', { guardianId, password });
 
             if (response.status === 200) {
-                const { accessToken, refreshToken, guardianId, userId } = response.data;
+                const { accessToken, refreshToken, guardianId } = response.data;
 
                 // 🔒 보안 저장소에 Refresh Token 저장
                 await EncryptedStorage.setItem('refreshToken', refreshToken);
-
+                // 🔥 guardianId도 보안 저장소에 저장
+                await EncryptedStorage.setItem('guardianId', guardianId); // << 요거 추가!
                 // 🔄 홈 화면으로 이동하며 사용자 데이터 전달
-                navigation.replace('Main', {
+                navigation.replace('GuardianMain', {
                     guardianId: guardianId,
-                    userId:userId,
                     accessToken: accessToken,
                 });
             }
         } catch (error) {
             console.error(error);
             Alert.alert('로그인 실패', '아이디 또는 비밀번호를 확인하세요.');
-        }
-    };
-
-    // 소셜 로그인 처리
-    const handleSocialLogin = async (platform) => {
-        try {
-            const response = await api.get(`/auth/${platform}`);
-            if (response.status === 200) {
-                const { redirectUrl } = response.data;
-                navigation.navigate('WebView', { redirectUrl, platform });
-            }
-        } catch (error) {
-            console.error(error);
-            Alert.alert('소셜 로그인 실패', '다시 시도해주세요.');
         }
     };
 

@@ -23,11 +23,4 @@ public class NotificationService {
                 .collect(Collectors.toList());
     }
 
-    // 알림 읽음 처리
-    public void markAsRead(String notificationId) {
-        Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new RuntimeException("알림을 찾을 수 없습니다."));
-        notification.markAsRead();
-        notificationRepository.save(notification);
-    }
 }

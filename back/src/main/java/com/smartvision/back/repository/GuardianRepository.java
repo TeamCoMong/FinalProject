@@ -10,7 +10,6 @@ public interface GuardianRepository extends JpaRepository<Guardian, String> {
     // 아이디중복
     Optional<Guardian> findByGuardianId(String guardianId);
     // 수정: User의 userId를 통해 찾는다
-    Optional<Guardian> findByUser_UserId(String userId);
     Optional<Guardian> findByEmail(String email);
 
 }

@@ -149,7 +149,8 @@ const GuardianRegisterScreen = () => {
             userCode: userCode,
             email: fullEmail,
             verificationCode: authInput,
-            phone: phone// ✅ 전화번호 추가
+            phone: phone, // ✅ 전화번호 추가
+            guardianName: name, // ✅ 이름 추가
         };
 
 

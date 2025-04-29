@@ -60,7 +60,7 @@ const UserRegisterScreen = ({ navigation }) => {
                     await EncryptedStorage.setItem('userId', newUserId);
 
                     // ✅ 알림 띄우고
-                    Alert.alert('회원가입 성공', `회원가입이 완료되었습니다.`);
+                    Alert.alert('회원가입 성공', `회원가입이 완료되었습니다.\n사용자 ID: ${newUserId}`);
 
                     // ✅ 로그인 화면으로 이동
                     navigation.replace('UserLoginScreen');

@@ -16,6 +16,9 @@ public class Guardian {
     @Column(name = "GUARDIAN_ID", length = 36)
     private String guardianId;
 
+    @Column(name = "GUARDIAN_NAME", length = 100, nullable = false)
+    private String guardianName;
+
     @Column(name = "EMAIL", length = 100, nullable = false, unique = true)
     private String email;
 
@@ -24,11 +27,4 @@ public class Guardian {
 
     @Column(name = "PHONE", length = 20)
     private String phone;
-
-    @ManyToOne
-    @JoinColumn(name = "USER_ID")
-    private User user;
-
-    @Column(name = "EMAIL_VERIFIED", length = 1, nullable = false)
-    private String emailVerified; // "Y" or "N"
 }

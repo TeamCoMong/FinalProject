@@ -16,11 +16,6 @@ public class NotificationDto {
     private String read;
 
     public NotificationDto(Notification notification) {
-        this.notificationId = notification.getNotificationId();
-        this.errorId = notification.getError().getErrorId();
-        this.errorType = notification.getError().getErrorType();
-        this.errorContext = notification.getError().getErrorContext();
-        this.sentAt = notification.getSentAt().toString();
-        this.read = notification.getRead();
+        return ;
     }
 }

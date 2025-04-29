@@ -30,22 +30,5 @@ public class Notification {
     @Column(name = "SENT_AT")
     private LocalDateTime sentAt;
 
-    @Column(name = "READ", length = 1)
-    private String read = "N";
-
-    @PrePersist
-    public void onSend() {
-        this.sentAt = LocalDateTime.now();
-        if (read == null) {
-            read = "N";
-        }
-    }
-    public void markAsRead() {
-        this.read = "Y";
-    }
-
-    public ErrorLog getError() {
-        return errorLog;
-    }
 
 }

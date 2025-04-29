@@ -15,7 +15,7 @@ const UserLoginScreen = ({ navigation }) => {
                 Alert.alert('지원 불가', '디바이스에서 생체 인증을 지원하지 않습니다.');
 
                 // 테스트용으로 로그인 강제 처리 (에뮬레이터나 생체 인증 미지원 기기에서 우회용)
-                const userId = 'user002';  // 하드코딩된 userId
+                const userId = 'C4357CC5';  // 하드코딩된 userId
                 console.log("로그인 시도 userId:", userId); // 확인용
 
                 const response = await api.post('/users/biometric-login', { userId });
@@ -27,7 +27,7 @@ const UserLoginScreen = ({ navigation }) => {
                     await EncryptedStorage.setItem('refreshToken', refreshToken);
 
                     // 로그인 후 메인 화면으로 이동
-                    navigation.replace('Main', {
+                    navigation.replace('UserMain', {
                         username: userId,
                         name: name,
                         accessToken: accessToken,
@@ -62,7 +62,7 @@ const UserLoginScreen = ({ navigation }) => {
                 await EncryptedStorage.setItem('refreshToken', refreshToken);
 
                 // 로그인 성공 후 메인 화면으로 이동
-                navigation.replace('UserMain', {
+                navigation.navigate('UserMain', {
                     username: userId,
                     name: name,
                     accessToken: accessToken,

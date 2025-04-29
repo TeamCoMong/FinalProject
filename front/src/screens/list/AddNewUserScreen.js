@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import EncryptedStorage from 'react-native-encrypted-storage'; // 보호자 ID 저장되어 있다고 가정
+import api from '../../api/api';
 
 const AddNewUserScreen = ({ navigation }) => {
     // 새로운 사용자 데이터를 저장할 state
@@ -7,18 +9,29 @@ const AddNewUserScreen = ({ navigation }) => {
     const [userName, setUserName] = useState('');
 
     // 사용자가 입력한 데이터를 처리하는 함수
-    const handleAddUser = () => {
+    const handleAddUser = async () => {
         if (userCode.trim() === '' || userName.trim() === '') {
             Alert.alert('필수 입력란이 비어있습니다!', '사용자 코드와 이름을 모두 입력해주세요.');
             return;
         }
 
-        // 사용자가 입력한 데이터를 처리하는 로직 (예: 서버에 저장하거나, 상태 관리에 저장)
-        // 여기서는 단순히 콘솔에 로그로 보여줌
-        console.log('새로운 사용자 정보:', { userCode, userName });
+        try {
+            const guardianId = await EncryptedStorage.getItem('guardianId'); // 🔥 보호자 ID 꺼내오기 (로그인 시 저장해놨을 것)
 
-        // 사용자가 성공적으로 추가되면 뒤로가기 (사용자 목록 화면으로 돌아감)
-        navigation.goBack();
+            if (!guardianId) {
+                Alert.alert('오류', '로그인 정보가 없습니다. 다시 로그인 해주세요.');
+                return;
+            }
+
+            // 🔥 서버에 보호자-사용자 연결 요청 보내기
+            await api.post(`/guardians/${guardianId}/users/${userCode}`);
+
+            Alert.alert('등록 완료', '새로운 사용자가 성공적으로 등록되었습니다!');
+            navigation.goBack(); // 성공 후 목록으로 이동
+        } catch (error) {
+            console.error('사용자 등록 오류:', error);
+            Alert.alert('오류', '사용자 등록 중 문제가 발생했습니다.');
+        }
     };
 
     return (

@@ -5,7 +5,6 @@ import { Image, AppState } from 'react-native';
 import { startSSE, stopSSE } from './src/services/SSEService';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Image } from 'react-native';
 import { TouchableWithoutFeedback } from 'react-native';
 
 // 마이크 권한
@@ -17,9 +16,7 @@ import { View } from 'react-native';
 
 
 // 👉 기존 import
-import { startSSE, stopSSE } from './src/services/SSEService';
 import { navigationRef } from './src/navigation/NavigationService';
-import { AppState } from 'react-native';
 
 // 스크린 import
 
@@ -27,7 +24,6 @@ import { AppState } from 'react-native';
 
 import HomeStartScreen from "./src/screens/start/HomeStartScreen";  // 사용자 시작페이지 (길안내)
 import BillScanScreen from "./src/screens/scan/BillScanScreen"; //사용자 지폐인식 페이지
-import FavoriteScreen from "./src/screens/favorite/FavoriteScreen"; // 사용자 즐겨찾기 페이지
 import SettingScreen from "./src/screens/Setting/SettingScreen"; // 사용자 환경설정 페이지
 import UserHelpScreen from "./src/screens/help/UserHelpScreen"; // 사용자 도움말 페이지
 
@@ -36,8 +32,6 @@ import NavigationHelpScreen from "./src/screens/help/NavigationHelpScreen";  // 
 import MoneyRecognitionHelpScreen from "./src/screens/help/MoneyRecognitionHelpScreen"; // 지폐 인식 기능
 import GuardianRegisterHelpScreen from "./src/screens/help/GuardianRegisterHelpScreen"; // 보호자 연동 기능
 import SettingsHelpScreen from "./src/screens/help/SettingsHelpScreen"; // 기타 설정 기능
-
-import MyGuardianListScreen from "./src/screens/list/MyGuardianListScreen";
 
 
 import IntroScreen from './src/screens/IntroScreen'; // 어플리케이션 시작 페이지 ( 사용자,보호자 모드 설정)
@@ -60,15 +54,10 @@ import GuardianLoginScreen from './src/screens/auth/GuardianLoginScreen'; // 보
 import GuardianRegisterScreen from './src/screens/auth/GuardianRegisterScreen'; // 보호자 회원가입 페이지
 import UserLoginScreen from './src/screens/auth/UserLoginScreen'; // 사용자 로그인 페이지
 import UserRegisterScreen from './src/screens/auth/UserRegisterScreen'; // 사용자 회원가입 페이지
-import MyUniqueCodeScreen from "./src/screens/Setting/MyUniqueCodeScreen"; // 사용자 고유 코드 보기 페이지
+import MyProfileInfoScreen from "./src/screens/Setting/MyProfileInfoScreen"; // 사용자 상세 설정 페이지
 
 
-import GuardianModeSelectionScreen from './src/screens/mode/GuardianModeSelectionScreen';
-import UserModeSelectionScreen from './src/screens/mode/UserModeSelectScreen';
-import GuardianLoginScreen from './src/screens/auth/GuardianLoginScreen';
-import GuardianRegisterScreen from './src/screens/auth/GuardianRegisterScreen';
-import UserLoginScreen from './src/screens/auth/UserLoginScreen';
-import UserRegisterScreen from './src/screens/auth/UserRegisterScreen';
+
 
 // ✅ 탭 & 스택 네비게이터
 const Tab = createBottomTabNavigator();
@@ -122,6 +111,8 @@ const guardianScreenOptions = ({ route }) => ({
     tabBarInactiveTintColor: '#A9A9A9',
 });
 
+
+
 // ✅  사용자 메인 탭 네비게이터
 const MainTabNavigator = () => (
     <Tab.Navigator screenOptions={userScreenOptions}>
@@ -133,13 +124,21 @@ const MainTabNavigator = () => (
 );
 
 // ✅  보호자 메인 탭 네비게이터
-const GuardianMainTabNavigator = () => (
-    <Tab.Navigator screenOptions={guardianScreenOptions}>
-        <Tab.Screen name="사용자 위치확인" component={GuardianHomeScreen} />
-        <Tab.Screen name="등록 사용자 리스트" component={LinkedUserListScreen} />
-        <Tab.Screen name="기타 설정" component={GuardianSettingScreen} />
-    </Tab.Navigator>
-);
+const GuardianMainTabNavigator = ({ route }) => {
+    const {guardianId} = route.params;
+
+    return (
+        <Tab.Navigator screenOptions={guardianScreenOptions}>
+            <Tab.Screen name="사용자 위치확인" component={GuardianHomeScreen}/>
+            <Tab.Screen
+                name="등록 사용자 리스트"
+                component={LinkedUserListScreen}
+                initialParams={{guardianId}} // ✅ 여기서 전달
+            />
+            <Tab.Screen name="기타 설정" component={GuardianSettingScreen}/>
+        </Tab.Navigator>
+    );
+};
 
 
 // ✅ 앱 전체 구성
@@ -255,8 +254,7 @@ const App = () => {
                             <Stack.Screen name="GuardianRegisterHelpScreen" component={GuardianRegisterHelpScreen} />
                             <Stack.Screen name="SettingsHelpScreen" component={SettingsHelpScreen} />
 
-                            <Stack.Screen name="MyGuardianListScreen" component={MyGuardianListScreen} />
-                            <Stack.Screen name="MyUniqueCodeScreen" component={MyUniqueCodeScreen} />
+                            <Stack.Screen name="MyProfileInfoScreen" component={MyProfileInfoScreen} />
 
                             {/* 메인 탭  (사용자 / 보호자 / 관리자 */}
                             <Stack.Screen name="UserMain" component={MainTabNavigator} />

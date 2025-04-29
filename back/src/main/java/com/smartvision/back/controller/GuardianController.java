@@ -1,16 +1,18 @@
 package com.smartvision.back.controller;
 
 import com.smartvision.back.dto.*;
+import com.smartvision.back.entity.GuardianUserRelation;
 import com.smartvision.back.exception.BadRequestException;
 import com.smartvision.back.service.GuardianService;
-import jakarta.validation.Valid;
+import com.smartvision.back.service.GuardianUserRelationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.MessagingException;
 import org.springframework.web.bind.annotation.*;
-
 import java.io.UnsupportedEncodingException;
+import java.util.List;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -19,6 +21,7 @@ import java.io.UnsupportedEncodingException;
 public class GuardianController {
 
     private final GuardianService guardianService;
+    private final GuardianUserRelationService relationService;
 
     @PostMapping("/login")
     public ResponseEntity<GuardianResponseDto> login(@RequestBody GuardianLoginRequestDto requestDto) {
@@ -80,9 +83,39 @@ public class GuardianController {
             throw new BadRequestException("인증 실패했습니다."); // ❗ 예외 던지기
         }
     }
+    // ✅ 내 연결된 사용자 조회
+    @GetMapping("/{guardianId}/users")
+    public ResponseEntity<List<UserSimpleDto>> getLinkedUsers(@PathVariable String guardianId) {
+        List<GuardianUserRelation> relations = relationService.getUsersByGuardianId(guardianId);
 
+        List<UserSimpleDto> users = relations.stream()
+                .map(relation -> new UserSimpleDto(
+                        relation.getUser().getUserId(),
+                        relation.getUser().getName()
+                ))
+                .toList();
 
+        return ResponseEntity.ok(users);
+    }
 
+    // ✅ 보호자 - 사용자 연결 (등록)
+    @PostMapping("/{guardianId}/users/{userId}")
+    public ResponseEntity<Void> linkUser(
+            @PathVariable String guardianId,
+            @PathVariable String userId
+    ) {
+        relationService.linkUser(guardianId, userId);
+        return ResponseEntity.noContent().build(); // ✅ 204 No Content
+    }
 
+    // ✅ 보호자 - 사용자 연결 해제 (삭제)
+    @DeleteMapping("/{guardianId}/users/{userId}")
+    public ResponseEntity<Void> unlinkUser(
+            @PathVariable String guardianId,
+            @PathVariable String userId
+    ) {
+        relationService.unlinkUser(guardianId, userId);
+        return ResponseEntity.noContent().build(); // ✅ 204 No Content
+    }
 
 }

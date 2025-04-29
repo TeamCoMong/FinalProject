@@ -1,34 +1,56 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, Alert, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import api from '../../api/api';
+import ReactNativeBiometrics from 'react-native-biometrics';
+
+const rnBiometrics = new ReactNativeBiometrics();
 
 const MyProfileInfoScreen = () => {
     const navigation = useNavigation();
     const [userCode, setUserCode] = useState('');
     const [guardians, setGuardians] = useState([]);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     useEffect(() => {
-        const fetchData = async () => {
+        const authenticateAndFetch = async () => {
             try {
-                const storedUserId = await EncryptedStorage.getItem('userId');
-                if (!storedUserId) {
-                    Alert.alert('오류', '로그인 정보가 없습니다.');
+                const { available } = await rnBiometrics.isSensorAvailable();
+                if (!available) {
+                    Alert.alert('오류', '이 기기에서는 생체 인증을 사용할 수 없습니다.');
+                    navigation.goBack();
                     return;
                 }
 
-                setUserCode(storedUserId); // 유저 코드 설정
+                const { success } = await rnBiometrics.simplePrompt({ promptMessage: '지문으로 본인 인증해주세요' });
+                if (!success) {
+                    Alert.alert('인증 실패', '지문 인증에 실패했습니다.');
+                    navigation.goBack();
+                    return;
+                }
+
+                // 인증 성공 시 사용자 정보 로드
+                const storedUserId = await EncryptedStorage.getItem('userId');
+                if (!storedUserId) {
+                    Alert.alert('오류', '로그인 정보가 없습니다.');
+                    navigation.goBack();
+                    return;
+                }
+
+                setUserCode(storedUserId);
 
                 const response = await api.get(`/users/${storedUserId}/guardians`);
                 setGuardians(response.data);
+                setIsAuthenticated(true);
             } catch (error) {
-                console.error('보호자 정보 불러오기 오류:', error);
-                Alert.alert('오류', '보호자 정보를 불러오는 데 실패했습니다.');
+                console.error('지문 인증 또는 보호자 정보 불러오기 실패:', error);
+                Alert.alert('오류', '인증 또는 데이터 로딩 중 문제가 발생했습니다.');
+                navigation.goBack();
             }
         };
 
-        fetchData();
+        authenticateAndFetch();
     }, []);
 
     const renderGuardianItem = ({ item }) => (
@@ -37,6 +59,15 @@ const MyProfileInfoScreen = () => {
             <Text style={styles.contactText}>{item.phone}</Text>
         </View>
     );
+
+    if (!isAuthenticated) {
+        return (
+            <View style={styles.container}>
+                <ActivityIndicator size="large" color="#007BFF" />
+                <Text style={{ marginTop: 20 }}>지문 인증 중...</Text>
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container}>
@@ -59,6 +90,7 @@ const MyProfileInfoScreen = () => {
         </View>
     );
 };
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,

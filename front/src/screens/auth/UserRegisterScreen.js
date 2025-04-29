@@ -64,7 +64,7 @@ const UserRegisterScreen = ({ navigation }) => {
                 if (success) {
                     console.log('✅ 지문 인증 성공');
                     setIsAuthSuccess(true);
-                    Alert.alert('인증 성공', '지문 인증에 성공했습니다.');
+                    // Alert.alert('인증 성공', '지문 인증에 성공했습니다.');
                 } else {
                     setIsAuthSuccess(false);
                     Alert.alert('인증 실패', '지문 인증에 실패했습니다.');
@@ -94,12 +94,15 @@ const UserRegisterScreen = ({ navigation }) => {
             if (response.status === 200 && response.data.userId) {
                 const newUserId = response.data.userId;
                 await EncryptedStorage.setItem('userId', newUserId);
-                Alert.alert('회원가입 성공', `회원가입이 완료되었습니다.\n사용자 ID: ${newUserId}`);
+
 
                 const spacedId = newUserId.split('').join(' ');
                 Tts.speak(`회원가입이 완료되었습니다. 회원님의 아이디는 ${spacedId} 입니다.`);
 
-                navigation.replace('UserLoginScreen');
+                // Alert.alert('회원가입 성공', `회원가입이 완료되었습니다.\n사용자 ID: ${newUserId}`);
+                setTimeout(() => {
+                    navigation.replace('IntroScreen');
+                }, 6000);
             } else {
                 Alert.alert('회원가입 실패', response.data.message);
             }

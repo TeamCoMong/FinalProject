@@ -12,7 +12,7 @@ const GuardianSettingScreen = ({ navigation }) => {
         // 로그아웃 동작 예시
         // 여기서는 간단히 로그인 화면으로 이동하도록 설정
         // 실제로는 세션 초기화 등을 해야 할 수 있습니다.
-        navigation.navigate('LoginScreen');
+        navigation.replace('GuardianLoginScreen');
     };
 
     return (

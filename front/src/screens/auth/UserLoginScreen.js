@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Alert ,} from 'react-native';
 import api from '../../api/api'; // 서버 API 호출 파일 import
 import EncryptedStorage from 'react-native-encrypted-storage';
 
@@ -78,12 +78,19 @@ const UserLoginScreen = ({ navigation }) => {
 
 
             {/* 계정 찾기 및 회원가입 */}
-            <View style={styles.footer}>
-                <TouchableOpacity onPress={() => navigation.navigate('FindAccount')}>
-                    <Text style={styles.footerText}>계정 찾기</Text>
+            <View style={{ position: 'absolute', bottom: 20, width: '100%', alignItems: 'center' }}>
+                <TouchableOpacity
+                    style={[styles.bottomButtonBack, { bottom: 100 }]}
+                    onPress={() => navigation.replace('UserModeSelectionScreen')}
+                >
+                    <Text style={styles.bottomButtonText}>뒤로 가기</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('UserRegister')}>
-                    <Text style={styles.footerText}>회원가입</Text>
+
+                <TouchableOpacity
+                    style={[styles.bottomButtonHome, { bottom: 40 }]}
+                    onPress={() => navigation.replace('Intro')}
+                >
+                    <Text style={styles.bottomButtonText}>메인 홈으로 가기</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -230,6 +237,49 @@ const styles = StyleSheet.create({
         width: 80,
         height: 80,
         marginRight: 8, // 텍스트와의 간격 (왼쪽 이미지니까 marginRight)
+    },
+    bottomButtonBack: {
+        backgroundColor: '#87cefa',
+        paddingVertical: 15,
+        paddingHorizontal: 30,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 25,
+        position: 'absolute',
+        width: '80%',
+        alignSelf: 'center',
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        marginBottom: 10, // ★ 버튼 아래에 간격 추가
+    },
+
+    bottomButtonHome: {
+        backgroundColor: '#ffb6c1',
+        paddingVertical: 15,
+        paddingHorizontal: 30,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 25,
+        position: 'absolute',
+        width: '80%',
+        alignSelf: 'center',
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        bottom: 20, // ★ 화면 하단 기준 위치
+    },
+
+    bottomButtonText: {
+        color: 'black',
+        fontSize: 18,
+        fontWeight: 'bold',
     },
 });
 

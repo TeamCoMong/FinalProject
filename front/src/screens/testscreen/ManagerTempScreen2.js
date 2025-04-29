@@ -1,19 +1,23 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { ScrollView, Text, StyleSheet, View } from 'react-native';
 
 const ManagerTempScreen2 = () => {
     return (
         <ScrollView style={styles.container}>
-            <Text style={styles.title}>AI 객체감지 데이터 </Text>
+            <Text style={styles.title}>AI 객체감지 데이터</Text>
 
-            {/* 대충 원형 그래프처럼 보이게 하는 직사각형들 */}
-            <View style={styles.graphContainer}>
-                <View style={[styles.graphSegment, { backgroundColor: '#ff6347', height: '50%' }]} />
-                <View style={[styles.graphSegment, { backgroundColor: '#4caf50', height: '30%' }]} />
-                <View style={[styles.graphSegment, { backgroundColor: '#3f51b5', height: '20%' }]} />
+            {/* 원형 그래프 */}
+            <View style={styles.graphWrapper}>
+                <View style={styles.graphContainer}>
+                    <View style={styles.graphSegmentContainer}>
+                        <View style={[styles.graphSegment, { backgroundColor: '#ff6347', height: '50%' }]} />
+                        <View style={[styles.graphSegment, { backgroundColor: '#4caf50', height: '30%' }]} />
+                        <View style={[styles.graphSegment, { backgroundColor: '#3f51b5', height: '20%' }]} />
+                    </View>
+                </View>
             </View>
 
-            {/* 대충 채운 통계 정보 */}
+            {/* 통계 정보 */}
             <View style={styles.statContainer}>
                 <Text style={styles.statText}>AI 데이터 통계</Text>
                 <Text style={styles.statText}>향상된 정확도 34건</Text>
@@ -37,15 +41,35 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         textAlign: 'center',
     },
-    graphContainer: {
-        width: '100%',
-        height: 200,
-        borderRadius: 10,
-        overflow: 'hidden',
+    graphWrapper: {
+        justifyContent: 'center',
+        alignItems: 'center',
         marginBottom: 30,
+    },
+    graphContainer: {
+        width: 200,
+        height: 200,
+        borderRadius: 100,
+        overflow: 'hidden',
+        borderWidth: 2,
+        borderColor: '#ddd',
+        marginBottom: 20,
+    },
+    graphSegmentContainer: {
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        transform: [{ rotate: '-90deg' }], // 원형을 세로로 배치
     },
     graphSegment: {
         width: '100%',
+        height: '100%',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        clipPath: 'polygon(50% 0%, 100% 0%, 100% 100%, 50% 100%)', // 원형 모양 비슷하게 보이도록 조정
     },
     statContainer: {
         backgroundColor: '#ffffff',

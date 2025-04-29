@@ -13,7 +13,7 @@ const LinkedUserListScreen = () => {
     ];
 
     const [users, setUsers] = useState(usersData);
-    const [selectedUser, setSelectedUser] = useState(null); // 선택된 사용자 상태
+    const [selectedUser, setSelectedUser] = useState(usersData[0]); // 홍길동을 디폴트 선택
     const navigation = useNavigation();  // 네비게이션 훅
 
     // '새로운 사용자 등록하기' 버튼을 눌렀을 때

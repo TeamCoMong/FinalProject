@@ -110,6 +110,9 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
+    implementation files("libs/tmap-sdk-2.0.aar")
+    implementation files("libs/vsm-tmap-sdk-v2-android-1.7.23.aar")
+
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")

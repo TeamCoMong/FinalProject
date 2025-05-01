@@ -8,6 +8,9 @@ buildscript {
         kotlinVersion = "1.9.24"
     }
     repositories {
+        flatDir {
+            dirs 'libs'
+        }
         google()
         mavenCentral()
     }

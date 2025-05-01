@@ -17,6 +17,10 @@ import HomeStartScreen from "./src/screens/start/HomeStartScreen";
 import FavoriteScreen from "./src/screens/favorite/FavoriteScreen";
 import BillScanScreen from "./src/screens/scan/BillScanScreen";
 import SettingScreen from "./src/screens/Setting/SettingScreen";
+import UserTmapScreen from "./src/screens/location/UserTmapScreen";
+import GuardianTmapScreen from "./src/screens/location/GuardianTmapScreen";
+
+
 
 import IntroScreen from './src/screens/IntroScreen';
 import LoginScreen from './src/screens/auth/LoginScreen';
@@ -24,7 +28,6 @@ import RegisterScreen from './src/screens/auth/RegisterScreen';
 import FindAccountScreen from "./src/screens/auth/FindAccountScreen";
 import ResetPasswordScreen from "./src/screens/auth/ResetPasswordScreen";
 import KakaoMapScreen from "./src/screens/location/KakaoMapScreen";
-
 
 import GuardianModeSelectionScreen from './src/screens/mode/GuardianModeSelectionScreen';
 import UserModeSelectionScreen from './src/screens/mode/UserModeSelectScreen'
@@ -34,6 +37,9 @@ import UserLoginScreen from './src/screens/auth/UserLoginScreen';
 import UserRegisterScreen from './src/screens/auth/UserRegisterScreen';
 
 import TestLoginScreen from "./src/screens/testscreen/TestLoginScreen";
+import TmapScreen from "./src/screens/location/TmapScreen";
+import TmapScreenVoice from "./src/screens/location/TmapScreenVoice";
+
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -77,7 +83,8 @@ const screenOptions = ({ route }) => ({
 // ✅ 메인 탭 네비게이터
 const MainTabNavigator = () => (
     <Tab.Navigator screenOptions={screenOptions}>
-        <Tab.Screen name="홈 키" component={HomeStartScreen} />
+        {/*// 프론트 테스트 연결점 tmap 병합*/}
+        <Tab.Screen name="홈 키" component={UserTmapScreen} />
         <Tab.Screen name="지폐 인식" component={BillScanScreen} />
         <Tab.Screen name="즐겨찾기" component={FavoriteScreen} />
         <Tab.Screen name="기타 설정" component={SettingScreen} />

@@ -101,7 +101,7 @@ const UserRegisterScreen = ({ navigation }) => {
 
                 // Alert.alert('회원가입 성공', `회원가입이 완료되었습니다.\n사용자 ID: ${newUserId}`);
                 setTimeout(() => {
-                    navigation.replace('IntroScreen');
+                    navigation.replace('Intro');
                 }, 6000);
             } else {
                 Alert.alert('회원가입 실패', response.data.message);

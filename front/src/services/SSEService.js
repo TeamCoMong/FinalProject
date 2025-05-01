@@ -11,6 +11,9 @@ const intentToRoute = {
     '회원가입': 'UserRegisterScreen',
     '길안내': 'HomeStartScreen',
     '지폐인식':'BillScanScreen',
+    '도움말':'UserHelpScreen',
+    '상세설정':'MyProfileInfoScreen',
+    '내설정':'SettingsHelpScreen',
 
 };
 

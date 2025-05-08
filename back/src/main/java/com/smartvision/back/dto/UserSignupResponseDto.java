@@ -10,5 +10,6 @@ import lombok.*;
 public class UserSignupResponseDto {
     private String userId;   // 생성된 사용자 코드 (UUID 기반)
     private String name;
+    private String phone;
     private String createdAt;
 }

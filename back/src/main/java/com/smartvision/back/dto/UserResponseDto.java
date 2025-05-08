@@ -10,6 +10,7 @@ import lombok.*;
 public class UserResponseDto {
     private String userId;
     private String name;
+    private String phone;
     private String accessToken;
     private String refreshToken;
 
@@ -19,6 +20,7 @@ public class UserResponseDto {
     public UserResponseDto(User user) {
         this.userId = user.getUserId();
         this.name = user.getName();
+        this.phone = user.getPhone();
         this.isAuthenticated = true;  // 인증이 성공했다고 가정
     }
 

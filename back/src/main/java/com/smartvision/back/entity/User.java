@@ -20,6 +20,9 @@ public class User {
     @Column(name = "NAME", length = 100, nullable = false)
     private String name;
 
+    @Column(name = "PHONE", length = 15)
+    private String phone;
+
     @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;
 

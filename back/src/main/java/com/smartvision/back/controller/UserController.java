@@ -42,6 +42,7 @@ public class UserController {
         UserResponseDto response = new UserResponseDto();
         response.setUserId(user.getUserId());
         response.setName(user.getName());
+        response.setPhone(user.getPhone());
         response.setAccessToken(accessToken);
         response.setRefreshToken(refreshToken);
 

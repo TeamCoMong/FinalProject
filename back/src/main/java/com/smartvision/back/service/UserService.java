@@ -20,6 +20,7 @@ public class UserService {
         User user = User.builder()
                 .userId(generatedUserId)
                 .name(dto.getName())
+                .phone(dto.getPhone())
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -27,6 +28,7 @@ public class UserService {
         return UserSignupResponseDto.builder()
                 .userId(savedUser.getUserId())
                 .name(savedUser.getName())
+                .phone(savedUser.getPhone())
                 .createdAt(savedUser.getCreatedAt().toString())
                 .build();
     }

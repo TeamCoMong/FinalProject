@@ -64,6 +64,18 @@ const SettingScreen = ({ navigation }) => {
                 <Text style={styles.buttonText}>👨‍👩‍👧‍👦 나를 등록한 보호자 보기</Text>
             </TouchableOpacity>
 
+
+
+            {/* 파이썬 객체 감지 카메라 연동  */}
+            <TouchableOpacity
+                style={styles.button}
+                onPress={() => navigation.navigate('PythonCamScreen')}>
+                <Text style={styles.buttonText}> 객체 감지 카메라 화면</Text>
+            </TouchableOpacity>
+
+
+
+
             {/* 로그아웃 버튼 */}
             <TouchableOpacity
                 style={styles.logoutButton}

@@ -4,9 +4,7 @@ import api from '../../api/api'; // 서버 API 호출 파일 import
 import EncryptedStorage from 'react-native-encrypted-storage';
 
 const UserLoginScreen = ({ navigation }) => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [passwordVisible, setPasswordVisible] = useState(false);
+
 
     // 일반 로그인 처리
     const handleLogin = async () => {

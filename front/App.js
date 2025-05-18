@@ -29,6 +29,8 @@ import FavoriteScreen from "./src/screens/favorite/FavoriteScreen"; // 사용자
 import SettingScreen from "./src/screens/Setting/SettingScreen"; // 사용자 환경설정 페이지
 import UserHelpScreen from "./src/screens/help/UserHelpScreen"; // 사용자 도움말 페이지
 
+import PythonCamScreen from "./src/screens/testscreen/PythonCamScreen"; // 객체 감지 카메라 화면
+
 //도움말 각 버튼 페이지 (사용자 메인 탭)
 import NavigationHelpScreen from "./src/screens/help/NavigationHelpScreen";  // 사용자 도움말 - 길 안내 기능
 import MoneyRecognitionHelpScreen from "./src/screens/help/MoneyRecognitionHelpScreen"; // 지폐 인식 기능
@@ -283,6 +285,8 @@ const App = () => {
 
                             <Stack.Screen name="MyGuardianListScreen" component={MyGuardianListScreen} />
                             <Stack.Screen name="MyUniqueCodeScreen" component={MyUniqueCodeScreen} />
+                            {/* 설정-객체감지 카메라 */}
+                            <Stack.Screen name="PythonCamScreen" component={PythonCamScreen} />
 
                             {/* 메인 탭  (사용자 / 보호자 / 관리자 */}
                             <Stack.Screen name="UserMain" component={MainTabNavigator} />

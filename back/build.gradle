@@ -68,7 +68,6 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-
     // Dialogflow API
     implementation 'com.google.cloud:google-cloud-dialogflow:3.3.0'
     // Google 인증 (보통 자동으로 같이 들어가지만 명시적으로 추가해도 좋음)

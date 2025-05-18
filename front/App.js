@@ -21,6 +21,10 @@ import { Image, AppState } from 'react-native';
 import { startSSE, stopSSE } from './src/services/SSEService';
 import { navigationRef } from './src/navigation/NavigationService';
 
+
+import Camera from "./src/screens/Camera";
+
+
 import HomeStartScreen from "./src/screens/start/HomeStartScreen";  // 사용자 시작페이지 (길안내)
 import BillScanScreen from "./src/screens/scan/BillScanScreen"; //사용자 지폐인식 페이지
 import SettingScreen from "./src/screens/Setting/SettingScreen"; // 사용자 환경설정 페이지
@@ -296,6 +300,10 @@ const App = () => {
                             <Stack.Screen name="UserMain" component={MainTabNavigator} />
                             <Stack.Screen name="GuardianMain" component={GuardianMainTabNavigator} />
                             {/*<Stack.Screen name="ManagerMain" component={ManagerMainTabNavigator} />*/}
+
+
+                            <Stack.Screen name="Camera" component={Camera} />
+
 
                         </Stack.Navigator>
                     </NavigationContainer>

@@ -7,6 +7,8 @@ import {startSSE, stopSSE} from './src/services/SSEService';
 import { navigationRef } from './src/navigation/NavigationService';
 import { AppState } from 'react-native';
 
+
+
 // 스크린 import
 
 import PersonalStudyMainScreen from './src/screens/personal/PersonalStudyMainScreen';
@@ -19,7 +21,6 @@ import BillScanScreen from "./src/screens/scan/BillScanScreen";
 import SettingScreen from "./src/screens/Setting/SettingScreen";
 import UserTmapScreen from "./src/screens/location/UserTmapScreen";
 import GuardianTmapScreen from "./src/screens/location/GuardianTmapScreen";
-
 
 
 import IntroScreen from './src/screens/IntroScreen';
@@ -39,7 +40,9 @@ import UserRegisterScreen from './src/screens/auth/UserRegisterScreen';
 import TestLoginScreen from "./src/screens/testscreen/TestLoginScreen";
 import TmapScreen from "./src/screens/location/TmapScreen";
 import TmapScreenVoice from "./src/screens/location/TmapScreenVoice";
-
+import GuardianMapScreen from "./src/screens/location/GuardianMapScreen";
+import TmapTTS from "./src/screens/location/TmapTTS";
+import TmapTTSP from "./src/screens/location/TmapTTSP";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -84,7 +87,7 @@ const screenOptions = ({ route }) => ({
 const MainTabNavigator = () => (
     <Tab.Navigator screenOptions={screenOptions}>
         {/*// 프론트 테스트 연결점 tmap 병합*/}
-        <Tab.Screen name="홈 키" component={UserTmapScreen} />
+        {/*<Tab.Screen name="홈 키" component={TmapViews} />*/}
         <Tab.Screen name="지폐 인식" component={BillScanScreen} />
         <Tab.Screen name="즐겨찾기" component={FavoriteScreen} />
         <Tab.Screen name="기타 설정" component={SettingScreen} />
@@ -121,7 +124,12 @@ const App = () => {
 
                 {/* 테스트 전용 */}
                 <Stack.Screen name="TestLoginScreen" component={TestLoginScreen} />
-
+                {/* 사용자 테스트 전용 */}
+                <Stack.Screen name="UserTmapScreen" component={UserTmapScreen} />
+                {/* 보호자 테스트 전용 */}
+                <Stack.Screen name="GuardianTmapScreen" component={GuardianTmapScreen} />
+                {/* 보호자 테스트 2222 */}
+                <Stack.Screen name="GuardianMapScreen" component={GuardianMapScreen} />
 
                 {/* 4/24 메인 이전 로그인/회원가입 화면 */}
                 <Stack.Screen name="GuardianModeSelectionScreen" component={GuardianModeSelectionScreen} />

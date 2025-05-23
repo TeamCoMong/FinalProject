@@ -11,14 +11,12 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @Configuration
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
+
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(locationHandler(), "/location")
-                .setAllowedOrigins("*"); // 또는 "http://localhost:8081" 등 클라이언트 주소 명시
-    }
-
-    @Bean
-    public WebSocketHandler locationHandler() {
-        return new LocationWebSocketHandler();
+        registry.addHandler(new LocationWebSocketHandler(), "/location/user")
+                .setAllowedOrigins("*");
+        registry.addHandler(new LocationWebSocketHandler(), "/location/guardian")
+                .setAllowedOrigins("*");
     }
 }

@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "react-native-biometrics": "^3.0.1",
+    "react-native-camera": "^4.2.1"
+  }
+}

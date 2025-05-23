@@ -7,7 +7,6 @@ import jakarta.persistence.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Entity
-@Table(name = "destinations")
 public class Destination {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,5 +16,29 @@ public class Destination {
     private Double latitude;
     private Double longitude;
 
-    // 기본 생성자, getter, setter 추가
+    // ✅ 기본 생성자 (JPA용)
+    public Destination() {}
+
+    // ✅ 모든 필드를 포함한 생성자
+    public Destination(String name, Double latitude, Double longitude) {
+        this.name = name;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    // ✅ Getter 추가
+    public Long getId() { return id; }
+    public String getName() { return name; }
+    public Double getLatitude() { return latitude; }
+    public Double getLongitude() { return longitude; }
+
+    @Override
+    public String toString() {
+        return "Destination{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                '}';
+    }
 }

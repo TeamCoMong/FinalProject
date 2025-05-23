@@ -1,75 +1,138 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+    View,
+    StyleSheet,
+    Alert,
+    PermissionsAndroid,
+    Platform,
+    ActivityIndicator,
+    Text
+} from 'react-native';
+import Geolocation from '@react-native-community/geolocation';
+import { WebView } from 'react-native-webview';
 
-const HomeStartScreen = ({ navigation }) => {
-    // 상태 변수 선언
-    const [currentTime, setCurrentTime] = useState('');  // 현재 시간
-    const [currentLocation, setCurrentLocation] = useState('서울, 대한민국'); // 기본 위치 설정
-    const [weather, setWeather] = useState('맑음'); // 날씨 예시
-    const [date, setDate] = useState('');  // 날짜
+const HomeStartScreen = () => {
+    const [locationCoords, setLocationCoords] = useState(null);
+
+    // Android 위치 권한 요청
+    const requestLocationPermission = async () => {
+        console.log('📍 위치 권한 요청 시작');
+        try {
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+                {
+                    title: '위치 권한 요청',
+                    message: '앱에서 현재 위치를 사용하려면 위치 권한이 필요합니다.',
+                    buttonNeutral: '나중에 묻기',
+                    buttonNegative: '취소',
+                    buttonPositive: '허용',
+                }
+            );
+            console.log('🔐 권한 요청 결과:', granted);
+            return granted === PermissionsAndroid.RESULTS.GRANTED;
+        } catch (err) {
+            console.warn('❌ 권한 요청 중 에러:', err);
+            return false;
+        }
+    };
 
     useEffect(() => {
-        // navigation.setOptions를 사용하여 탭 아이콘 설정
-        navigation.setOptions({
-            tabBarIcon: ({ focused, size }) => {
-                const iconPath = require('../../assets/home.png'); // 탭 아이콘
-                return <Image source={iconPath} style={{ width: size, height: size }} />;
-            },
-            tabBarLabel: '홈 키', // 탭 라벨 설정
-            tabBarActiveTintColor: '#007AFF', // 활성화된 탭 색상
-            tabBarInactiveTintColor: '#8E8E93', // 비활성화된 탭 색상
-        });
+        console.log('🌀 useEffect 시작');
+        const getLocation = async () => {
+            const hasPermission = await requestLocationPermission();
+            if (!hasPermission) {
+                Alert.alert('위치 권한 거부됨', '현재 위치를 가져올 수 없습니다.');
+                return;
+            }
 
-        // 현재 시간과 날짜를 매초마다 업데이트
-        const interval = setInterval(() => {
-            const now = new Date();
+            Geolocation.getCurrentPosition(
+                position => {
+                    console.log('✅ 위치 정보 가져옴:', position);
 
-            // 한국 시간 포맷 설정
-            const timeFormatter = new Intl.DateTimeFormat('ko-KR', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                timeZone: 'Asia/Seoul', // 한국 시간대
-            });
 
-            // 한국 날짜 포맷 설정
-            const dateFormatter = new Intl.DateTimeFormat('ko-KR', {
-                year: 'numeric',
-                month: 'numeric',
-                day: 'numeric',
-                timeZone: 'Asia/Seoul', // 한국 시간대
-            });
 
-            setCurrentTime(timeFormatter.format(now));  // 시간 업데이트
-            setDate(dateFormatter.format(now));  // 날짜 업데이트
-        }, 1000);
+                    const { latitude, longitude } = position.coords;
+                    setLocationCoords({ latitude, longitude });
+                },
+                error => {
+                    console.warn('❌ 위치 정보 에러:', error);
+                    Alert.alert('위치 오류', '현재 위치를 가져올 수 없습니다.');
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 15000,
+                    maximumAge: 10000,
+                }
+            );
+        };
 
-        return () => clearInterval(interval); // 컴포넌트 언마운트 시 interval 해제
-    }, [navigation]);
+        getLocation();
+    }, []);
+
+    // Tmap HTML 생성
+    const getMapHtml = (lat, lon) => {
+        return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>T map 예제</title>
+        <style>
+          html, body { height: 100%; margin: 0; padding: 0; }
+          #map_div { width: 100%; height: 90%; }
+          h1 {
+            margin: 0;
+            padding: 10px;
+            background-color: #f2f2f2;
+            text-align: center;
+            font-family: Arial, sans-serif;
+          }
+        </style>
+        <script src="https://apis.openapi.sk.com/tmap/js?version=1&appKey=2AfJLYy4Roajsr0IORYof7BzkNDbphv8axCMrOFv"></script>
+      </head>
+      <body>
+        <h1>T map 예제</h1>
+        <div id="map_div"></div>
+        <script>
+          var map = new Tmapv2.Map("map_div", {
+            center: new Tmapv2.LatLng(${lat}, ${lon}),
+            width: "100%",
+            height: "100%",
+            zoom: 15
+          });
+
+          var marker = new Tmapv2.Marker({
+            position: new Tmapv2.LatLng(${lat}, ${lon}),
+            map: map
+          });
+        </script>
+      </body>
+    </html>
+    `;
+    };
 
     return (
         <View style={styles.container}>
-            {/* 가장자리에 완전히 붙고, 위쪽은 살짝 내려서 여백을 추가 */}
-            <View style={styles.mapContainer}>
-                <Image
-                    source={require('../../assets/testmap.png')}
-                    style={styles.mapImage}
-                    resizeMode="cover"  // 또는 "contain"도 가능 (필요에 따라)
-                />
-            </View>
-
-            {/* 지도 위에 텍스트를 표시할 컨테이너 */}
-            <View style={styles.textContainer}>
-                {/* 날짜와 위치, 날씨를 두 줄로 나누어 표시 */}
-                <View style={styles.row}>
-                    <Text style={styles.text}>오늘 날짜: {date}</Text>
-                    <Text style={styles.text}>현재 위치: {currentLocation}</Text>
-                </View>
-                <View style={styles.row}>
-                    <Text style={styles.text}>현재 시각: {currentTime}</Text>
-                    <Image source={require('../../assets/sun.png')} style={styles.logo} />
-                    <Text style={styles.text}>날씨: {weather}</Text>
-                </View>
+            <View style={styles.mapFrame}>
+                {locationCoords ? (
+                    <WebView
+                        originWhitelist={['*']}
+                        source={{ html: getMapHtml(locationCoords.latitude, locationCoords.longitude) }}
+                        javaScriptEnabled={true}
+                        style={{ flex: 1 }}
+                        onError={({ nativeEvent }) => {
+                            console.warn('🚫 WebView error: ', nativeEvent);
+                        }}
+                        onHttpError={({ nativeEvent }) => {
+                            console.warn('🚫 WebView HTTP error: ', nativeEvent.statusCode);
+                        }}
+                    />
+                ) : (
+                    <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color="#0000ff" />
+                        <Text style={styles.loadingText}>위치 정보를 가져오는 중입니다...</Text>
+                    </View>
+                )}
             </View>
         </View>
     );
@@ -78,58 +141,27 @@ const HomeStartScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f0f8ff',  // 배경색 설정
-        alignItems: 'center',
         justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff',
     },
-
-    // 가장자리에 완전히 붙고, 위쪽은 살짝 내려서 여백을 추가한 스타일
-    mapContainer: {
-        position: 'absolute', // 화면의 가장자리에 배치
-        top: 100, // 상단을 살짝 내리기 (원하는 만큼 조정 가능)
-        left: 0, // 왼쪽 끝에 붙이기
-        right: 0, // 오른쪽 끝에 붙이기
-        bottom: 0, // 아래쪽 끝에 붙이기
-        borderWidth: 2, // 파란 테두리 두께
-        borderColor: 'blue', // 파란 테두리 색상
+    mapFrame: {
+        width: 350,       // 기존 300 -> 350으로 증가
+        height: 450,      // 기존 400 -> 450으로 증가
+        borderWidth: 3,
+        borderColor: 'red',
+        borderRadius: 8,
+        overflow: 'hidden',
     },
-
-    // 지도 위에 텍스트를 배치할 컨테이너 스타일
-    textContainer: {
-        position: 'absolute',
-        top: 10,  // 지도에서 위쪽으로 여백을 설정
-        left: 10, // 왼쪽 여백 설정
-        right: 10, // 오른쪽 여백 설정
-        backgroundColor: 'rgba(255, 255, 255, 0.7)', // 반투명 배경
-        padding: 10,
-        borderRadius: 10, // 둥근 테두리
-        zIndex: 1,  // 지도 위에 텍스트가 올라오도록 설정
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-
-    // 두 항목을 가로로 배치하는 스타일
-    row: {
-        flexDirection: 'row',  // 가로로 배치
-        justifyContent: 'space-between',  // 양쪽 끝으로 배치
-        marginBottom: 6,  // 아래쪽 간격 설정
-    },
-
-    // 텍스트 스타일
-    text: {
+    loadingText: {
+        marginTop: 10,
         fontSize: 16,
-        fontWeight: 'bold',
-        color: '#000000',  // 파란색 텍스트
-        marginBottom: 5,
-    },
-
-    title: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: '#007BFF',
-        marginBottom: 30,
-    },
-    logo: {
-        width: 20,  // 이미지의 가로 크기
-        height: 20,  // 이미지의 세로 크기
+        color: '#333',
     },
 });
 

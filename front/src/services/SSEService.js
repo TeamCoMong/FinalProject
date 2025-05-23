@@ -1,5 +1,6 @@
 import EventSource from 'react-native-event-source';
 import { navigationRef } from '../navigation/NavigationService';
+import { NGROK_URL } from '../config/ngrok';
 
 let eventSource = null;
 let lastPingTime = Date.now();
@@ -10,6 +11,9 @@ const intentToRoute = {
     '회원가입': 'UserRegisterScreen',
     '길안내': 'HomeStartScreen',
     '지폐인식':'BillScanScreen',
+    '도움말':'UserHelpScreen',
+    '상세설정':'MyProfileInfoScreen',
+    '내설정':'SettingsHelpScreen',
 
 };
 
@@ -22,11 +26,13 @@ export const startSSE = () => {
 
     console.log("🚀 SSE 연결 시작");
 
-    eventSource = new EventSource('https://a6fe-61-34-253-238.ngrok-free.app/dialogflow/sse');
+    eventSource = new EventSource(`${NGROK_URL}/dialogflow/sse`);
 
     eventSource.onmessage = (event) => {
         console.log("📩 [onmessage] raw 이벤트:", event);
+        console.log('🌟 기본 onmessage 수신:', event.data);
     };
+
 
 
     // 2. ping 이벤트 감지
@@ -79,6 +85,8 @@ export const stopSSE = () => {
         heartbeatChecker = null;
     }
 };
+
+export const getEventSource = () => eventSource;
 
 // 6. 재연결 로직
 const reconnectSSE = () => {

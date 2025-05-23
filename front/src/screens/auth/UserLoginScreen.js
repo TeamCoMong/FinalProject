@@ -1,96 +1,185 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Alert ,} from 'react-native';
-import api from '../../api/api'; // 서버 API 호출 파일 import
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
+import ReactNativeBiometrics from 'react-native-biometrics';
+import api from '../../api/api';
+
+import Sound from 'react-native-sound';
+import Voice from '@react-native-voice/voice';
+import Tts from 'react-native-tts';
+import { NGROK_URL } from '../../config/ngrok';
+import { getEventSource } from "../../services/SSEService";
+import { useNavigation } from '@react-navigation/native'; // ✅ 박주민테스트
+const rnBiometrics = new ReactNativeBiometrics();
 
 const UserLoginScreen = ({ navigation }) => {
 
-
-    // 일반 로그인 처리
-    const handleLogin = async () => {
-        try {
-            const response = await api.post('/auth/login', { username, password });
-
-            if (response.status === 200) {
-                const { accessToken, refreshToken, username, email, name } = response.data;
-
-                // 🔒 보안 저장소에 Refresh Token 저장
-                await EncryptedStorage.setItem('refreshToken', refreshToken);
-
-                // 🔄 홈 화면으로 이동하며 사용자 데이터 전달
-                navigation.replace('Main', {
-                    username: username,
-                    email: email,
-                    name: name,
-                    accessToken: accessToken,
-                });
+    const playSound = (filename) => {
+        const sound = new Sound(filename, Sound.MAIN_BUNDLE, (error) => {
+            if (error) {
+                console.error('❌ 사운드 로드 실패:', error);
+                return;
             }
-        } catch (error) {
-            console.error(error);
-            Alert.alert('로그인 실패', '아이디 또는 비밀번호를 확인하세요.');
-        }
+            sound.play((success) => {
+                if (!success) {
+                    console.error('❌ 사운드 재생 실패');
+                }
+                sound.release();
+            });
+        });
     };
 
 
+    const handleIntentEvent = (event) => {
+        try {
+            const data = JSON.parse(event.data);
 
-    // // 소셜 로그인 처리
-    // const handleSocialLogin = async (platform) => {
-    //     try {
-    //         const response = await api.get(`/auth/${platform}`);
-    //         if (response.status === 200) {
-    //             const { redirectUrl } = response.data;
-    //             navigation.navigate('WebView', { redirectUrl, platform });
-    //         }
-    //     } catch (error) {
-    //         console.error(error);
-    //         Alert.alert('소셜 로그인 실패', '다시 시도해주세요.');
-    //     }
-    // };
+            if (data.intent === '로그인') {
+                console.log("인텐트: 로그인_웰컴");
+                handleFingerprintLogin();
+            }
+        } catch (err) {
+            console.error('SSE intent 처리 실패', err);
+        }
+    };
+
+    // 박주민 테스트
+    const handleTestLogin = () => {
+        // 인증 없이 HomeStartScreen으로 이동
+        navigation.navigate('HomeStartScreen');
+    };
+
+    const handleFingerprintLogin = async () => {
+        try {
+            const { available } = await rnBiometrics.isSensorAvailable();
+            if (!available) {
+                Alert.alert('지원 불가', '디바이스에서 생체 인증을 지원하지 않습니다.');
+
+                const userId = await EncryptedStorage.getItem('userId');
+                console.log('✅ (No Biometric) 로그인 시도 userId:', userId);
+
+                const response = await api.post('/users/biometric-login', { userId });
+
+                if (response.status === 200) {
+                    const { accessToken, refreshToken, name } = response.data;
+                    await EncryptedStorage.setItem('refreshToken', refreshToken);
+
+                    Tts.stop();
+                    await Tts.speak('로그인이 성공했어요. 메인 페이지로 이동할게요.');
+
+                    setTimeout(() => {
+                        navigation.replace('UserMain', {
+                            username: userId,
+                            name: name,
+                            accessToken: accessToken,
+                        });
+                    }, 3000); // TTS 끝나기를 기다리는 대략적인 시간
+                } else {
+                    Alert.alert('로그인 실패', '서버에서 로그인에 실패했습니다.');
+                }
+                return;
+            }
+
+            const { success } = await rnBiometrics.simplePrompt({ promptMessage: '지문으로 로그인 해주세요.' });
+            if (!success) {
+                Alert.alert('지문 인증 실패', '지문 인증에 실패했습니다.');
+                return;
+            }
+
+            const userId = await EncryptedStorage.getItem('userId');
+            if (!userId) {
+                Alert.alert('오류', '저장된 사용자 정보가 없습니다. 회원가입이 필요합니다.');
+                return;
+            }
+            console.log('✅ (Biometric Success) 로그인 시도 userId:', userId);
+
+            const response = await api.post('/users/biometric-login', { userId });
+
+            if (response.status === 200) {
+                const { accessToken, refreshToken, name } = response.data;
+                await EncryptedStorage.setItem('refreshToken', refreshToken);
+
+                Tts.stop();
+                await Tts.speak('로그인이 성공했어요. 메인 페이지로 이동할게요.');
+
+                setTimeout(() => {
+                    navigation.replace('UserMain', {
+                        username: userId,
+                        name: name,
+                        accessToken: accessToken,
+                    });
+                }, 3000);
+            } else {
+                Alert.alert('로그인 실패', '서버에서 로그인에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('지문 로그인 에러:', error);
+            Alert.alert('오류', '지문 로그인 중 오류가 발생했습니다.');
+        }
+    };
+
+    useEffect(() => {
+        Voice.onSpeechEnd = () => {
+            playSound('end');
+        };
+
+        const triggerLoginWelcome = async () => {
+            try {
+                const res = await fetch(`${NGROK_URL}/dialogflow/triggerEvent?event=login_welcome`);
+                const data = await res.json();
+
+                Tts.stop();
+                await Tts.speak(data.message);
+            } catch (err) {
+                console.error('웰컴 이벤트 호출 실패:', err);
+            }
+        };
+        triggerLoginWelcome();
+    }, []);
+
+    useEffect(() => {
+        let isLogin = false;
+
+        const tryLoginIntentListener = () => {
+            const currentEventSource = getEventSource();
+            if (currentEventSource && !isLogin) {
+                console.log('SSE 로그인 intent 리스너 등록');
+                currentEventSource.addEventListener('intent', handleIntentEvent);
+                isLogin = true;
+            } else if (!isLogin) {
+                setTimeout(tryLoginIntentListener, 1000);
+            }
+        };
+
+        tryLoginIntentListener();
+
+        return () => {
+            const currentEventSource = getEventSource();
+            if (currentEventSource && typeof currentEventSource.removeEventListener === 'function') {
+                currentEventSource.removeEventListener('intent', handleIntentEvent);
+            }
+        };
+    }, []);
 
     return (
         <View style={styles.container}>
             <View style={styles.logoContainer}>
                 <Image source={require('../../assets/schoolboy2.png')} style={styles.logo} />
-                <View style={styles.textWrapper}>
-                    <Text style={styles.appName}>사용자 로그인</Text>
-                </View>
+                <Text style={styles.title}>사용자 지문 로그인</Text>
             </View>
 
-
-            {/* 사용자 로그인 */}
-            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+            <TouchableOpacity style={styles.loginButton} onPress={handleFingerprintLogin}>
                 <View style={styles.buttonContent}>
-                    <Image
-                        source={require('../../assets/fingerprint.png')} // PNG 파일 경로
-                        style={styles.buttonIcon}
-                    />
-                    <Text style={styles.loginButtonText}>지문인식 로그인</Text>
+                    <Image source={require('../../assets/UserFaceId.png')} style={styles.buttonIcon} />
+                    <Text style={styles.loginButtonText}>지문 인증 로그인</Text>
                 </View>
             </TouchableOpacity>
 
-
-
+            {/* ✅ 테스트 로그인 버튼 추가 */}
             <TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('UserMain')}>
                 <Text style={styles.buttonText}>(사용자)프론트 테스트</Text>
             </TouchableOpacity>
 
-
-            {/* 계정 찾기 및 회원가입 */}
-            <View style={{ position: 'absolute', bottom: 20, width: '100%', alignItems: 'center' }}>
-                <TouchableOpacity
-                    style={[styles.bottomButtonBack, { bottom: 100 }]}
-                    onPress={() => navigation.replace('UserModeSelectionScreen')}
-                >
-                    <Text style={styles.bottomButtonText}>뒤로 가기</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={[styles.bottomButtonHome, { bottom: 40 }]}
-                    onPress={() => navigation.replace('Intro')}
-                >
-                    <Text style={styles.bottomButtonText}>메인 홈으로 가기</Text>
-                </TouchableOpacity>
-            </View>
         </View>
     );
 };
@@ -103,128 +192,27 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     logoContainer: {
-        position: 'absolute',
-        top: 50, // 숫자가 작을수록 위로 감
-        left: 0,
-        right: 0,
         alignItems: 'center',
+        marginBottom: 40,
     },
-
     logo: {
-        width: 110,
-        height: 110,
-    },
-    textWrapper: {
-        backgroundColor: '#B0E0E6',
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: 10,
-        marginTop: 10,
-        width: '98%',
-        alignItems: 'center',
-        alignSelf: 'center',
-        justifyContent: 'center', // ✅ 세로 방향 중앙 정렬
-    },
-
-
-    appName: {
-        fontSize: 35,
-        fontWeight: 'bold',
-        color: '#cd5c5c',
-        marginTop: -5, // ⬅️ 숫자를 조절하면서 테스트 (예: -2, -3, -5)
-    },
-
-    subAppName: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#cd5c5c',
-        marginTop: 10,
-        marginBottom: 10,
-    },
-    mainDescription: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: '#D51',
-        textAlign: 'center',
+        width: 100,
+        height: 100,
         marginBottom: 10,
     },
     title: {
-        fontSize: 28,
+        fontSize: 24,
         fontWeight: 'bold',
-        color: '#007BFF',
-        marginBottom: 30,
+        color: '#cd5c5c',
     },
-    input: {
-        width: '80%',
-        height: 50,
-        backgroundColor: '#FFFFFF',
-        borderRadius: 25,
-        paddingHorizontal: 20,
-        marginBottom: 15,
-    },
-    passwordContainer: {
-        width: '80%',
-        height: 50,
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#FFFFFF',
-        borderRadius: 25,
-        paddingHorizontal: 20,
-        marginBottom: 15,
-    },
-    passwordInput: {
-        flex: 1,
-    },
-    eyeIcon: {
-        width: 24,
-        height: 24,
-    },
-
-
     loginButton: {
         backgroundColor: '#66cdaa',
-        paddingVertical: 120, // 버튼 높이를 더 키움
+        paddingVertical: 20,
+        paddingHorizontal: 40,
+        borderRadius: 30,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        width: '100%', // 너비는 그대로 두거나 원하는 크기로 변경
-        borderRadius: 35, // 모서리 둥글기를 더 키움
-        marginBottom: 20,
-        marginTop: 60, // 버튼을 더 아래로 내리기 위해 marginTop을 60으로 설정
-        elevation: 6, // 안드로이드 그림자
-        shadowColor: '#000', // iOS 그림자
-        shadowOffset: { width: 0, height: 4 }, // 그림자 위치를 더 아래로
-        shadowOpacity: 0.25,
-        shadowRadius: 6, // 그림자 크기 더 크게 설정
-    },
-
-
-    loginButtonText: {
-        color: 'black',
-        fontSize: 25,
-        fontWeight: 'bold',
-    },
-    socialLoginContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        marginTop: 30,
-        marginBottom: 20,
-    },
-    socialIcon: {
-        width: 50,
-        height: 50,
-        marginHorizontal: 10,
-    },
-    footer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '80%',
-        marginTop: 20,
-    },
-    footerText: {
-        fontSize: 14,
-        color: '#007BFF',
-        textDecorationLine: 'underline',
+        elevation: 5,
     },
     buttonContent: {
         flexDirection: 'row',
@@ -235,49 +223,6 @@ const styles = StyleSheet.create({
         width: 80,
         height: 80,
         marginRight: 8, // 텍스트와의 간격 (왼쪽 이미지니까 marginRight)
-    },
-    bottomButtonBack: {
-        backgroundColor: '#87cefa',
-        paddingVertical: 15,
-        paddingHorizontal: 30,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 25,
-        position: 'absolute',
-        width: '80%',
-        alignSelf: 'center',
-        elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        marginBottom: 10, // ★ 버튼 아래에 간격 추가
-    },
-
-    bottomButtonHome: {
-        backgroundColor: '#ffb6c1',
-        paddingVertical: 15,
-        paddingHorizontal: 30,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 25,
-        position: 'absolute',
-        width: '80%',
-        alignSelf: 'center',
-        elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        bottom: 20, // ★ 화면 하단 기준 위치
-    },
-
-    bottomButtonText: {
-        color: 'black',
-        fontSize: 18,
-        fontWeight: 'bold',
     },
 });
 

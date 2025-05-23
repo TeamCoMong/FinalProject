@@ -12,7 +12,7 @@ const SettingScreen = ({ navigation }) => {
         // 로그아웃 동작 예시
         // 여기서는 간단히 로그인 화면으로 이동하도록 설정
         // 실제로는 세션 초기화 등을 해야 할 수 있습니다.
-        navigation.replace('UserLoginScreen');
+        navigation.navigate('LoginScreen');
     };
 
     return (
@@ -50,30 +50,12 @@ const SettingScreen = ({ navigation }) => {
                 />
             </View>
 
-            {/* 내 고유 코드 번호 보기 버튼 (열쇠 아이콘) */}
+            {/* 내 고유 코드 번호, 등록한 사용자 보기 버튼 (열쇠 아이콘) */}
             <TouchableOpacity
                 style={styles.button}
-                onPress={() => navigation.navigate('MyUniqueCodeScreen')}>
-                <Text style={styles.buttonText}>🔑 내 고유 코드 번호 보기</Text>
+                onPress={() => navigation.navigate('MyProfileInfoScreen')}>
+                <Text style={styles.buttonText}>🔑상세 정보</Text>
             </TouchableOpacity>
-
-            {/* 나를 등록한 보호자 보기 버튼 */}
-            <TouchableOpacity
-                style={styles.button}
-                onPress={() => navigation.navigate('MyGuardianListScreen')}>
-                <Text style={styles.buttonText}>👨‍👩‍👧‍👦 나를 등록한 보호자 보기</Text>
-            </TouchableOpacity>
-
-
-
-            {/* 파이썬 객체 감지 카메라 연동  */}
-            <TouchableOpacity
-                style={styles.button}
-                onPress={() => navigation.navigate('PythonCamScreen')}>
-                <Text style={styles.buttonText}> 객체 감지 카메라 화면</Text>
-            </TouchableOpacity>
-
-
 
 
             {/* 로그아웃 버튼 */}

@@ -1,7 +1,7 @@
 import axios from 'axios';
-
+import EncryptedStorage from 'react-native-encrypted-storage';
 // Base Url 설정
-const BASE_URL = 'http://10.0.2.2:8080/api';
+const BASE_URL = 'https://edd1-61-34-253-238.ngrok-free.app/api';
 
 // Axios 인스턴스 생성
 const api = axios.create({
@@ -11,5 +11,12 @@ const api = axios.create({
         'Content-Type': 'application/json',
     },
 });
-
+// 매 요청 전에 accessToken 자동 첨부
+api.interceptors.request.use(async (config) => {
+    const token = await EncryptedStorage.getItem('accessToken');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
 export default api;

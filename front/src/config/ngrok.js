@@ -1,0 +1,1 @@
+export const NGROK_URL = 'https://edd1-61-34-253-238.ngrok-free.app';

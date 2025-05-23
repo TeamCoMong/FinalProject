@@ -14,6 +14,7 @@ const GuardianRegisterScreen = () => {
     const [isPasswordMatch, setIsPasswordMatch] = useState(null);
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
+    const [userCode, setUserCode] = useState('');
     const [email, setEmail] = useState('');
     const [emailDomain, setEmailDomain] = useState('');
     const [isCustomDomain, setIsCustomDomain] = useState(false);
@@ -22,20 +23,23 @@ const GuardianRegisterScreen = () => {
     const [timeLeft, setTimeLeft] = useState(0); // 타이머 (초 단위)
     const [isFormValid, setIsFormValid] = useState(false);
 
+    const [isEmailVerified, setIsEmailVerified] = useState(false); // 추가
+
     const navigation = useNavigation(); // navigation 객체 가져오기
 
     // 아이디 중복 확인
     const handleUserIdCheck = async () => {
-        try{
-            const response = await api.post('/auth/check-username', {username});
-            if(!response.data.success){
+        try {
+            const response = await api.post('/guardians/check-username', { username });
+            // available 값을 확인해야 합니다.
+            if (response.data.available) {  // true일 때 사용 가능
                 setIsUsernameValid(true);
                 Alert.alert('중복 확인', '사용 가능한 아이디입니다.');
-            } else {
+            } else {  // false일 때 중복된 아이디
                 setIsUsernameValid(false);
                 Alert.alert('중복 확인', '이미 사용 중인 아이디입니다.');
             }
-        } catch(error){
+        } catch (error) {
             Alert.alert('오류', '아이디 확인 중 문제가 발생했습니다.');
         }
     };
@@ -71,7 +75,7 @@ const GuardianRegisterScreen = () => {
             const fullEmail = `${email}@${emailDomain}`;
 
             try {
-                const response = await api.post('/auth/send-email-code', { email: fullEmail });
+                const response = await api.post('/guardians/send-email-code', { email: fullEmail });
 
                 if (!response.data.success) {
                     setIsAuthSent(true); // 인증번호 발송 상태 설정
@@ -108,40 +112,50 @@ const GuardianRegisterScreen = () => {
         }
     }, [timeLeft]);
 
-    // 인증번호 확인
     const checkEmailVerificationCode = async () => {
+        const fullEmail = `${email}@${emailDomain}`;
+        console.log("보내는 데이터:", {
+            email: fullEmail,
+            code: authInput,
+        });
+
         try {
-            const fullEmail = `${email}@${emailDomain}`; // 이메일 주소 조합
-            const response = await api.post('/auth/verify-email-code', {
+            const response = await api.post('/guardians/verify-email-code', {
                 email: fullEmail,
                 code: authInput,
             });
 
-            if (!response.data.success) {
+            if (response.data.success) {
+                setIsEmailVerified(true); // ✅ 인증 성공 시 true
                 Alert.alert('인증 성공', '인증이 완료되었습니다.');
             } else {
+                setIsEmailVerified(false); // ✅ 인증 실패 시 false
                 Alert.alert('인증 실패', '인증번호가 일치하지 않습니다.');
             }
         } catch (error) {
             console.error('인증번호 확인 오류:', error);
+            setIsEmailVerified(false); // 네트워크 에러도 실패 처리
             Alert.alert('오류', '인증번호 확인 중 문제가 발생했습니다.');
         }
     };
 
 
-    // 회원가입 처리 ( FACE ID 추가 여부 )
+    // 회원가입
     const handleRegister = async () => {
+        const fullEmail = `${email}@${emailDomain}`;
         const userData = {
-            username,
-            password,
-            name,
-            phone,
-            email: `${email}@${emailDomain}`,
+            guardianId: username,
+            password: password,
+            userCode: userCode,
+            email: fullEmail,
+            verificationCode: authInput,
+            phone: phone, // ✅ 전화번호 추가
+            guardianName: name, // ✅ 이름 추가
         };
 
-        try {
-            const response = await api.post('/auth/register', userData);
 
+        try {
+            const response = await api.post('/guardians/signup',userData);
             if (response.data.success) {
                 Alert.alert(
                     '회원가입 완료 🎉',
@@ -167,6 +181,7 @@ const GuardianRegisterScreen = () => {
         }
     };
 
+
     // 회원가입 버튼 활성화 여부 확인
     useEffect(() => {
         setIsFormValid(
@@ -179,9 +194,11 @@ const GuardianRegisterScreen = () => {
             phone &&
             email &&
             emailDomain &&
-            authInput
+            authInput &&
+            isEmailVerified // ✅ 인증 성공해야만 true
         );
-    }, [username, isUsernameValid, password, passwordConfirm, isPasswordMatch, name, phone, email, emailDomain, authInput]);
+    }, [username, isUsernameValid, password, passwordConfirm, isPasswordMatch, name, phone, email, emailDomain, authInput, isEmailVerified]);
+
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
@@ -277,6 +294,14 @@ const GuardianRegisterScreen = () => {
                 keyboardType="number-pad"
                 value={phone}
                 onChangeText={handlePhoneChange}
+            />
+
+            {/* 연결할 사용자 코드 입력 */}
+            <TextInput
+                style={styles.input}
+                placeholder="사용자 코드 입력"
+                value={userCode}
+                onChangeText={setUserCode}
             />
 
             {/* 이메일 입력 */}

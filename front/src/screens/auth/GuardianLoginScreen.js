@@ -4,46 +4,31 @@ import api from '../../api/api'; // 서버 API 호출 파일 import
 import EncryptedStorage from 'react-native-encrypted-storage';
 
 const GuardianLoginScreen = ({ navigation }) => {
-    const [username, setUsername] = useState('');
+    const [guardianId, setGuardianId] = useState('');
     const [password, setPassword] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
 
     // 일반 로그인 처리
     const handleLogin = async () => {
         try {
-            const response = await api.post('/auth/login', { username, password });
+            const response = await api.post('/guardians/login', { guardianId, password });
 
             if (response.status === 200) {
-                const { accessToken, refreshToken, username, email, name } = response.data;
+                const { accessToken, refreshToken, guardianId } = response.data;
 
                 // 🔒 보안 저장소에 Refresh Token 저장
                 await EncryptedStorage.setItem('refreshToken', refreshToken);
-
+                // 🔥 guardianId도 보안 저장소에 저장
+                await EncryptedStorage.setItem('guardianId', guardianId); // << 요거 추가!
                 // 🔄 홈 화면으로 이동하며 사용자 데이터 전달
-                navigation.replace('Main', {
-                    username: username,
-                    email: email,
-                    name: name,
+                navigation.replace('GuardianMain', {
+                    guardianId: guardianId,
                     accessToken: accessToken,
                 });
             }
         } catch (error) {
             console.error(error);
             Alert.alert('로그인 실패', '아이디 또는 비밀번호를 확인하세요.');
-        }
-    };
-
-    // 소셜 로그인 처리
-    const handleSocialLogin = async (platform) => {
-        try {
-            const response = await api.get(`/auth/${platform}`);
-            if (response.status === 200) {
-                const { redirectUrl } = response.data;
-                navigation.navigate('WebView', { redirectUrl, platform });
-            }
-        } catch (error) {
-            console.error(error);
-            Alert.alert('소셜 로그인 실패', '다시 시도해주세요.');
         }
     };
 
@@ -56,8 +41,8 @@ const GuardianLoginScreen = ({ navigation }) => {
                 style={styles.input}
                 placeholder="아이디"
                 placeholderTextColor="#999"
-                value={username}
-                onChangeText={setUsername}
+                value={guardianId}
+                onChangeText={setGuardianId}
             />
             <View style={styles.passwordContainer}>
                 <TextInput

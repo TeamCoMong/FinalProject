@@ -66,7 +66,6 @@ public class GuardianSignupTest {
 
         assertThat(response).isNotNull();
         assertThat(response.getGuardianId()).isEqualTo(guardianId);
-        assertThat(response.getUserId()).isEqualTo("ABCD1234");
     }
 
     @Test

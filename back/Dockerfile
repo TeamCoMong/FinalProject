@@ -3,15 +3,15 @@ FROM gradle:8.0-jdk17 AS builder
 
 WORKDIR /app
 
-# 백엔드 폴더 안에 gradle 관련 파일 복사
-COPY back/build.gradle back/settings.gradle ./
-COPY back/gradle ./gradle
+# gradle 관련 파일 복사
+COPY build.gradle settings.gradle ./
+COPY gradle ./gradle
 
 # 의존성 다운로드 (캐시 활용)
 RUN gradle --no-daemon dependencies
 
-# 백엔드 소스 전체 복사
-COPY back/src ./src
+# 소스 전체 복사
+COPY src ./src
 
 # 빌드 실행 (JAR 생성)
 RUN gradle --no-daemon clean build

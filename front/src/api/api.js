@@ -1,7 +1,8 @@
 import axios from 'axios';
 import EncryptedStorage from 'react-native-encrypted-storage';
 // Base Url 설정
-const BASE_URL = 'https://edd1-61-34-253-238.ngrok-free.app/api';
+// const BASE_URL = 'http://192.168.34.24:8080/api';
+const BASE_URL = 'http://172.20.10.7:8080/api';
 
 // Axios 인스턴스 생성
 const api = axios.create({

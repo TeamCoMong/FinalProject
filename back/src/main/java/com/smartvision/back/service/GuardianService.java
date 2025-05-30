@@ -118,6 +118,7 @@ public class GuardianService {
 
         return GuardianResponseDto.builder()
                 .guardianId(guardian.getGuardianId())
+                .guardianName(guardian.getGuardianName())  // 이게 빠졌을 수도 있음
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();

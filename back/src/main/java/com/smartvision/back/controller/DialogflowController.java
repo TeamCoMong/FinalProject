@@ -1,19 +1,18 @@
 package com.smartvision.back.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.smartvision.back.dto.DialogflowResult;
+import com.smartvision.back.service.DialogflowService;
 
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import com.smartvision.back.dto.DialogflowResult;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import com.smartvision.back.service.DialogflowService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/dialogflow")
@@ -28,6 +27,7 @@ public class DialogflowController {
     private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
     // ✅ SSE 연결: 앱이 이 엔드포인트에 연결하면 이벤트 기다림
+    @CrossOrigin(origins = "*") // ✅ 모바일 접근 허용 (CORS 문제 해결)
     @GetMapping(value = "/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter sseConnection() {
         SseEmitter emitter = new SseEmitter(0L); // 연결 무제한 유지
@@ -73,8 +73,8 @@ public class DialogflowController {
                     "outputContext", outputContext == null ? "" : outputContext
             );
 
-            ObjectMapper objectMapper = new ObjectMapper(); // ✅ 추가
-            String jsonResponse = objectMapper.writeValueAsString(response); // ✅ Map -> JSON 변환
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonResponse = objectMapper.writeValueAsString(response);
 
             Iterator<SseEmitter> iterator = emitters.iterator();
             while (iterator.hasNext()) {
@@ -82,7 +82,7 @@ public class DialogflowController {
                 try {
                     emitter.send(SseEmitter.event()
                             .name("intent")
-                            .data(jsonResponse)); // ✅ JSON 문자열 전송
+                            .data(jsonResponse));
                     System.out.println("📤 이벤트 전송 성공 → " + intent);
                 } catch (IOException e) {
                     System.out.println("❌ 이벤트 전송 실패 → emitter 제거");
@@ -100,7 +100,7 @@ public class DialogflowController {
         }
     }
 
-    // ping
+    // ✅ ping
     @Scheduled(fixedRate = 10000)
     public void sendPingToClients() {
         List<SseEmitter> deadEmitters = new ArrayList<>();
@@ -111,8 +111,8 @@ public class DialogflowController {
                 System.out.println("📡 ping 전송 성공 → 현재 연결 수: " + emitters.size());
             } catch (IOException | IllegalStateException e) {
                 System.out.println("⚠️ ping 실패 → emitter 제거");
-                emitter.completeWithError(e);  // 안전하게 종료
-                deadEmitters.add(emitter);     // 죽은 emitter 모으기
+                emitter.completeWithError(e);
+                deadEmitters.add(emitter);
             }
         }
 
@@ -125,15 +125,12 @@ public class DialogflowController {
         System.out.println("🤖 Dialogflow 요청 수신: " + body);
 
         Map<String, Object> queryResult = (Map<String, Object>) body.get("queryResult");
-
         String fulfillmentText = "";
 
-        // 1. 직접 필드로 들어온 경우 우선
         if (queryResult.containsKey("fulfillmentText")) {
             fulfillmentText = (String) queryResult.get("fulfillmentText");
         }
 
-        // 2. 없거나 빈 경우엔 메시지 배열에서 수동 추출
         if (fulfillmentText == null || fulfillmentText.trim().isEmpty()) {
             List<Map<String, Object>> messages = (List<Map<String, Object>>) queryResult.get("fulfillmentMessages");
             if (messages != null && !messages.isEmpty()) {
@@ -156,7 +153,7 @@ public class DialogflowController {
         return ResponseEntity.ok(response);
     }
 
-    // 트리거 테스트
+    // ✅ 트리거 테스트
     @GetMapping("/triggerEvent")
     public ResponseEntity<Map<String, String>> triggerEvent(
             @RequestParam String event,

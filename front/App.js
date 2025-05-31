@@ -16,6 +16,10 @@ import { navigationRef } from './src/navigation/NavigationService';
 import Camera from "./src/screens/Camera";
 import TestBiometricsScreen from "./src/screens/testscreen/TestBiometricsScreen";
 
+
+import ManagerTempScreen2 from "./src/screens/testscreen/ManagerTempScreen2"; // 관리자 임시 통계탭 2
+import ManagerSettingScreen from "./src/screens/Setting/ManagerSettingScreen"; // 관리자 세팅 페이지
+
 import HomeStartScreen from "./src/screens/start/HomeStartScreen";
 import BillScanScreen from "./src/screens/scan/BillScanScreen";
 import SettingScreen from "./src/screens/Setting/SettingScreen";
@@ -44,6 +48,8 @@ import GuardianLoginScreen from './src/screens/auth/GuardianLoginScreen';
 import GuardianRegisterScreen from './src/screens/auth/GuardianRegisterScreen';
 import UserLoginScreen from './src/screens/auth/UserLoginScreen';
 import UserRegisterScreen from './src/screens/auth/UserRegisterScreen';
+import ManagerTempScreen from "./src/screens/testscreen/ManagerTempScreeen";
+import AdminSecondPwScreen from "./src/screens/auth/AdminSecondPwScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -100,6 +106,17 @@ const MainTabNavigator = () => (
     </Tab.Navigator>
 );
 
+
+// ✅  관리자 메인 탭 네비게이터
+const ManagerMainTabNavigator = () => (
+    <Tab.Navigator screenOptions={ManagerScreenOptions}>
+        <Tab.Screen name="통계 데이터" component={ManagerTempScreen} />
+        <Tab.Screen name="AI객체감지 데이터" component={ManagerTempScreen2} />
+        <Tab.Screen name="관리자 설정" component={ManagerSettingScreen} />
+    </Tab.Navigator>
+);
+
+
 const GuardianMainTabNavigator = ({ route }) => {
     const { guardianId } = route.params;
 
@@ -126,6 +143,36 @@ const playSound = (filename) => {
         });
     });
 };
+
+// ✅ 관리자 탭 아이콘 및 스타일 설정Add commentMore actions
+const ManagerScreenOptions = ({ route }) => ({
+    tabBarIcon: ({ focused, size }) => {
+        let iconPath;
+        switch (route.name) {
+            case '통계 데이터':
+                iconPath = require('./src/assets/manage-data.png');
+                break;
+            case 'AI객체감지 데이터' :
+                iconPath = require('./src/assets/manage-data2.png');
+                break;
+            case '관리자 설정':
+                iconPath = require('./src/assets/gear.png');
+                break;
+        }
+        return (
+            <Image source={iconPath} style={{ width: size, height: size }} />
+        );
+    },
+    tabBarActiveTintColor: '#007AFF',
+    tabBarInactiveTintColor: '#A9A9A9',
+
+
+
+});
+
+
+
+
 
 const App = () => {
     useEffect(() => {
@@ -232,7 +279,8 @@ const App = () => {
                             <Stack.Screen name="MyProfileInfoScreen" component={MyProfileInfoScreen} />
                             <Stack.Screen name="UserMain" component={MainTabNavigator} />
                             <Stack.Screen name="GuardianMain" component={GuardianMainTabNavigator} />
-
+                            <Stack.Screen name="ManagerMain" component={ManagerMainTabNavigator} />
+                            <Stack.Screen name="AdminSecondPwScreen" component={AdminSecondPwScreen} />
                             <Stack.Screen name="Camera" component={Camera} />
                         </Stack.Navigator>
                     </NavigationContainer>

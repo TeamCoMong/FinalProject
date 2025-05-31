@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -56,8 +55,9 @@ public class SecurityConfig {
                                 "/",                     // 루트 페이지
                                 "/api/**",              // API 전체
                                 "/api/guardians/login", // 로그인
-                                "/favicon.ico",         // 아이콘 요청
+                                "/dialogflow/sse",      // ✅ SSE 허용
                                 "/error",               // 에러 페이지
+                                "/favicon.ico",         // 아이콘 요청
                                 "/swagger-ui/**",       // Swagger 문서
                                 "/v3/api-docs/**"       // Swagger 문서
                         ).permitAll()

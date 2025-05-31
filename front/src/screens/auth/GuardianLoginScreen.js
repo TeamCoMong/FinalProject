@@ -11,16 +11,31 @@ const GuardianLoginScreen = ({ navigation }) => {
     // 일반 로그인 처리
     const handleLogin = async () => {
         try {
+            // ✅ 관리자 로그인 분기
+            if (guardianId === 'admin') {
+                const response = await api.post('/admin/login', { guardianId, password });
+
+                if (response.status === 200 && response.data.step === 1) {
+                    // 1차 로그인 성공 → 2차 비밀번호 입력 화면으로 이동
+                    navigation.navigate('AdminSecondPwScreen', {
+                        adminId: response.data.adminId
+                    });
+                    return;
+                } else {
+                    Alert.alert('관리자 로그인 실패', response.data.error || '오류 발생');
+                    return;
+                }
+            }
+
+            // ✅ 일반 보호자 로그인 처리
             const response = await api.post('/guardians/login', { guardianId, password });
 
             if (response.status === 200) {
                 const { accessToken, refreshToken, guardianId } = response.data;
 
-                // 🔒 보안 저장소에 Refresh Token 저장
                 await EncryptedStorage.setItem('refreshToken', refreshToken);
-                // 🔥 guardianId도 보안 저장소에 저장
-                await EncryptedStorage.setItem('guardianId', guardianId); // << 요거 추가!
-                // 🔄 홈 화면으로 이동하며 사용자 데이터 전달
+                await EncryptedStorage.setItem('guardianId', guardianId);
+
                 navigation.replace('GuardianMain', {
                     guardianId: guardianId,
                     accessToken: accessToken,
@@ -31,7 +46,6 @@ const GuardianLoginScreen = ({ navigation }) => {
             Alert.alert('로그인 실패', '아이디 또는 비밀번호를 확인하세요.');
         }
     };
-
     return (
         <View style={styles.container}>
             <Text style={styles.title}>보호자모드 - 로그인</Text>

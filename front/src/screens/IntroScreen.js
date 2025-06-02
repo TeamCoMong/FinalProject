@@ -41,11 +41,11 @@ const IntroScreen = ({ navigation }) => {
             </View>
 
 
-             {/* face id 테스트*/}
+             {/* 파이어베이스 테스트*/}
                         <View style={styles.singleButtonContainer}>
                             <TouchableOpacity
                                 style={styles.testButton2}
-                                onPress={() => navigation.navigate('TestBiometricsScreen')}
+                                onPress={() => navigation.navigate('VibrateTest')}
                             >
                                 <Text style={styles.buttonText}>face id 테스트</Text>
                             </TouchableOpacity>

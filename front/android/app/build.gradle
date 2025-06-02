@@ -79,7 +79,7 @@ android {
 
     namespace "com.app"
     defaultConfig {
-        applicationId "com.app"
+        applicationId "com.smartvision.back"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

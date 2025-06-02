@@ -118,4 +118,9 @@ public class GuardianController {
         return ResponseEntity.noContent().build(); // ✅ 204 No Content
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<List<GuardianSimpleDto>> getAllGuardians() {
+        return ResponseEntity.ok(guardianService.getAllGuardians());
+    }
+
 }

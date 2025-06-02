@@ -57,6 +57,7 @@ import UserRegisterScreen from './src/screens/auth/UserRegisterScreen'; // 사�
 import MyProfileInfoScreen from "./src/screens/Setting/MyProfileInfoScreen"; // 사용자 상세 설정 페이지
 
 import VibrateTest from "./src/screens/start/VibrateTest";
+import ListTest from "./src/screens/testscreen/ListTest";
 
 
 
@@ -264,6 +265,8 @@ const App = () => {
 
                             {/* 테스트*/}
                             <Stack.Screen name={"VibrateTest"} component={VibrateTest}/>
+
+                            <Stack.Screen name={"ListTest"} component={ListTest}/>
                         </Stack.Navigator>
                     </NavigationContainer>
                 </View>

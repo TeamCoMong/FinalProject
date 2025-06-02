@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -64,5 +65,12 @@ public class UserService {
         // Face ID 인증 성공 후, 인증된 사용자 정보를 리턴합니다.
 
         return new UserResponseDto(user); // 인증 성공 후 사용자 정보 반환
+    }
+
+    // 관리자화면에서 사용자 목록 불러오는 메서드
+    public List<UserSimpleDto> getAllUser() {
+        return userRepository.findAll().stream()
+                .map(user -> new UserSimpleDto(user.getUserId(), user.getName(), user.getPhone()))
+                .collect(Collectors.toList());
     }
 }

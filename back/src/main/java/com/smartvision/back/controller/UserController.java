@@ -64,4 +64,9 @@ public class UserController {
         return ResponseEntity.ok(guardians);
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<List<UserSimpleDto>> getAllUser() {
+        return ResponseEntity.ok(userService.getAllUser());
+    }
+
 }

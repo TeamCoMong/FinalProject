@@ -23,6 +23,8 @@ const IntroScreen = ({ navigation }) => {
                 <TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('Camera')}>
                     <Text style={styles.buttonText}>카메라 테스트</Text>
                 </TouchableOpacity>
+
+
             </View>
 
             <View style={styles.iconSection}>

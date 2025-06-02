@@ -56,6 +56,7 @@ import UserLoginScreen from './src/screens/auth/UserLoginScreen'; // 사용자 �
 import UserRegisterScreen from './src/screens/auth/UserRegisterScreen'; // 사용자 회원가입 페이지
 import MyProfileInfoScreen from "./src/screens/Setting/MyProfileInfoScreen"; // 사용자 상세 설정 페이지
 
+import VibrateTest from "./src/screens/start/VibrateTest";
 
 
 
@@ -261,6 +262,8 @@ const App = () => {
                             <Stack.Screen name="GuardianMain" component={GuardianMainTabNavigator} />
                             {/*<Stack.Screen name="ManagerMain" component={ManagerMainTabNavigator} />*/}
 
+                            {/* 테스트*/}
+                            <Stack.Screen name={"VibrateTest"} component={VibrateTest}/>
                         </Stack.Navigator>
                     </NavigationContainer>
                 </View>

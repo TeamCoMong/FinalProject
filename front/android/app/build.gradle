@@ -1,7 +1,7 @@
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
-
+apply plugin: 'com.google.gms.google-services' //파이어베이스
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -124,4 +124,7 @@ dependencies {
 //    implementation("androidx.biometric:biometric-ktx:1.4.0-alpha02") // (선택사항, Kotlin 사용 시)
 
     implementation 'androidx.multidex:multidex:2.0.1'
+
+    // Firebase Realtime Database
+    implementation 'com.google.firebase:firebase-database:20.3.0'
 }

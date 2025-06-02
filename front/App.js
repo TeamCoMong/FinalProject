@@ -50,6 +50,8 @@ import UserLoginScreen from './src/screens/auth/UserLoginScreen';
 import UserRegisterScreen from './src/screens/auth/UserRegisterScreen';
 import ManagerTempScreen from "./src/screens/testscreen/ManagerTempScreeen";
 import AdminSecondPwScreen from "./src/screens/auth/AdminSecondPwScreen";
+import SaveDetection from "./src/screens/jooFirestore/SaveDetection";
+import DetectionList from "./src/screens/jooFirestore/DetectionList";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -100,7 +102,8 @@ const guardianScreenOptions = ({ route }) => ({
 const MainTabNavigator = () => (
     <Tab.Navigator screenOptions={userScreenOptions}>
         <Tab.Screen name="홈 키" component={HomeStartScreen} />
-        <Tab.Screen name="지폐 인식" component={BillScanScreen} />
+        {/* <Tab.Screen name="지폐 인식" component={BillScanScreen} /> ← 제거 */}
+        <Tab.Screen name="감지 결과 목록" component={DetectionList} /> {/* ← 추가 */}
         <Tab.Screen name="도움말" component={UserHelpScreen} />
         <Tab.Screen name="기타 설정" component={SettingScreen} />
     </Tab.Navigator>
@@ -169,10 +172,6 @@ const ManagerScreenOptions = ({ route }) => ({
 
 
 });
-
-
-
-
 
 const App = () => {
     useEffect(() => {
@@ -282,6 +281,8 @@ const App = () => {
                             <Stack.Screen name="ManagerMain" component={ManagerMainTabNavigator} />
                             <Stack.Screen name="AdminSecondPwScreen" component={AdminSecondPwScreen} />
                             <Stack.Screen name="Camera" component={Camera} />
+                            <Stack.Screen name="SaveDetection" component={SaveDetection} />
+                            <Stack.Screen name="DetectionList" component={DetectionList} />
                         </Stack.Navigator>
                     </NavigationContainer>
                 </View>

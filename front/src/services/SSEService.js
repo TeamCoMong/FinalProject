@@ -2,7 +2,8 @@ import EventSource from 'react-native-event-source';
 import { navigationRef } from '../navigation/NavigationService';
 import { NGROK_URL } from '../config/ngrok';
 
-let eventSource = null;
+let eventSource = eventSource = new EventSource(`${NGROK_URL}/dialogflow/sse`);
+
 // let eventSource = null;
 let lastPingTime = Date.now();
 let heartbeatChecker = null;
@@ -15,6 +16,7 @@ const intentToRoute = {
     '도움말':'UserHelpScreen',
     '상세설정':'MyProfileInfoScreen',
     '내설정':'SettingsHelpScreen',
+
 };
 
 // 1. SSE 연결

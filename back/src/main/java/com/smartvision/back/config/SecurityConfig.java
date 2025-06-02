@@ -55,12 +55,11 @@ public class SecurityConfig {
                                 "/",                     // 루트 페이지
                                 "/api/**",              // API 전체
                                 "/api/guardians/login", // 로그인
-                                "/dialogflow/**",      // ✅ SSE 허용
+                                "/dialogflow/sse",      // ✅ SSE 허용
                                 "/error",               // 에러 페이지
                                 "/favicon.ico",         // 아이콘 요청
                                 "/swagger-ui/**",       // Swagger 문서
-                                "/v3/api-docs/**",      // Swagger 문서
-                                "/dialogflow/message"
+                                "/v3/api-docs/**"       // Swagger 문서
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

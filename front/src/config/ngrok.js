@@ -1,1 +1,1 @@
-export const NGROK_URL = 'https://ecfc-106-101-8-99.ngrok-free.app';
+export const NGROK_URL = ' https://78bc-106-101-9-235.ngrok-free.app';

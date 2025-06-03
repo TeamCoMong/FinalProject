@@ -58,6 +58,7 @@ import MyProfileInfoScreen from "./src/screens/Setting/MyProfileInfoScreen"; // 
 
 import VibrateTest from "./src/screens/start/VibrateTest";
 import ListTest from "./src/screens/testscreen/ListTest";
+import GuidePage from "./src/screens/location/maptest";
 
 
 
@@ -265,7 +266,7 @@ const App = () => {
 
                             {/* 테스트*/}
                             <Stack.Screen name={"VibrateTest"} component={VibrateTest}/>
-
+                            <Stack.Screen name={"maptest"} component={GuidePage}/>
                             <Stack.Screen name={"ListTest"} component={ListTest}/>
                         </Stack.Navigator>
                     </NavigationContainer>

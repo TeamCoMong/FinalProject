@@ -23,6 +23,13 @@ const IntroScreen = ({ navigation }) => {
                 <TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('Camera')}>
                     <Text style={styles.buttonText}>카메라 테스트</Text>
                 </TouchableOpacity>
+                <TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('UserTmapScreen')}>
+                    <Text style={styles.buttonText}>사용자 길안내 테스트</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('GuardianTmapScreen')}>
+                    <Text style={styles.buttonText}>보호자 길안내 테스트</Text>
+                </TouchableOpacity>
             </View>
 
             <View style={styles.iconSection}>
@@ -39,10 +46,6 @@ const IntroScreen = ({ navigation }) => {
                     <Text style={styles.iconLabel}>장애물 감지</Text>
                 </View>
             </View>
-
-
-             {/* face id 테스트*/}
-
 
             <View style={styles.footerContainer}>
                 <Text style={styles.footerText}>Created by CoMong</Text>

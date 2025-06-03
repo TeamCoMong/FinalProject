@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -40,15 +39,15 @@ import SettingsHelpScreen from "./src/screens/help/SettingsHelpScreen"; // 기�
 import UserTmapScreen from "./src/screens/location/UserTmapScreen"; // t-map 사용자용
 import GuardianTmapScreen from "./src/screens/location/GuardianTmapScreen"; // t-map 보호자용
 
-import IntroScreen from './src/screens/IntroScreen'; // 어플리케이션 시작 페이지 ( 사용자,보호자 모드 설정)
-import FindAccountScreen from "./src/screens/auth/FindAccountScreen"; // 계정 찾기 ( 제작 x )
-import ResetPasswordScreen from "./src/screens/auth/ResetPasswordScreen"; //  현재 제작 x
-import KakaoMapScreen from "./src/screens/location/KakaoMapScreen"; // 창현 테스트 파일
+// import IntroScreen from './src/screens/IntroScreen'; // 어플리케이션 시작 페이지 ( 사용자,보호자 모드 설정)
+// import FindAccountScreen from "./src/screens/auth/FindAccountScreen"; // 계정 찾기 ( 제작 x )
+// import ResetPasswordScreen from "./src/screens/auth/ResetPasswordScreen"; //  현재 제작 x
+// import KakaoMapScreen from "./src/screens/location/KakaoMapScreen"; // 창현 테스트 파일
 import MyProfileInfoScreen from "./src/screens/Setting/MyProfileInfoScreen"; // 사용자 상세 설정 페이지
 
 import IntroScreen from './src/screens/IntroScreen';
-import LoginScreen from './src/screens/auth/LoginScreen';
-import RegisterScreen from './src/screens/auth/RegisterScreen';
+// import LoginScreen from './src/screens/auth/LoginScreen';
+// import RegisterScreen from './src/screens/auth/RegisterScreen';
 import FindAccountScreen from "./src/screens/auth/FindAccountScreen";
 import ResetPasswordScreen from "./src/screens/auth/ResetPasswordScreen";
 import KakaoMapScreen from "./src/screens/location/KakaoMapScreen";
@@ -67,9 +66,9 @@ import GuardianRegisterScreen from './src/screens/auth/GuardianRegisterScreen'; 
 import UserLoginScreen from './src/screens/auth/UserLoginScreen'; // 사용자 로그인 페이지
 import UserRegisterScreen from './src/screens/auth/UserRegisterScreen'; // 사용자 회원가입 페이지
 
-import TestLoginScreen from "./src/screens/testscreen/TestLoginScreen";
-import TmapScreen from "./src/screens/location/TmapScreen";
-import TmapScreenVoice from "./src/screens/location/TmapScreenVoice";
+// import TestLoginScreen from "./src/screens/testscreen/TestLoginScreen";
+// import TmapScreen from "./src/screens/location/TmapScreen";
+// import TmapScreenVoice from "./src/screens/location/TmapScreenVoice";
 import GuardianMapScreen from "./src/screens/location/GuardianMapScreen";
 import TmapTTS from "./src/screens/location/TmapTTS";
 import TestPOI from "./src/screens/location/TestPOI";
@@ -169,7 +168,7 @@ const ManagerScreenOptions = ({ route }) => ({
 const MainTabNavigator = () => (
     <Tab.Navigator screenOptions={userScreenOptions}>
         {/*// 프론트 테스트 연결점 tmap 병합*/}
-        {/*<Tab.Screen name="홈 키" component={TmapViews} />*/}
+        <Tab.Screen name="홈 키" component={TmapViews} />
         <Tab.Screen name="홈 키" component={HomeStartScreen} />
         <Tab.Screen name="지폐 인식" component={BillScanScreen} />
         <Tab.Screen name="도움말" component={UserHelpScreen} />

@@ -1,7 +1,6 @@
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
-apply plugin: "com.google.gms.google-services" // ✅ Firebase 플러그인 추가
 
 react {
     autolinkLibrariesWithApp()
@@ -52,7 +51,4 @@ dependencies {
         implementation jscFlavor
     }
 
-    // ✅ Firebase SDK 추가
-    implementation platform('com.google.firebase:firebase-bom:32.3.1')
-    implementation 'com.google.firebase:firebase-firestore'
 }

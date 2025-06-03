@@ -224,6 +224,12 @@ const styles = StyleSheet.create({
         height: 80,
         marginRight: 8, // 텍스트와의 간격 (왼쪽 이미지니까 marginRight)
     },
+    testButton2: {
+        marginTop: 30,
+        backgroundColor: '#f08080',
+        padding: 15,
+        borderRadius: 20,
+    },
 });
 
 export default UserLoginScreen;

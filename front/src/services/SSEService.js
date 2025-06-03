@@ -2,9 +2,7 @@ import EventSource from 'react-native-event-source';
 import { navigationRef } from '../navigation/NavigationService';
 import { NGROK_URL } from '../config/ngrok';
 
-let eventSource = eventSource = new EventSource(`${NGROK_URL}/dialogflow/sse`);
-
-// let eventSource = null;
+let eventSource = null;
 let lastPingTime = Date.now();
 let heartbeatChecker = null;
 
@@ -98,4 +96,3 @@ const reconnectSSE = () => {
         startSSE();
     }, 5000);
 };
-

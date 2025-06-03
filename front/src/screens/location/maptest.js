@@ -1,11 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, AppState } from "react-native"; // AppState 추가
 import TcpSocket from "react-native-tcp-socket";
-// import Tts from 'react-native-tts'; // TTS 라이브러리 예시 (설치 필요)
 
-// 라즈베리파이 정보 (현재 앱이 서버이므로 이 정보는 직접 사용하지 않음)
-// const RASPBERRY_IP = '192.168.0.162';
-// const RASPBERRY_PORT = 5000;
 
 const APP_SERVER_PORT = 5000; // 앱이 열 TCP 서버 포트
 
@@ -15,23 +11,6 @@ export default function GuidePage() {
     const [detectedInfo, setDetectedInfo] = useState("객체 감지 대기 중...");
     const [isConnectedToRPi, setIsConnectedToRPi] = useState(false);
     const appState = useRef(AppState.currentState); // 앱 상태 추적
-
-    // --- TTS 초기화 및 설정 (라이브러리 사용 시) ---
-    // useEffect(() => {
-    //     Tts.setDefaultLanguage('ko-KR');
-    //     // Tts.addEventListener('tts-start', (event) => console.log("start", event));
-    //     // Tts.addEventListener('tts-finish', (event) => console.log("finish", event));
-    //     // Tts.addEventListener('tts-cancel', (event) => console.log("cancel", event));
-    //     return () => {
-    //         // Tts.stop(); // 컴포넌트 언마운트 시 TTS 중지
-    //     };
-    // }, []);
-
-    // const speak = (message) => {
-    //     Tts.stop(); // 이전 안내 중지
-    //     Tts.speak(message);
-    // };
-    // --- TTS 설정 끝 ---
 
 
     // 메시지를 자연어 문장으로 변환
@@ -64,22 +43,103 @@ export default function GuidePage() {
         }
     };
 
-    // 클래스명을 한국어로 번역 (휠체어 트럭 나무 유모차 스쿠터 기둥 사람 오도방구 소화전 자동차 버스 볼라드 자전거)
+    const TARGET_CLASSES_FOR_ANNOUNCEMENT = [
+        'wheelchair', 'truck', 'tree_trunk', 'stroller', 'scooter',
+        'pole', 'person', 'motorcycle', 'fire_hydrant', 'car',
+        'bus', 'bollard', 'bicycle'
+        // '나무'에 해당하는 영문 클래스명이 'tree_trunk'인지, 아니면 'tree'인지 확인 필요.
+        // YOLO 모델의 실제 클래스명과 일치해야 합니다. 여기서는 'tree_trunk'로 가정.
+    ];
+
+// 클래스명을 한국어로 번역
     const translateClass = (cls) => {
-        // ... (이전 코드와 동일)
         const dict = {
-            wheelchair: "휠체어", truck: "트럭", tree_trunk: "나무",
+            wheelchair: "휠체어", truck: "트럭", tree_trunk: "나무", // 또는 'tree': "나무"
+            stroller: "유모차", scooter: "스쿠터", pole: "기둥",
+            person: "사람", motorcycle: "오토바이", fire_hydrant: "소화전",
+            car: "자동차", bus: "버스", bollard: "볼라드", bicycle: "자전거",
+            // 아래는 TARGET_CLASSES_FOR_ANNOUNCEMENT에 없지만, 번역은 유지 (향후 추가 가능성 대비)
             traffic_sign: "교통 표지판", traffic_light: "신호등", table: "탁자",
-            stroller: "유모차", stop: "정지 표시", scooter: "스쿠터",
-            potted_plant: "화분", pole: "기둥", person: "사람",
-            parking_meter: "주차 미터기", movable_signage: "이동식 표지판",
-            motorcycle: "오토바이", kiosk: "키오스크", fire_hydrant: "소화전",
-            dog: "강아지", chair: "의자", cat: "고양이",
-            carrier: "이동장", car: "자동차", bus: "버스",
-            bollard: "볼라드", bicycle: "자전거", bench: "벤치",
+            stop: "정지 표시", potted_plant: "화분", parking_meter: "주차 미터기",
+            movable_signage: "이동식 표지판", kiosk: "키오스크", dog: "강아지",
+            chair: "의자", cat: "고양이", carrier: "이동장", bench: "벤치",
             barricade: "차단봉",
         };
-        return dict[cls.toLowerCase()] || cls; // 소문자로 비교
+        return dict[cls.toLowerCase()] || cls;
+    };
+
+    const decideAndAnnounce = (objects, currentSensorDistance) => {
+        if (!objects || objects.length === 0) {
+            // ... (이전 코드: 객체 없을 때 거리 센서 기반 안내 또는 메시지)
+            setDetectedInfo("주변에 감지된 주요 객체가 없습니다."); // 기본 메시지
+            return;
+        }
+
+        // 1. 안내 대상 객체만 필터링
+        const filteredObjects = objects.filter(obj =>
+                TARGET_CLASSES_FOR_ANNOUNCEMENT.includes(obj.name.toLowerCase()) && // 소문자로 비교
+                obj.confidence >= MIN_CONFIDENCE_FOR_ANNOUNCEMENT
+            // && (obj.width / screenWidth >= MIN_SIZE_FOR_ANNOUNCEMENT) // 크기 필터는 필요시 추가
+        );
+
+        if (filteredObjects.length === 0) {
+            setDetectedInfo("주변에 안내할 만한 주요 객체가 없습니다. (필터링됨)");
+            return;
+        }
+
+        // 2. 필터링된 객체들 중에서 주요 객체 선정 (예: 화면 중앙, 높은 신뢰도)
+        //    (이전 코드의 primaryObject 선정 로직을 filteredObjects에 대해 수행)
+        const screenWidth = 640; // 실제 카메라 해상도 너비
+        const screenCenterX = screenWidth / 2;
+        let primaryObject = null;
+        let minDistanceToCenter = Infinity;
+
+        filteredObjects.forEach(obj => {
+            const distanceToCenter = Math.abs(obj.xCenter - screenCenterX);
+            if (distanceToCenter < screenWidth * CENTER_X_THRESHOLD) { // 화면 중앙 부근 객체 우선
+                if (primaryObject === null || obj.confidence > primaryObject.confidence) {
+                    primaryObject = obj;
+                    minDistanceToCenter = distanceToCenter;
+                }
+            }
+        });
+
+        // 만약 중앙 부근에 안내 대상 객체가 없다면, 전체 필터링된 객체 중 가장 신뢰도 높은 것을 선택할 수도 있음
+        if (!primaryObject && filteredObjects.length > 0) {
+            primaryObject = filteredObjects.sort((a, b) => b.confidence - a.confidence)[0];
+            console.log("중앙 객체 없음. 신뢰도 가장 높은 안내 대상 객체 선택:", primaryObject.name);
+        }
+
+
+        if (primaryObject) {
+            const now = Date.now();
+            if (primaryObject.name !== lastAnnouncedObject.name || now - lastAnnouncedObject.time > ANNOUNCEMENT_COOLDOWN) {
+                const clsKor = translateClass(primaryObject.name);
+                let announcement = "";
+                if (currentSensorDistance !== null) {
+                    announcement = `전방 약 ${currentSensorDistance.toFixed(1)}미터 부근에 ${clsKor}이(가) 있습니다.`;
+                    if (currentSensorDistance < 1.0) {
+                        announcement = `매우 가까이 ${clsKor}! ${currentSensorDistance.toFixed(1)}미터 앞입니다.`;
+                        // triggerVibration("long_strong");
+                    } else if (currentSensorDistance < 2.0) {
+                        // triggerVibration("medium");
+                    }
+                } else {
+                    announcement = `${clsKor}이(가) 감지되었습니다.`;
+                }
+
+                console.log("🗣️ 안내:", announcement);
+                setDetectedInfo(announcement);
+                // speak(announcement);
+                setLastAnnouncedObject({ name: primaryObject.name, time: now });
+            } else {
+                const clsKor = translateClass(primaryObject.name);
+                setDetectedInfo(`${clsKor} (최근 안내됨)`);
+                console.log(`쿨다운: ${clsKor}`);
+            }
+        } else {
+            setDetectedInfo("주변에 안내할 만한 주요 객체가 없습니다. (선정 실패)");
+        }
     };
 
     // 라즈베리파이에 명령 보내는 함수

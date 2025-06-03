@@ -9,7 +9,7 @@ import Voice from '@react-native-voice/voice';
 import Tts from 'react-native-tts';
 import { NGROK_URL } from '../../config/ngrok';
 import { getEventSource } from "../../services/SSEService";
-import { useNavigation } from '@react-navigation/native'; // ✅ 박주민테스트
+
 const rnBiometrics = new ReactNativeBiometrics();
 
 const UserLoginScreen = ({ navigation }) => {
@@ -29,7 +29,6 @@ const UserLoginScreen = ({ navigation }) => {
         });
     };
 
-
     const handleIntentEvent = (event) => {
         try {
             const data = JSON.parse(event.data);
@@ -41,12 +40,6 @@ const UserLoginScreen = ({ navigation }) => {
         } catch (err) {
             console.error('SSE intent 처리 실패', err);
         }
-    };
-
-    // 박주민 테스트
-    const handleTestLogin = () => {
-        // 인증 없이 HomeStartScreen으로 이동
-        navigation.navigate('HomeStartScreen');
     };
 
     const handleFingerprintLogin = async () => {
@@ -174,12 +167,6 @@ const UserLoginScreen = ({ navigation }) => {
                     <Text style={styles.loginButtonText}>지문 인증 로그인</Text>
                 </View>
             </TouchableOpacity>
-
-            {/* ✅ 테스트 로그인 버튼 추가 */}
-            <TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('UserMain')}>
-                <Text style={styles.buttonText}>(사용자)프론트 테스트</Text>
-            </TouchableOpacity>
-
         </View>
     );
 };
@@ -223,12 +210,6 @@ const styles = StyleSheet.create({
         width: 80,
         height: 80,
         marginRight: 8, // 텍스트와의 간격 (왼쪽 이미지니까 marginRight)
-    },
-    testButton2: {
-        marginTop: 30,
-        backgroundColor: '#f08080',
-        padding: 15,
-        borderRadius: 20,
     },
 });
 

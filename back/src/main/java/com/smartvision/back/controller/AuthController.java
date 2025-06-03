@@ -54,27 +54,27 @@
 //     * @param request UsernameFindRequest (요청 DTO)
 //     * @return UsernameFindResponse (응답 DTO)
 //     */
-////    @PostMapping("/find-username")
-////    public ResponseEntity<UsernameFindResponse> findUsername(@RequestBody UsernameFindRequest request) {
-////        try {
-////            UsernameFindResponse response = authService.findUsername(request);
-////            return ResponseEntity.ok(response);
-////        } catch (IllegalArgumentException e) {
-////            return ResponseEntity.badRequest().body(new UsernameFindResponse(false, null, e.getMessage()));
-////        }
+//    @PostMapping("/find-username")
+//    public ResponseEntity<UsernameFindResponse> findUsername(@RequestBody UsernameFindRequest request) {
+//        try {
+//            UsernameFindResponse response = authService.findUsername(request);
+//            return ResponseEntity.ok(response);
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.badRequest().body(new UsernameFindResponse(false, null, e.getMessage()));
+//        }
 //    }
 //
-////    @PostMapping("/reset-password")
-////    public ResponseEntity<ResetPasswordResponse> resetPassword(@RequestBody ResetPasswordRequest request) {
-////        try {
-////            ResetPasswordResponse response = authService.resetPassword(request);
-////            return ResponseEntity.ok(response);
-////        } catch (IllegalArgumentException e) {
-////            // 사용자 찾기 실패 또는 유효하지 않은 요청 관리
-////            return ResponseEntity.badRequest().body(new ResetPasswordResponse(false, e.getMessage()));
-////        } catch (Exception e) {
-////            // 기타 서버 오류 처리
-////            return ResponseEntity.status(500).body(new ResetPasswordResponse(false, "비밀번호 변경 중 오류가 발생했습니다."));
-////        }
+//    @PostMapping("/reset-password")
+//    public ResponseEntity<ResetPasswordResponse> resetPassword(@RequestBody ResetPasswordRequest request) {
+//        try {
+//            ResetPasswordResponse response = authService.resetPassword(request);
+//            return ResponseEntity.ok(response);
+//        } catch (IllegalArgumentException e) {
+//            // 사용자 찾기 실패 또는 유효하지 않은 요청 관리
+//            return ResponseEntity.badRequest().body(new ResetPasswordResponse(false, e.getMessage()));
+//        } catch (Exception e) {
+//            // 기타 서버 오류 처리
+//            return ResponseEntity.status(500).body(new ResetPasswordResponse(false, "비밀번호 변경 중 오류가 발생했습니다."));
+//        }
 //    }
-//
+//}

@@ -1,0 +1,308 @@
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tmap="http://tlp.tmap.co.kr/" xsi:schemaLocation="http://schemas.opengis.net/kml/2.2.0/ogckml22.xsd">
+    <Document>
+        <Style id="lineStyle">
+            <LineStyle>
+                <color>7f0000ff</color>
+                <width>5</width>
+            </LineStyle>
+        </Style>
+        <Style id="startPointStyle">
+            <IconStyle>
+                <scale>1.0</scale>
+                <Icon>
+                    <w>30</w>
+                    <h>39</h>
+                    <x>-15</x>
+                    <y>-39</y>
+                    <href>http://topopen.tmap.co.kr/imgs/start.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+        <Style id="endPointStyle">
+            <IconStyle>
+                <scale>1.0</scale>
+                <Icon>
+                    <w>30</w>
+                    <h>39</h>
+                    <x>-15</x>
+                    <y>-39</y>
+                    <href>http://topopen.tmap.co.kr/imgs/arrival.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+        <Style id="passPointStyle">
+            <IconStyle>
+                <scale>1.0</scale>
+                <Icon>
+                    <w>30</w>
+                    <h>39</h>
+                    <x>-15</x>
+                    <y>-39</y>
+                    <href>http://topopen.tmap.co.kr/imgs/pass.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+        <Style id="pointStyle">
+            <IconStyle>
+                <scale>1.0</scale>
+                <Icon>
+                    <w>14</w>
+                    <h>14</h>
+                    <x>-7</x>
+                    <y>-7</y>
+                    <href>http://topopen.tmap.co.kr/imgs/point.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+        <Style id="passlineStyle">
+            <LineStyle>
+                <color>7f00ff00</color>
+                <width>5</width>
+            </LineStyle>
+        </Style>
+        <tmap:totalDistance>90440</tmap:totalDistance>
+        <tmap:totalTime>72386</tmap:totalTime>
+        <Placemark>
+            <tmap:index>0</tmap:index>
+            <tmap:pointIndex>0</tmap:pointIndex>
+            <name/>
+            <description>
+                <![CDATA[ 직진하세요 ]]>
+            </description>
+            <styleUrl>#startPointStyle</styleUrl>
+            <tmap:direction/>
+            <tmap:nearPoiName/>
+            <tmap:nearPoiX>0.0</tmap:nearPoiX>
+            <tmap:nearPoiY>0.0</tmap:nearPoiY>
+            <tmap:intersectionName/>
+            <tmap:nodeType>POINT</tmap:nodeType>
+            <tmap:turnType>11</tmap:turnType>
+            <tmap:pointType>SP</tmap:pointType>
+            <tmap:facilityType>11</tmap:facilityType>
+            <tmap:facilityName/>
+            <Point>
+                <coordinates>127.07637976236015,36.79950417679772 </coordinates>
+            </Point>
+            </Placemark>
+        <Placemark>
+            <tmap:index>0</tmap:index>
+            <tmap:pointIndex>0</tmap:pointIndex>
+            <name/>
+            <description>
+                <![CDATA[ 좌회전하세요 ]]>
+            </description>
+            <styleUrl>#startPointStyle</styleUrl>
+            <tmap:direction/>
+            <tmap:nearPoiName/>
+            <tmap:nearPoiX>0.0</tmap:nearPoiX>
+            <tmap:nearPoiY>0.0</tmap:nearPoiY>
+            <tmap:intersectionName/>
+            <tmap:nodeType>POINT</tmap:nodeType>
+            <tmap:turnType>12</tmap:turnType>
+            <tmap:pointType>SP</tmap:pointType>
+            <tmap:facilityType>11</tmap:facilityType>
+            <tmap:facilityName/>
+            <Point>
+                <coordinates>127.07799739455234,36.798016290943686 </coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <tmap:index>0</tmap:index>
+            <tmap:pointIndex>0</tmap:pointIndex>
+            <name/>
+            <description>
+                <![CDATA[ 우회전하세요 ]]>
+            </description>
+            <styleUrl>#startPointStyle</styleUrl>
+            <tmap:direction/>
+            <tmap:nearPoiName/>
+            <tmap:nearPoiX>0.0</tmap:nearPoiX>
+            <tmap:nearPoiY>0.0</tmap:nearPoiY>
+            <tmap:intersectionName/>
+            <tmap:nodeType>POINT</tmap:nodeType>
+            <tmap:turnType>13</tmap:turnType>
+            <tmap:pointType>SP</tmap:pointType>
+            <tmap:facilityType>11</tmap:facilityType>
+            <tmap:facilityName/>
+            <Point>
+                <coordinates>127.07700566137827,36.79983406695185 </coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <tmap:index>0</tmap:index>
+            <tmap:pointIndex>0</tmap:pointIndex>
+            <name/>
+            <description>
+                <![CDATA[ 유턴하세요 ]]>
+            </description>
+            <styleUrl>#startPointStyle</styleUrl>
+            <tmap:direction/>
+            <tmap:nearPoiName/>
+            <tmap:nearPoiX>0.0</tmap:nearPoiX>
+            <tmap:nearPoiY>0.0</tmap:nearPoiY>
+            <tmap:intersectionName/>
+            <tmap:nodeType>POINT</tmap:nodeType>
+            <tmap:turnType>14</tmap:turnType>
+            <tmap:pointType>SP</tmap:pointType>
+            <tmap:facilityType>11</tmap:facilityType>
+            <tmap:facilityName/>
+            <Point>
+                <coordinates>127.07700566137827,36.79983406695185 </coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <tmap:index>0</tmap:index>
+            <tmap:pointIndex>0</tmap:pointIndex>
+            <name/>
+            <description>
+                <![CDATA[ 횡단보도를 건너세요 ]]>
+            </description>
+            <styleUrl>#startPointStyle</styleUrl>
+            <tmap:direction/>
+            <tmap:nearPoiName/>
+            <tmap:nearPoiX>0.0</tmap:nearPoiX>
+            <tmap:nearPoiY>0.0</tmap:nearPoiY>
+            <tmap:intersectionName/>
+            <tmap:nodeType>POINT</tmap:nodeType>
+            <tmap:turnType>15</tmap:turnType>
+            <tmap:pointType>SP</tmap:pointType>
+            <tmap:facilityType>11</tmap:facilityType>
+            <tmap:facilityName/>
+            <Point>
+                <coordinates>127.07700566137827,36.79983406695185 </coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <tmap:index>0</tmap:index>
+            <tmap:pointIndex>0</tmap:pointIndex>
+            <name/>
+            <description>
+                <![CDATA[ 목적지에 도착하였습니다 ]]>
+            </description>
+            <styleUrl>#startPointStyle</styleUrl>
+            <tmap:direction/>
+            <tmap:nearPoiName/>
+            <tmap:nearPoiX>0.0</tmap:nearPoiX>
+            <tmap:nearPoiY>0.0</tmap:nearPoiY>
+            <tmap:intersectionName/>
+            <tmap:nodeType>POINT</tmap:nodeType>
+            <tmap:turnType>16</tmap:turnType>
+            <tmap:pointType>SP</tmap:pointType>
+            <tmap:facilityType>11</tmap:facilityType>
+            <tmap:facilityName/>
+            <Point>
+                <coordinates>127.08211456123256,36.79741878526096 </coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <tmap:index>0</tmap:index>
+            <tmap:pointIndex>0</tmap:pointIndex>
+            <name/>
+            <description>
+                <![CDATA[ 좌회전하세요 ]]>
+            </description>
+            <styleUrl>#startPointStyle</styleUrl>
+            <tmap:direction/>
+            <tmap:nearPoiName/>
+            <tmap:nearPoiX>0.0</tmap:nearPoiX>
+            <tmap:nearPoiY>0.0</tmap:nearPoiY>
+            <tmap:intersectionName/>
+            <tmap:nodeType>POINT</tmap:nodeType>
+            <tmap:turnType>12</tmap:turnType>
+            <tmap:pointType>SP</tmap:pointType>
+            <tmap:facilityType>11</tmap:facilityType>
+            <tmap:facilityName/>
+            <Point>
+                <coordinates>127.07799739455234,36.798016290943686 </coordinates>
+            </Point>
+    </Placemark>
+    <Placemark>
+            <tmap:index>0</tmap:index>
+            <tmap:pointIndex>0</tmap:pointIndex>
+            <name/>
+            <description>
+                <![CDATA[ 목적지 인문관 node01 좌회전하세요 ]]>
+            </description>
+            <styleUrl>#startPointStyle</styleUrl>
+            <tmap:direction/>
+            <tmap:nearPoiName/>
+            <tmap:nearPoiX>0.0</tmap:nearPoiX>
+            <tmap:nearPoiY>0.0</tmap:nearPoiY>
+            <tmap:intersectionName/>
+            <tmap:nodeType>POINT</tmap:nodeType>
+            <tmap:turnType>12</tmap:turnType>
+            <tmap:pointType>SP</tmap:pointType>
+            <tmap:facilityType>11</tmap:facilityType>
+            <tmap:facilityName/>
+            <Point>
+                <coordinates>127.07635,36.79984 </coordinates>
+            </Point>
+    </Placemark>
+        <Placemark>
+            <tmap:index>0</tmap:index>
+            <tmap:pointIndex>0</tmap:pointIndex>
+            <name/>
+            <description>
+                <![CDATA[ 목적지 인문관 node02 우회전하세요 ]]>
+            </description>
+            <styleUrl>#startPointStyle</styleUrl>
+            <tmap:direction/>
+            <tmap:nearPoiName/>
+            <tmap:nearPoiX>0.0</tmap:nearPoiX>
+            <tmap:nearPoiY>0.0</tmap:nearPoiY>
+            <tmap:intersectionName/>
+            <tmap:nodeType>POINT</tmap:nodeType>
+            <tmap:turnType>13</tmap:turnType>
+            <tmap:pointType>SP</tmap:pointType>
+            <tmap:facilityType>11</tmap:facilityType>
+            <tmap:facilityName/>
+            <Point>
+                <coordinates>127.07633,36.79949 </coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <tmap:index>0</tmap:index>
+            <tmap:pointIndex>0</tmap:pointIndex>
+            <name/>
+            <description>
+                <![CDATA[ 목적지 인문관 node03 좌회전하세요 ]]>
+            </description>
+            <styleUrl>#startPointStyle</styleUrl>
+            <tmap:direction/>
+            <tmap:nearPoiName/>
+            <tmap:nearPoiX>0.0</tmap:nearPoiX>
+            <tmap:nearPoiY>0.0</tmap:nearPoiY>
+            <tmap:intersectionName/>
+            <tmap:nodeType>POINT</tmap:nodeType>
+            <tmap:turnType>12</tmap:turnType>
+            <tmap:pointType>SP</tmap:pointType>
+            <tmap:facilityType>11</tmap:facilityType>
+            <tmap:facilityName/>
+            <Point>
+                <coordinates>127.07549,36.79946 </coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <tmap:index>0</tmap:index>
+            <tmap:pointIndex>0</tmap:pointIndex>
+            <name/>
+            <description>
+                <![CDATA[ 목적지 인문관 node04 도착입니다 ]]>
+            </description>
+            <styleUrl>#startPointStyle</styleUrl>
+            <tmap:direction/>
+            <tmap:nearPoiName/>
+            <tmap:nearPoiX>0.0</tmap:nearPoiX>
+            <tmap:nearPoiY>0.0</tmap:nearPoiY>
+            <tmap:intersectionName/>
+            <tmap:nodeType>POINT</tmap:nodeType>
+            <tmap:turnType>16</tmap:turnType>
+            <tmap:pointType>SP</tmap:pointType>
+            <tmap:facilityType>11</tmap:facilityType>
+            <tmap:facilityName/>
+            <Point>
+                <coordinates>127.07549,36.79946 </coordinates>
+            </Point>
+        </Placemark>
+    </Document>
+</kml>

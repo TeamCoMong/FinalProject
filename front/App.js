@@ -1,63 +1,85 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Image, TouchableWithoutFeedback, PermissionsAndroid, Platform, AppState, View } from 'react-native';
+import { TouchableWithoutFeedback } from 'react-native';
 
+// 마이크 권한
+import { PermissionsAndroid, Platform } from 'react-native';
 import Voice from '@react-native-voice/voice';
 import Tts from 'react-native-tts';
-import Sound from 'react-native-sound';
+
+import { View } from 'react-native';
 
 import { NGROK_URL } from './src/config/ngrok';
+
+import Sound from 'react-native-sound';
+
+// 👉 기존 import
+import { Image, AppState } from 'react-native';
 import { startSSE, stopSSE } from './src/services/SSEService';
 import { navigationRef } from './src/navigation/NavigationService';
-
 import Camera from "./src/screens/Camera";
-import TestBiometricsScreen from "./src/screens/testscreen/TestBiometricsScreen";
 
 
-import ManagerTempScreen2 from "./src/screens/testscreen/ManagerTempScreen2"; // 관리자 임시 통계탭 2
-import ManagerSettingScreen from "./src/screens/Setting/ManagerSettingScreen"; // 관리자 세팅 페이지
 
-import HomeStartScreen from "./src/screens/start/HomeStartScreen";
-import BillScanScreen from "./src/screens/scan/BillScanScreen";
-import SettingScreen from "./src/screens/Setting/SettingScreen";
-import UserHelpScreen from "./src/screens/help/UserHelpScreen";
 
-import NavigationHelpScreen from "./src/screens/help/NavigationHelpScreen";
-import MoneyRecognitionHelpScreen from "./src/screens/help/MoneyRecognitionHelpScreen";
-import GuardianRegisterHelpScreen from "./src/screens/help/GuardianRegisterHelpScreen";
-import SettingsHelpScreen from "./src/screens/help/SettingsHelpScreen";
+// 스크린 import
+import HomeStartScreen from "./src/screens/start/HomeStartScreen";  // 사용자 시작페이지 (길안내)
+import BillScanScreen from "./src/screens/scan/BillScanScreen"; //사용자 지폐인식 페이지
+import SettingScreen from "./src/screens/Setting/SettingScreen"; // 사용자 환경설정 페이지
+import UserHelpScreen from "./src/screens/help/UserHelpScreen"; // 사용자 도움말 페이지
+
+//도움말 각 버튼 페이지 (사용자 메인 탭)
+import NavigationHelpScreen from "./src/screens/help/NavigationHelpScreen";  // 사용자 도움말 - 길 안내 기능
+import MoneyRecognitionHelpScreen from "./src/screens/help/MoneyRecognitionHelpScreen"; // 지폐 인식 기능
+import GuardianRegisterHelpScreen from "./src/screens/help/GuardianRegisterHelpScreen"; // 보호자 연동 기능
+import SettingsHelpScreen from "./src/screens/help/SettingsHelpScreen"; // 기타 설정 기능
+import UserTmapScreen from "./src/screens/location/UserTmapScreen"; // t-map 사용자용
+import GuardianTmapScreen from "./src/screens/location/GuardianTmapScreen"; // t-map 보호자용
+
+// import IntroScreen from './src/screens/IntroScreen'; // 어플리케이션 시작 페이지 ( 사용자,보호자 모드 설정)
+// import FindAccountScreen from "./src/screens/auth/FindAccountScreen"; // 계정 찾기 ( 제작 x )
+// import ResetPasswordScreen from "./src/screens/auth/ResetPasswordScreen"; //  현재 제작 x
+// import KakaoMapScreen from "./src/screens/location/KakaoMapScreen"; // 창현 테스트 파일
+import MyProfileInfoScreen from "./src/screens/Setting/MyProfileInfoScreen"; // 사용자 상세 설정 페이지
 
 import IntroScreen from './src/screens/IntroScreen';
+// import LoginScreen from './src/screens/auth/LoginScreen';
+// import RegisterScreen from './src/screens/auth/RegisterScreen';
 import FindAccountScreen from "./src/screens/auth/FindAccountScreen";
 import ResetPasswordScreen from "./src/screens/auth/ResetPasswordScreen";
+import KakaoMapScreen from "./src/screens/location/KakaoMapScreen";
 
-import MyProfileInfoScreen from "./src/screens/Setting/MyProfileInfoScreen";
 
-import GuardianHomeScreen from "./src/screens/start/GuardianHomeScreen";
-import GuardianSettingScreen from "./src/screens/Setting/GuardianSettingScreen";
-import LinkedUserListScreen from "./src/screens/list/LinkedUserListScreen";
-import AddNewUserScreen from "./src/screens/list/AddNewUserScreen";
+import GuardianHomeScreen from "./src/screens/start/GuardianHomeScreen"; // 보호자 모드 메인 시작화면 ( 사용자 현재 위치 보기 페이지 )
+import GuardianSettingScreen from "./src/screens/Setting/GuardianSettingScreen"; // 보호자 모드 환경 설정
+import LinkedUserListScreen from "./src/screens/list/LinkedUserListScreen"; // 보호자 모드 - 보호자가 등록한 사용자 리스트 페이지
+import AddNewUserScreen from "./src/screens/list/AddNewUserScreen"; // 보호자 모드 - 새로운 사용자 추가
 
-import GuardianModeSelectionScreen from './src/screens/mode/GuardianModeSelectionScreen';
-import UserModeSelectionScreen from './src/screens/mode/UserModeSelectionScreen';
+import GuardianModeSelectionScreen from './src/screens/mode/GuardianModeSelectionScreen'; // 보호자 모드 (로그인/회원가입) 페이지
+import UserModeSelectionScreen from './src/screens/mode/UserModeSelectionScreen' // 사용자 모드 (로그인/회원가입) 페이지
 
-import GuardianLoginScreen from './src/screens/auth/GuardianLoginScreen';
-import GuardianRegisterScreen from './src/screens/auth/GuardianRegisterScreen';
-import UserLoginScreen from './src/screens/auth/UserLoginScreen';
-import UserRegisterScreen from './src/screens/auth/UserRegisterScreen';
-import ManagerTempScreen from "./src/screens/testscreen/ManagerTempScreeen";
-import AdminSecondPwScreen from "./src/screens/auth/AdminSecondPwScreen";
-import SaveDetection from "./src/screens/jooFirestore/SaveDetection";
-import DetectionList from "./src/screens/jooFirestore/DetectionList";
+import GuardianLoginScreen from './src/screens/auth/GuardianLoginScreen'; // 보호자 로그인 페이지
+import GuardianRegisterScreen from './src/screens/auth/GuardianRegisterScreen'; // 보호자 회원가입 페이지
+import UserLoginScreen from './src/screens/auth/UserLoginScreen'; // 사용자 로그인 페이지
+import UserRegisterScreen from './src/screens/auth/UserRegisterScreen'; // 사용자 회원가입 페이지
 
+// import TestLoginScreen from "./src/screens/testscreen/TestLoginScreen";
+// import TmapScreen from "./src/screens/location/TmapScreen";
+// import TmapScreenVoice from "./src/screens/location/TmapScreenVoice";
+import GuardianMapScreen from "./src/screens/location/GuardianMapScreen";
+import TmapTTS from "./src/screens/location/TmapTTS";
+import TestPOI from "./src/screens/location/TestPOI";
+
+// ✅ 탭 & 스택 네비게이터
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
+// ✅ 사용자 탭 아이콘 및 스타일 설정
 const userScreenOptions = ({ route }) => ({
-    tabBarIcon: ({ size }) => {
+    tabBarIcon: ({ focused, size }) => {
         let iconPath;
         switch (route.name) {
             case '홈 키':
@@ -73,64 +95,13 @@ const userScreenOptions = ({ route }) => ({
                 iconPath = require('./src/assets/gear.png');
                 break;
         }
-        return <Image source={iconPath} style={{ width: size, height: size }} />;
+        return (
+            <Image source={iconPath} style={{ width: size, height: size }} />
+        );
     },
     tabBarActiveTintColor: '#007AFF',
     tabBarInactiveTintColor: '#A9A9A9',
 });
-
-const guardianScreenOptions = ({ route }) => ({
-    tabBarIcon: ({ size }) => {
-        let iconPath;
-        switch (route.name) {
-            case '사용자 위치확인':
-                iconPath = require('./src/assets/schoolboy2.png');
-                break;
-            case '등록 사용자 리스트':
-                iconPath = require('./src/assets/userList.png');
-                break;
-            case '기타 설정':
-                iconPath = require('./src/assets/gear.png');
-                break;
-        }
-        return <Image source={iconPath} style={{ width: size, height: size }} />;
-    },
-    tabBarActiveTintColor: '#007AFF',
-    tabBarInactiveTintColor: '#A9A9A9',
-});
-
-const MainTabNavigator = () => (
-    <Tab.Navigator screenOptions={userScreenOptions}>
-        <Tab.Screen name="홈 키" component={HomeStartScreen} />
-        {/* <Tab.Screen name="지폐 인식" component={BillScanScreen} /> ← 제거 */}
-        <Tab.Screen name="감지 결과 목록" component={DetectionList} /> {/* ← 추가 */}
-        <Tab.Screen name="도움말" component={UserHelpScreen} />
-        <Tab.Screen name="기타 설정" component={SettingScreen} />
-    </Tab.Navigator>
-);
-
-
-// ✅  관리자 메인 탭 네비게이터
-const ManagerMainTabNavigator = () => (
-    <Tab.Navigator screenOptions={ManagerScreenOptions}>
-        <Tab.Screen name="통계 데이터" component={ManagerTempScreen} />
-        <Tab.Screen name="AI객체감지 데이터" component={ManagerTempScreen2} />
-        <Tab.Screen name="관리자 설정" component={ManagerSettingScreen} />
-    </Tab.Navigator>
-);
-
-
-const GuardianMainTabNavigator = ({ route }) => {
-    const { guardianId } = route.params;
-
-    return (
-        <Tab.Navigator screenOptions={guardianScreenOptions}>
-            <Tab.Screen name="사용자 위치확인" component={GuardianHomeScreen} />
-            <Tab.Screen name="등록 사용자 리스트" component={LinkedUserListScreen} initialParams={{ guardianId }} />
-            <Tab.Screen name="기타 설정" component={GuardianSettingScreen} />
-        </Tab.Navigator>
-    );
-};
 
 const playSound = (filename) => {
     const sound = new Sound(filename, Sound.MAIN_BUNDLE, (error) => {
@@ -147,7 +118,30 @@ const playSound = (filename) => {
     });
 };
 
-// ✅ 관리자 탭 아이콘 및 스타일 설정Add commentMore actions
+// ✅ 보호자 탭 아이콘 및 스타일 설정
+const guardianScreenOptions = ({ route }) => ({
+    tabBarIcon: ({ focused, size }) => {
+        let iconPath;
+        switch (route.name) {
+            case '사용자 위치확인':
+                iconPath = require('./src/assets/schoolboy2.png');
+                break;
+            case '등록 사용자 리스트' :
+                iconPath = require('./src/assets/userList.png');
+                break;
+            case '기타 설정':
+                iconPath = require('./src/assets/gear.png');
+                break;
+        }
+        return (
+            <Image source={iconPath} style={{ width: size, height: size }} />
+        );
+    },
+    tabBarActiveTintColor: '#007AFF',
+    tabBarInactiveTintColor: '#A9A9A9',
+});
+
+// ✅ 관리자 탭 아이콘 및 스타일 설정
 const ManagerScreenOptions = ({ route }) => ({
     tabBarIcon: ({ focused, size }) => {
         let iconPath;
@@ -168,11 +162,39 @@ const ManagerScreenOptions = ({ route }) => ({
     },
     tabBarActiveTintColor: '#007AFF',
     tabBarInactiveTintColor: '#A9A9A9',
-
-
-
 });
 
+// ✅  사용자 메인 탭 네비게이터
+const MainTabNavigator = () => (
+    <Tab.Navigator screenOptions={userScreenOptions}>
+        {/*// 프론트 테스트 연결점 tmap 병합*/}
+        <Tab.Screen name="홈 키" component={TmapViews} />
+        <Tab.Screen name="홈 키" component={HomeStartScreen} />
+        <Tab.Screen name="지폐 인식" component={BillScanScreen} />
+        <Tab.Screen name="도움말" component={UserHelpScreen} />
+        <Tab.Screen name="기타 설정" component={SettingScreen} />
+    </Tab.Navigator>
+);
+
+// ✅  보호자 메인 탭 네비게이터
+const GuardianMainTabNavigator = ({ route }) => {
+    const {guardianId} = route.params;
+
+    return (
+        <Tab.Navigator screenOptions={guardianScreenOptions}>
+            <Tab.Screen name="사용자 위치확인" component={GuardianHomeScreen}/>
+            <Tab.Screen
+                name="등록 사용자 리스트"
+                component={LinkedUserListScreen}
+                initialParams={{guardianId}} // ✅ 여기서 전달
+            />
+            <Tab.Screen name="기타 설정" component={GuardianSettingScreen}/>
+        </Tab.Navigator>
+    );
+};
+
+
+// ✅ 앱 전체 구성
 const App = () => {
     useEffect(() => {
         Tts.setDefaultLanguage('ko-KR');
@@ -190,6 +212,10 @@ const App = () => {
                     },
                 );
                 console.log('🔐 마이크 권한:', granted);
+
+                if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                    // Tts.speak('TTS 테스트입니다.');
+                }
             }
         };
 
@@ -220,7 +246,8 @@ const App = () => {
 
         Voice.onSpeechEnd = () => {
             console.log('🛑 음성 인식이 끝났습니다');
-            playSound('end');
+
+            playSound('end'); // end.mp3 (띠롱)
         };
 
         startSSE();
@@ -237,6 +264,8 @@ const App = () => {
         };
     }, []);
 
+
+    // ✅ 전체 화면 터치 시 STT 시작
     const handleStartListening = async () => {
         try {
             console.log('🟢 음성 인식이 시작되었습니다');
@@ -257,9 +286,25 @@ const App = () => {
                             <Stack.Screen name="Intro" component={IntroScreen} />
                             <Stack.Screen name="FindAccount" component={FindAccountScreen} />
                             <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+                            <Stack.Screen name="KakaoMap" component={KakaoMapScreen} />
+                            {/*창현 T-map 스크린*/}
 
+                            {/* 사용자 테스트 전용 */}
+                            <Stack.Screen name="UserTmapScreen" component={UserTmapScreen} />
+                            {/* 보호자 테스트 전용 */}
+                            <Stack.Screen name="GuardianTmapScreen" component={GuardianTmapScreen} />
+                            {/* 보호자 테스트 2222 */}
+                            <Stack.Screen name="GuardianMapScreen" component={GuardianMapScreen} />
+
+                            {/* POT 테스트 2222 */}
+                            <Stack.Screen name="TestPOI" component={TestPOI} />
+
+                            {/*창현 T-map 스크린 끝*/}
+                            {/* 4/24 메인 이전 로그인/회원가입 화면 */}
                             <Stack.Screen name="GuardianModeSelectionScreen" component={GuardianModeSelectionScreen} />
                             <Stack.Screen name="UserModeSelectionScreen" component={UserModeSelectionScreen} />
+
+                            {/* 4/24 프론트화면*/}
 
                             <Stack.Screen name="GuardianRegisterScreen" component={GuardianRegisterScreen} />
                             <Stack.Screen name="GuardianLoginScreen" component={GuardianLoginScreen} />
@@ -270,19 +315,24 @@ const App = () => {
                             <Stack.Screen name="BillScanScreen" component={BillScanScreen} />
                             <Stack.Screen name="HomeStartScreen" component={HomeStartScreen} />
 
+                            {/* 4/28 기능별 도움말 페이지*/}
+
                             <Stack.Screen name="NavigationHelpScreen" component={NavigationHelpScreen} />
                             <Stack.Screen name="MoneyRecognitionHelpScreen" component={MoneyRecognitionHelpScreen} />
                             <Stack.Screen name="GuardianRegisterHelpScreen" component={GuardianRegisterHelpScreen} />
                             <Stack.Screen name="SettingsHelpScreen" component={SettingsHelpScreen} />
 
                             <Stack.Screen name="MyProfileInfoScreen" component={MyProfileInfoScreen} />
+
+                            {/* 메인 탭  (사용자 / 보호자 / 관리자 */}
                             <Stack.Screen name="UserMain" component={MainTabNavigator} />
                             <Stack.Screen name="GuardianMain" component={GuardianMainTabNavigator} />
-                            <Stack.Screen name="ManagerMain" component={ManagerMainTabNavigator} />
-                            <Stack.Screen name="AdminSecondPwScreen" component={AdminSecondPwScreen} />
+                            {/*<Stack.Screen name="ManagerMain" component={ManagerMainTabNavigator} />*/}
+
+
                             <Stack.Screen name="Camera" component={Camera} />
-                            <Stack.Screen name="SaveDetection" component={SaveDetection} />
-                            <Stack.Screen name="DetectionList" component={DetectionList} />
+
+
                         </Stack.Navigator>
                     </NavigationContainer>
                 </View>

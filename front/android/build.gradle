@@ -22,3 +22,13 @@ buildscript {
 }
 
 apply plugin: "com.facebook.react.rootproject"
+
+// ✅ 여기가 중요합니다!
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = 'https://tmapmobility.github.io/tmap-sdk-repo' }
+        maven { url = "https://devrepo.tmapadmin.com/repository/tmap-sdk-release/" }
+    }
+}

@@ -1,7 +1,6 @@
 import React from 'react';
 import {View, Button, Alert, PermissionsAndroid, Platform} from 'react-native';
 import {launchCamera} from 'react-native-image-picker';
-import { NGROK_URL } from '../../config/ngrok';
 
 const requestCameraPermission = async () => {
     if (Platform.OS === 'android') {
@@ -26,7 +25,7 @@ const requestCameraPermission = async () => {
     }
 };
 
-const YOLO_SERVER_URL = 'https://edd1-61-34-253-238.ngrok-free.app/predict';
+const YOLO_SERVER_URL = 'https://c116-61-34-253-238.ngrok-free.app/predict';
 
 const YoloCameraTest = () => {
     const captureAndDetect = async () => {

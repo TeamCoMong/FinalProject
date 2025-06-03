@@ -31,7 +31,7 @@ const GuardianLoginScreen = ({ navigation }) => {
             const response = await api.post('/guardians/login', { guardianId, password });
 
             if (response.status === 200) {
-                const { accessToken, refreshToken, guardianId } = response.data;
+                const { accessToken, refreshToken, username, email, name } = response.data;
 
                 await EncryptedStorage.setItem('refreshToken', refreshToken);
                 await EncryptedStorage.setItem('guardianId', guardianId);

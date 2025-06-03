@@ -47,6 +47,10 @@ const IntroScreen = ({ navigation }) => {
                 </View>
             </View>
 
+
+             {/* face id 테스트*/}
+
+
             <View style={styles.footerContainer}>
                 <Text style={styles.footerText}>Created by CoMong</Text>
                 <Image source={require('../assets/copyright.png')} style={styles.footerIcon} />

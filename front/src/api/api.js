@@ -1,7 +1,8 @@
 import axios from 'axios';
 import EncryptedStorage from 'react-native-encrypted-storage';
+import { NGROK_URL } from '../config/ngrok';
 // Base Url 설정
-const BASE_URL = 'https://1a72-61-34-253-238.ngrok-free.app/api';
+const BASE_URL = `${NGROK_URL}/api`;
 
 // Axios 인스턴스 생성
 const api = axios.create({

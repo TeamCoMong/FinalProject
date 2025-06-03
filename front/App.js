@@ -42,7 +42,10 @@ import TmapScreen from "./src/screens/location/TmapScreen";
 import TmapScreenVoice from "./src/screens/location/TmapScreenVoice";
 import GuardianMapScreen from "./src/screens/location/GuardianMapScreen";
 import TmapTTS from "./src/screens/location/TmapTTS";
-import TmapTTSP from "./src/screens/location/TmapTTSP";
+import TestPOI from "./src/screens/location/TestPOI";
+
+
+
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -130,6 +133,10 @@ const App = () => {
                 <Stack.Screen name="GuardianTmapScreen" component={GuardianTmapScreen} />
                 {/* 보호자 테스트 2222 */}
                 <Stack.Screen name="GuardianMapScreen" component={GuardianMapScreen} />
+
+                {/* POT 테스트 2222 */}
+                <Stack.Screen name="TestPOI" component={TestPOI} />
+
 
                 {/* 4/24 메인 이전 로그인/회원가입 화면 */}
                 <Stack.Screen name="GuardianModeSelectionScreen" component={GuardianModeSelectionScreen} />

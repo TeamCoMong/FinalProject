@@ -136,6 +136,7 @@ const UserRegisterScreen = ({ navigation }) => {
         const triggerSignupWelcome = async () => {
             try {
                 const res = await fetch(`${NGROK_URL}/dialogflow/triggerEvent?event=signup_welcome`);
+                console.log('에ㅖㅖㅖ예예예');
                 const data = await res.json();
                 if (data.person) {
                     setName(data.person);

@@ -64,11 +64,11 @@ export default function GuidePage() {
         }
     };
 
-    // 클래스명을 한국어로 번역
+    // 클래스명을 한국어로 번역 (휠체어 트럭 나무 유모차 스쿠터 기둥 사람 오도방구 소화전 자동차 버스 볼라드 자전거)
     const translateClass = (cls) => {
         // ... (이전 코드와 동일)
         const dict = {
-            wheelchair: "휠체어", truck: "트럭", tree_trunk: "나무 기둥",
+            wheelchair: "휠체어", truck: "트럭", tree_trunk: "나무",
             traffic_sign: "교통 표지판", traffic_light: "신호등", table: "탁자",
             stroller: "유모차", stop: "정지 표시", scooter: "스쿠터",
             potted_plant: "화분", pole: "기둥", person: "사람",

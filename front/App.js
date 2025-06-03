@@ -22,7 +22,7 @@ import { startSSE, stopSSE } from './src/services/SSEService';
 import { navigationRef } from './src/navigation/NavigationService';
 
 
-import Camera from "./src/screens/Camera";
+import maptest from "./src/screens/location/maptest";
 
 
 import HomeStartScreen from "./src/screens/start/HomeStartScreen";  // 사용자 시작페이지 (길안내)
@@ -302,7 +302,7 @@ const App = () => {
                             {/*<Stack.Screen name="ManagerMain" component={ManagerMainTabNavigator} />*/}
 
 
-                            <Stack.Screen name="Camera" component={Camera} />
+                            <Stack.Screen name="Maptest" component={maptest} />
 
 
                         </Stack.Navigator>

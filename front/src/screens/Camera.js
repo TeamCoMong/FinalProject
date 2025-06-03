@@ -25,7 +25,7 @@ const requestCameraPermission = async () => {
     }
 };
 
-const YOLO_SERVER_URL = 'https://c116-61-34-253-238.ngrok-free.app/predict';
+const YOLO_SERVER_URL = 'https://d178-61-34-253-238.ngrok-free.app/predict';
 
 const YoloCameraTest = () => {
     const captureAndDetect = async () => {

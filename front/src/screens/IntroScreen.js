@@ -20,8 +20,8 @@ const IntroScreen = ({ navigation }) => {
                     <Text style={styles.buttonText}>보호자 모드</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('Camera')}>
-                    <Text style={styles.buttonText}>카메라 테스트</Text>
+                <TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('Maptest')}>
+                    <Text style={styles.buttonText}>객체 테스트</Text>
                 </TouchableOpacity>
             </View>
 

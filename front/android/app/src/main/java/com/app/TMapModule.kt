@@ -72,6 +72,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 import com.facebook.react.modules.core.DeviceEventManagerModule
 
 
+
 class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
 
     //마지막 안내 point
@@ -128,6 +129,12 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
 
 
 
+
+
+    private var gpsTrackingInitialized = false
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -140,65 +147,52 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
         initView()
         initTmap()
         initTTS(this)
-        // 목적지 꺼내서 사용
-       val destinationName = GlobalData.destination
-       Log.d("CHECK", "📥 onCreate에서 받은 목적지: $destinationName")
-       if (!destinationName.isNullOrEmpty()) {
-           searchPOIAndStartRoute(destinationName)
-        } else {
-            Log.e("CHECK", "❌ 목적지 없음")
-        }
 
-
+        // 목적지 자체는 일단 받아서 보관만
+        val destinationName = GlobalData.destination
+        Log.d("CHECK", "📥 onCreate에서 받은 목적지: $destinationName")
     }
 
-    private fun moveToCurrentLocationOnce() {
+    private fun startLocationAndRoutingFlow() {
+        Log.d("FLOW", "🛰️ 위치 수신 및 경로 탐색 플로우 시작")
+
+        // 1️⃣ 기존 좌표가 있으면 무시 (무조건 GPS 콜백 기반으로만 수행)
+        tMapView.locationPoint = TMapPoint(0.0, 0.0)
+
+        // 2️⃣ gpsManager 초기화
         if (gpsManager == null) {
-            gpsManager = TMapGpsManager(this)
+            gpsManager = TMapGpsManager(this).apply {
+                provider = TMapGpsManager.PROVIDER_GPS  // 실외기준 GPS로
+            }
+            Log.d("GPS_INIT", "📌 gpsManager 초기화 완료")
         }
 
-        gpsManager!!.provider = TMapGpsManager.PROVIDER_NETWORK
-
-        // 🔑 1. 먼저 리스너부터 설정 (순서 중요할 수 있음)
+        // 3️⃣ 위치 수신 콜백 등록
+        var hasStarted = false
         gpsManager!!.setOnLocationChangeListener { location: TMapPoint ->
-            val lat = location.latitude
-            val lon = location.longitude
-            Log.d("GPS_TEST", "📍 위치 업데이트: 위도=$lat, 경도=$lon")
+            if (!hasStarted) {
+                hasStarted = true
+                Log.d("GPS", "📍 최초 위치 수신됨: (${location.latitude}, ${location.longitude})")
 
-            // 지도 중심 이동
-            tMapView.setCenterPoint(lat, lon)
-            tMapView.locationPoint = location
-
-            // 현재 위치 마커
-            val marker = TMapMarkerItem().apply {
-                icon = BitmapFactory.decodeResource(resources, com.skt.tmap.R.drawable.location_marker)
-                id = "current_location"
-                tMapPoint = location
-                setPosition(0.5f, 0.5f)
+                gpsManager!!.setOnLocationChangeListener(null)  // 콜백 제거
+                tMapView.locationPoint = location
+                val destination = GlobalData.destination
+                if (!destination.isNullOrEmpty()) {
+                    // 4️⃣ 목적지 경로 탐색 시작
+                    searchPOIAndStartRoute(destination)
+                }
+                // 5️⃣ 이후 실시간 위치 추적 활성화 (마커 포함)
+                setTrackingMode(true)
             }
-
-            if (tMapView.getMarkerItemFromId("current_location") == null) {
-                tMapView.addTMapMarkerItem(marker)
-            } else {
-                tMapView.updateTMapMarkerItem(marker)
-            }
-
-            // 콜백 제거 (한 번만 동작)
-            gpsManager?.setOnLocationChangeListener(null)
-
-            // ✅ 현재 위치 설정이 끝났으니 이제 목적지 검색 시작 가능
-            val destination = GlobalData.destination
-            if (!destination.isNullOrEmpty()) {
-                searchPOIAndStartRoute(destination)
-            } else {
-                Log.e("GPS", "❌ 목적지 정보 없음")
-            }
-
         }
 
-        // 🔑 2. 콜백 등록 이후에 GPS 열기
-        gpsManager!!.openGps()
+        // 6️⃣ GPS 수신 시작 (살짝 딜레이 주는 게 안정적)
+        Handler(Looper.getMainLooper()).postDelayed({
+            gpsManager!!.openGps()
+            Log.d("GPS_INIT", "📡 openGps() 호출 완료")
+        }, 300)
     }
+
 
 
 
@@ -282,6 +276,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
         })
 
         tMapView.setOnMapReadyListener(onMapReadyListener)
+
 
         val tmapLayout = findViewById<FrameLayout>(R.id.tmapLayout)
         tmapLayout.addView(tMapView)
@@ -459,7 +454,8 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
     //사용자 위험 사항 발생 시 사용자의 좌표를 주소로변환에서 보호자에게 사용자의 현재 상세 주소를 알림  기능 확장 가능성 있음
 
     private val onMapReadyListener = OnMapReadyListener {
-        initPoint = tMapView.centerPoint // 여기서 초기 로딩된 좌표 저장 이 값은 TMap SDK 내부에서 기본적으로 설정한 지도 중심 위치이며 **서울 시청 근처(대략 37.5665, 126.9780)
+        initPoint = tMapView.centerPoint
+        // 여기서 초기 로딩된 좌표 저장 이 값은 TMap SDK 내부에서 기본적으로 설정한 지도 중심 위치이며 **서울 시청 근처(대략 37.5665, 126.9780)
         initAll()
 
         val zoom = tMapView.zoomLevel
@@ -467,12 +463,18 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
         // 현재 위치로 지도 이동 추가
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                moveToCurrentLocationOnce()
+//                moveToCurrentLocationOnce()
+//                moveToCurrentLocationOnceAndStartRoute()
+                setTrackingMode(true)
+                startLocationAndRoutingFlow()
             } else {
                 requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 200)
             }
         } else {
-            moveToCurrentLocationOnce()
+//            moveToCurrentLocationOnce()
+//            moveToCurrentLocationOnceAndStartRoute()
+            setTrackingMode(true)
+            startLocationAndRoutingFlow()
         }
     }
 
@@ -831,25 +833,6 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
             }
 
             if (doc != null) {
-//                // 1️⃣ KML 문자열로 변환
-//                val kmlString = StringWriter().apply {
-//                    val transformer = TransformerFactory.newInstance().newTransformer()
-//                    transformer.setOutputProperty(OutputKeys.INDENT, "yes")
-//                    transformer.transform(DOMSource(doc), StreamResult(this))
-//                }.toString()
-//
-//                // 2️⃣ 디버깅용 로그
-//                Log.d("KML_RAW", kmlString)
-//
-//                // 3️⃣ (선택) 파일로 저장
-//                try {
-//                    val file = File(context.filesDir, "route_kml.xml")
-//                    file.writeText(kmlString)
-//                    Log.d("FILE_PATH", "✅ KML 저장 완료: ${file.absolutePath}")
-//                } catch (e: Exception) {
-//                    Log.e("FILE_SAVE", "❌ 파일 저장 실패", e)
-//                }
-
                 val lines = doc.getElementsByTagName("LineString")
                 for (i in 0 until lines.length) {
                     val item = lines.item(i) as? Element ?: continue
@@ -874,7 +857,8 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
                     currentPolyline = polyline
                     currentPlacemarks = doc
                     currentStep = 0
-                    setTracking(true)
+//                    simulateRouteWithTTS(context)
+//                    startLiveNavigationWithTTS(context)
                 } else {
                     Log.e("TMap", "Polyline이 비어 있음 - 경로 없음")
                 }
@@ -934,6 +918,26 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
             moveToNextPoint(context)
         }, delay)
     }
+
+//    실시간 네비게이션 시작 함수 06 05
+    private fun startLiveNavigationWithTTS(context: Context) {
+        if (gpsManager == null) {
+            gpsManager = TMapGpsManager(this)
+            gpsManager!!.provider = TMapGpsManager.PROVIDER_GPS
+        }
+
+        if (!gpsTrackingInitialized) {
+            gpsTrackingInitialized = true
+            gpsManager!!.setOnLocationChangeListener { location: TMapPoint ->
+                processLocationPoint(context, location) // ⬅️ 공통 함수 사용
+            }
+            gpsManager!!.openGps()
+            Log.d("NAV", "📡 실시간 GPS 기반 네비게이션 시작됨")
+        }
+    }
+
+//    실시간 네비게이션 시작 함수 06 05
+
 
 
 
@@ -1006,7 +1010,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
                         Log.d("TTS", "✅ 끝남: $utteranceId")
                         Handler(Looper.getMainLooper()).post {
                             currentStep++
-                            moveToNextPoint(context)
+//                            moveToNextPoint(context)
                         }
                     }
 
@@ -1208,6 +1212,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
     }
 
     private fun setTrackingMode(isTracking: Boolean) {
+        Log.d("CALL_CHECK", "✅ setTrackingMode($isTracking) 호출됨")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             var isGranted = true
             val permissionArr =
@@ -1222,7 +1227,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
             }
 
             if (isGranted) {
-                setTracking(isTracking)
+                setTracking(isTracking,this)
             } else {
                 requestPermissions(checkPer.toTypedArray<String>(), 100)
             }
@@ -1277,8 +1282,8 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
 //    }
 
 
- // GPS 기반 실시간 위치 추적
-    private fun setTracking(isTracking: Boolean) {
+//  GPS 기반 실시간 위치 추적
+    private fun setTracking(isTracking: Boolean, context: Context) {
         if (gpsManager == null) {
             gpsManager = TMapGpsManager(this)
         }
@@ -1290,6 +1295,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
 
             // GPS, 방향 변경 이벤트 리스너
             gpsManager!!.setOnLocationChangeListener { location: TMapPoint ->
+                Log.d("DEBUG", "setTracking 콜백 진행 ")
                 // 위치 Tracking
                 tMapView.locationPoint = location
                 tMapView.setCenterPoint(location.latitude, location.longitude)
@@ -1305,13 +1311,24 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
                 } else {
                     tMapView.updateTMapMarkerItem(marker)
                 }
+
+                processLocationPoint(context, location)
             }
         } else {
             gpsManager!!.setOnLocationChangeListener(null)
             tMapView.removeTMapMarkerItem("position")
         }
     }
-    // GPS 기반 실시간 위치 추적
+//     GPS 기반 실시간 위치 추적
+
+
+
+
+
+
+
+
+
 
     private fun selectSightVisible() {
         AlertDialog.Builder(this)

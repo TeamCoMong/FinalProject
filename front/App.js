@@ -52,6 +52,9 @@ import GuardianRegisterScreen from './src/screens/auth/GuardianRegisterScreen';
 import UserLoginScreen from './src/screens/auth/UserLoginScreen';
 import UserRegisterScreen from './src/screens/auth/UserRegisterScreen';
 
+import UserTmapScreen from "./src/screens/location/UserTmapScreen";
+import GuardianTmapScreen from "./src/screens/location/GuardianTmapScreen";
+
 // import TestLoginScreen from "./src/screens/testscreen/TestLoginScreen";
 // import TmapScreen from "./src/screens/location/TmapScreen";
 // import TmapScreenVoice from "./src/screens/location/TmapScreenVoice";

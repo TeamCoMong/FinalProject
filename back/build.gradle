@@ -26,7 +26,6 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-json'
-    implementation 'org.springframework.boot:spring-boot-starter-httpclient'  // or just use RestTemplate 기본 제공
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-batch'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'

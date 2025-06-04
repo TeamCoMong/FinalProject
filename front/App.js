@@ -27,7 +27,8 @@ import {
 } from './src/services/DetectionService'; // DetectionService 경로 확인!
 
 // 스크린 import (기존과 동일하게 유지)
-import maptest from "./src/screens/location/maptest";
+
+
 import HomeStartScreen from "./src/screens/start/HomeStartScreen";
 import BillScanScreen from "./src/screens/scan/BillScanScreen";
 import SettingScreen from "./src/screens/Setting/SettingScreen";
@@ -153,8 +154,8 @@ const ManagerScreenOptions = ({ route }) => ({
 const MainTabNavigator = () => (
     <Tab.Navigator screenOptions={userScreenOptions}>
         {/*// 프론트 테스트 연결점 tmap 병합*/}
-        <Tab.Screen name="홈 키" component={TmapViews} />
-        <Tab.Screen name="홈 키" component={HomeStartScreen} />
+        {/*<Tab.Screen name="홈 키" component={TmapViews} />*/}
+        <Tab.Screen name="홈 키" component={UserTmapScreen} />
         <Tab.Screen name="지폐 인식" component={BillScanScreen} />
         <Tab.Screen name="도움말" component={UserHelpScreen} />
         <Tab.Screen name="기타 설정" component={SettingScreen} />

@@ -1,6 +1,6 @@
 // DetectionService.js
 import TcpSocket from "react-native-tcp-socket";
-import { AppState } from "react-native";
+import { AppState, Vibration, Platform } from "react-native";
 import Tts from 'react-native-tts';
 
 const APP_SERVER_PORT = 5000;
@@ -8,7 +8,16 @@ const VERY_CLOSE_ANNOUNCEMENT_COOLDOWN = 1500; // "매우 가까이" 안내 쿨�
 const DEFAULT_ANNOUNCEMENT_COOLDOWN = 5000;   // 일반적인 시간 기반 쿨다운 (5초) - "매우 가까이"가 아닌 경우 첫 안내 후 이 시간 동안은 동일 키 반복 안함
 const MIN_CONFIDENCE_FOR_ANNOUNCEMENT = 0.3; // 안내 최소 신뢰도
 const DISTANCE_M_THRESHOLD_VERY_CLOSE = 2.0; // 미터 (1m 미만)
-const DISTANCE_M_THRESHOLD_CLOSE = 3.0;    // 미터 (2m 미만)
+const DISTANCE_M_THRESHOLD_CLOSE = 3.5;    // 미터 (2m 미만)
+
+// 진동 패턴
+const VIBRATION_PATTERN_VERY_CLOSE = [0, 200, 100, 200]; // "매우 가까이" 시 짧고 빠른 패턴
+const VIBRATION_PATTERN_CLOSE = [0, 500];                // "가까이" 시 한 번 길게
+const VIBRATION_PATTERN_NONE = null;
+
+// 진동 주기
+const VIBRATION_INTERVAL_VERY_CLOSE = 1000; // "매우 가까이" 상태 진동 시도 간격 (1초)
+const VIBRATION_INTERVAL_CLOSE = 2000;    // "가까이" 상태 진동 시도 간격 (2초)
 
 let serverInstance = null;
 let clientSocketInstance = null;
@@ -16,6 +25,8 @@ let isConnectedToRPi = false;
 let lastSuccessfullyAnnouncedTTS = { content: null, time: 0 }; // 쿨다운용 (content는 ttsKey 저장)
 let appState = AppState.currentState;
 let appStateSubscription = null;
+let lastVibrationTime = 0;
+let lastVibrationType = VIBRATION_PATTERN_NONE;
 
 // TTS 기본 속도 설정은 App.js에서 앱 초기화 시 한 번 하는 것이 좋습니다.
 // 예: Tts.setDefaultRate(0.65, true); // App.js의 useEffect 등에서
@@ -42,16 +53,16 @@ const parseDataAndGenerateTTS = (raw) => {
         const trimmedRaw = raw.trim();
         let detectedDistanceM = null; // RPi에서 넘어오는 미터 단위 거리
         let detectedObjects = [];
+        let vibrationPatternToUse = VIBRATION_PATTERN_NONE;
 
         if (trimmedRaw === "" || trimmedRaw.toUpperCase() === "NO_OBJECT") {
             console.log("DetectionService: 주변에 감지된 객체가 없습니다.");
-            return { ttsMessage: null, ttsKey: null, isVeryClose: false };
+            return { ttsMessage: null, ttsKey: null, isVeryClose: false, VIBRATION_PATTERN_NONE };
         }
 
         const items = trimmedRaw.split(',');
         if (items.length === 0) {
-            console.log("DetectionService: 감지된 객체가 없습니다. (데이터 비어있음)");
-            return { ttsMessage: null, ttsKey: null, isVeryClose: false };
+            return { ttsMessage: null, ttsKey: null, isVeryClose: false, VIBRATION_PATTERN_NONE };
         }
 
         items.forEach(item => {
@@ -75,8 +86,7 @@ const parseDataAndGenerateTTS = (raw) => {
         });
 
         if (detectedObjects.length === 0 && detectedDistanceM === null) {
-            console.log("DetectionService: 유효한 객체나 거리 정보가 없습니다.");
-            return { ttsMessage: null, ttsKey: null, isVeryClose: false };
+            return { ttsMessage: null, ttsKey: null, isVeryClose: false, VIBRATION_PATTERN_NONE };
         }
 
         let ttsMessage = null;
@@ -94,9 +104,11 @@ const parseDataAndGenerateTTS = (raw) => {
                     ttsMessage = `매우 가까이 ${translatedPrimaryObject}!`;
                     ttsKey = `${primaryObject.name}_very_close`;
                     isVeryClose = true;
+                    vibrationPatternToUse = VIBRATION_PATTERN_VERY_CLOSE;
                 } else if (detectedDistanceM < DISTANCE_M_THRESHOLD_CLOSE) {
                     ttsMessage = `가까이 ${translatedPrimaryObject}.`;
                     ttsKey = `${primaryObject.name}_close`;
+                    vibrationPatternToUse = VIBRATION_PATTERN_CLOSE;
                 } else {
                     ttsMessage = `전방 약 ${distanceM_formatted}미터에 ${translatedPrimaryObject}.`;
                     ttsKey = `${primaryObject.name}_far`;
@@ -106,14 +118,12 @@ const parseDataAndGenerateTTS = (raw) => {
                 ttsKey = `${primaryObject.name}_visible`;
             }
         }
-        // 객체 없이 거리만 있는 경우의 TTS 안내는 현재 요구사항에 따라 제거됨
-        // else if (detectedDistanceM !== null) { ... }
 
-        return { ttsMessage: ttsMessage, ttsKey: ttsKey, isVeryClose: isVeryClose };
+        return { ttsMessage: ttsMessage, ttsKey: ttsKey, isVeryClose: isVeryClose, vibrationPatternToUse: vibrationPatternToUse };
 
     } catch (e) {
         console.error("DetectionService: Error parsing message for TTS:", e, "Raw data:", raw);
-        return { ttsMessage: null, ttsKey: null, isVeryClose: false };
+        return { ttsMessage: null, ttsKey: null, isVeryClose: false, vibrationPatternToUse: VIBRATION_PATTERN_NONE };
     }
 };
 
@@ -157,6 +167,8 @@ export const startDetectionService = () => {
     console.log("DetectionService: 서비스 시작 중...");
 
     lastSuccessfullyAnnouncedTTS = { content: null, time: 0 };
+    lastVibrationTime = 0;
+    lastVibrationType = VIBRATION_PATTERN_NONE;
 
     if (appStateSubscription) {
         appStateSubscription.remove();
@@ -179,34 +191,58 @@ export const startDetectionService = () => {
             const message = data.toString().trim();
             console.log("DetectionService: 📦 RPi 데이터 수신:", message);
 
-            const parsed = parseDataAndGenerateTTS(message);
+            const parsedResult = parseDataAndGenerateTTS(message);
             const now = Date.now();
 
-            if (parsed.ttsMessage && parsed.ttsKey) {
-                let currentCooldownToApply = parsed.isVeryClose ? VERY_CLOSE_ANNOUNCEMENT_COOLDOWN : DEFAULT_ANNOUNCEMENT_COOLDOWN;
+            if (parsedResult.ttsMessage && parsedResult.ttsKey) {
+                let currentCooldownToApply = parsedResult.isVeryClose ? VERY_CLOSE_ANNOUNCEMENT_COOLDOWN : DEFAULT_ANNOUNCEMENT_COOLDOWN;
 
-                if (!parsed.isVeryClose && parsed.ttsKey === lastSuccessfullyAnnouncedTTS.content) {
+                if (!parsedResult.isVeryClose && parsedResult.ttsKey === lastSuccessfullyAnnouncedTTS.content) {
 
-                    console.log(`DetectionService: TTS 이미 안내됨 (매우 가까이 아님, 동일 Key) - Key: "${parsed.ttsKey}"`);
+                    console.log(`DetectionService: TTS 이미 안내됨 (매우 가까이 아님, 동일 Key) - Key: "${parsedResult.ttsKey}"`);
                     return; // 동일 키, 매우 가까이 아니면 중복 안내 방지
                 }
 
-                if (parsed.ttsKey === lastSuccessfullyAnnouncedTTS.content &&
+                if (parsedResult.ttsKey === lastSuccessfullyAnnouncedTTS.content &&
                     (now - lastSuccessfullyAnnouncedTTS.time < currentCooldownToApply)) {
-                    console.log(`DetectionService: TTS 시간 쿨다운 - Key: "${parsed.ttsKey}", Msg: "${parsed.ttsMessage}" (최근 안내됨)`);
+                    console.log(`DetectionService: TTS 시간 쿨다운 - Key: "${parsedResult.ttsKey}", Msg: "${parsedResult.ttsMessage}" (최근 안내됨)`);
                 } else {
-
-                    console.log(`DetectionService: 🗣️ TTS 안내: "${parsed.ttsMessage}"`);
+                    console.log(`DetectionService: 🗣️ TTS 안내: "${parsedResult.ttsMessage}"`);
                     Tts.stop(); // 이전 TTS 중지
-                    Tts.speak(parsed.ttsMessage, {
+                    Tts.speak(parsedResult.ttsMessage, {
                         // androidParams: { /* 필요한 경우 특정 스트림 지정 */ },
                         rate: 0.85, // TTS 속도 (0.5가 보통, 1.0이 빠름)
                         // pitch: 1.0 // 음높이
                     });
-                    lastSuccessfullyAnnouncedTTS = { content: parsed.ttsKey, time: now };
+                    lastSuccessfullyAnnouncedTTS = { content: parsedResult.ttsKey, time: now };
                 }
             } else {
 
+            }
+            // 진동 처리
+            if (parsedResult.vibrationPatternToUse && parsedResult.vibrationPatternToUse !== VIBRATION_PATTERN_NONE) {
+                let vibrationIntervalToUse = 0;
+
+                if (parsedResult.vibrationPatternToUse === VIBRATION_PATTERN_VERY_CLOSE) {
+                    vibrationIntervalToUse = VIBRATION_INTERVAL_VERY_CLOSE;
+                } else if (parsedResult.vibrationPatternToUse === VIBRATION_PATTERN_CLOSE) {
+                    vibrationIntervalToUse = VIBRATION_INTERVAL_CLOSE;
+                }
+
+                // 패턴이 변경되었거나, 동일 패턴이라도 정해진 간격이 지났으면 진동
+                if (parsedResult.vibrationPatternToUse !== lastVibrationType || (now - lastVibrationTime > vibrationIntervalToUse)) {
+                    console.log(`DetectionService: 진동 실행 (패턴: ${parsedResult.vibrationPatternToUse === VIBRATION_PATTERN_VERY_CLOSE ? '매우 가까이' : '가까이'})`);
+                    Vibration.vibrate(parsedResult.vibrationPatternToUse);
+                    lastVibrationTime = now;
+                    lastVibrationType = parsedResult.vibrationPatternToUse;
+                } else {
+
+                }
+            } else { // 진동할 필요 없는 경우
+                if (lastVibrationType !== VIBRATION_PATTERN_NONE) {
+                    lastVibrationType = VIBRATION_PATTERN_NONE; // 이전 진동 타입 초기화
+                    Vibration.cancel(); // 필요시 즉시 진동 중단
+                }
             }
         });
 
@@ -237,6 +273,9 @@ export const startDetectionService = () => {
 };
 
 export const stopDetectionService = () => {
+
+    Vibration.cancel();
+
     if (!serverInstance) {
         console.log("DetectionService: 이미 중지되었거나 시작되지 않았습니다.");
         return;

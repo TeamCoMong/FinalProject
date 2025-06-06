@@ -56,6 +56,11 @@ import UserRegisterScreen from './src/screens/auth/UserRegisterScreen';
 import UserTmapScreen from "./src/screens/location/UserTmapScreen";
 import GuardianTmapScreen from "./src/screens/location/GuardianTmapScreen";
 
+import AdminSecondPwScreen from "./src/screens/auth/AdminSecondPwScreen";
+import AdminStatsScreen from './src/screens/Admin/AdminStatsScreen';
+import AdminAIDetectionScreen from './src/screens/Admin/AdminAIDetectionScreen';
+import AdminSettingsScreen from './src/screens/Admin/AdminSettingsScreen';
+
 // import TestLoginScreen from "./src/screens/testscreen/TestLoginScreen";
 // import TmapScreen from "./src/screens/location/TmapScreen";
 // import TmapScreenVoice from "./src/screens/location/TmapScreenVoice";
@@ -149,6 +154,14 @@ const ManagerScreenOptions = ({ route }) => ({
     tabBarActiveTintColor: '#007AFF',
     tabBarInactiveTintColor: '#A9A9A9',
 });
+// ✅ 관리자 메인 탭 네비게이터 함수형 컴포넌트
+const ManagerMainTabNavigator = () => (
+    <Tab.Navigator screenOptions={ManagerScreenOptions}>
+        <Tab.Screen name="통계 데이터" component={AdminStatsScreen} />
+        <Tab.Screen name="AI객체감지 데이터" component={AdminAIDetectionScreen} />
+        <Tab.Screen name="관리자 설정" component={AdminSettingsScreen} />
+    </Tab.Navigator>
+);
 
 // ✅  사용자 메인 탭 네비게이터
 const MainTabNavigator = () => (
@@ -178,6 +191,8 @@ const GuardianMainTabNavigator = ({ route }) => {
         </Tab.Navigator>
     );
 };
+
+
 
 
 // ✅ 앱 전체 구성
@@ -362,8 +377,9 @@ const App = () => {
                             {/* 메인 탭  (사용자 / 보호자 / 관리자 */}
                             <Stack.Screen name="UserMain" component={MainTabNavigator} />
                             <Stack.Screen name="GuardianMain" component={GuardianMainTabNavigator} />
-                            {/*<Stack.Screen name="ManagerMain" component={ManagerMainTabNavigator} />*/}
+                            <Stack.Screen name="ManagerMain" component={ManagerMainTabNavigator} />
 
+                            <Stack.Screen name="AdminSecondPwScreen" component={AdminSecondPwScreen} />
                         </Stack.Navigator>
                     </NavigationContainer>
                 </View>

@@ -1,1 +1,1 @@
-export const NGROK_URL = 'http://5f80-61-34-253-238.ngrok-free.app';
+export const NGROK_URL = 'https://c323-61-34-253-238.ngrok-free.app';

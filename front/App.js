@@ -80,9 +80,9 @@ const userScreenOptions = ({ route }) => ({
             case '홈 키':
                 iconPath = require('./src/assets/home.png');
                 break;
-            case '지폐 인식':
-                iconPath = require('./src/assets/search.png');
-                break;
+            // case '지폐 인식':
+            //     iconPath = require('./src/assets/search.png');
+            //     break;
             case '도움말':
                 iconPath = require('./src/assets/info.png');
                 break;
@@ -169,7 +169,7 @@ const MainTabNavigator = () => (
         {/*// 프론트 테스트 연결점 tmap 병합*/}
         {/*<Tab.Screen name="홈 키" component={TmapViews} />*/}
         <Tab.Screen name="홈 키" component={UserTmapScreen} />
-        <Tab.Screen name="지폐 인식" component={BillScanScreen} />
+        {/*<Tab.Screen name="지폐 인식" component={BillScanScreen} />*/}
         <Tab.Screen name="도움말" component={UserHelpScreen} />
         <Tab.Screen name="기타 설정" component={SettingScreen} />
     </Tab.Navigator>

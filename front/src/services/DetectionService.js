@@ -7,8 +7,8 @@ const APP_SERVER_PORT = 5000;
 const VERY_CLOSE_ANNOUNCEMENT_COOLDOWN = 1500; // "매우 가까이" 안내 쿨다운 (1.5초)
 const DEFAULT_ANNOUNCEMENT_COOLDOWN = 5000;   // 일반적인 시간 기반 쿨다운 (5초) - "매우 가까이"가 아닌 경우 첫 안내 후 이 시간 동안은 동일 키 반복 안함
 const MIN_CONFIDENCE_FOR_ANNOUNCEMENT = 0.3; // 안내 최소 신뢰도
-const DISTANCE_M_THRESHOLD_VERY_CLOSE = 1.0; // 미터 (1m 미만)
-const DISTANCE_M_THRESHOLD_CLOSE = 2.0;    // 미터 (2m 미만)
+const DISTANCE_M_THRESHOLD_VERY_CLOSE = 2.0; // 미터 (1m 미만)
+const DISTANCE_M_THRESHOLD_CLOSE = 3.0;    // 미터 (2m 미만)
 
 let serverInstance = null;
 let clientSocketInstance = null;
@@ -95,7 +95,7 @@ const parseDataAndGenerateTTS = (raw) => {
                     ttsKey = `${primaryObject.name}_very_close`;
                     isVeryClose = true;
                 } else if (detectedDistanceM < DISTANCE_M_THRESHOLD_CLOSE) {
-                    ttsMessage = `가까이 ${translatedPrimaryObject} 약 ${distanceM_formatted}미터 앞.`;
+                    ttsMessage = `가까이 ${translatedPrimaryObject}.`;
                     ttsKey = `${primaryObject.name}_close`;
                 } else {
                     ttsMessage = `전방 약 ${distanceM_formatted}미터에 ${translatedPrimaryObject}.`;

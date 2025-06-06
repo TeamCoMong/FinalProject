@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -8,26 +8,24 @@ import { TouchableWithoutFeedback, View, Text, StyleSheet } from 'react-native';
 // 마이크 권한
 import { PermissionsAndroid, Platform } from 'react-native';
 import Voice from '@react-native-voice/voice';
-import Tts from 'react-native-tts'; // App.js에서는 Dialogflow 기본 응답 TTS용으로 사용
+import Tts from 'react-native-tts';
 
 import { NGROK_URL } from './src/config/ngrok';
 
 import Sound from 'react-native-sound';
 
-// 👉 기존 import
+// 기존 import
 import { Image, AppState } from 'react-native';
 import { startSSE, stopSSE } from './src/services/SSEService';
 import { navigationRef } from './src/navigation/NavigationService';
 
-// DetectionService import (addOnDetectedInfoUpdateListener는 UI 업데이트가 필요할 경우에만 사용)
 import {
     startDetectionService,
     stopDetectionService,
-    // addOnDetectedInfoUpdateListener, // 필요하다면 UI 업데이트용으로 남겨둘 수 있음
 } from './src/services/DetectionService'; // DetectionService 경로 확인!
 
 // 스크린 import (기존과 동일하게 유지)
-import maptest from "./src/screens/location/maptest";
+
 import HomeStartScreen from "./src/screens/start/HomeStartScreen";
 import BillScanScreen from "./src/screens/scan/BillScanScreen";
 import SettingScreen from "./src/screens/Setting/SettingScreen";
@@ -53,11 +51,11 @@ import UserLoginScreen from './src/screens/auth/UserLoginScreen';
 import UserRegisterScreen from './src/screens/auth/UserRegisterScreen';
 
 
-// ✅ 탭 & 스택 네비게이터
+// 탭 & 스택 네비게이터
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-// ✅ 사용자 탭 아이콘 및 스타일 설정
+// 사용자 탭 아이콘 및 스타일 설정
 const userScreenOptions = ({ route }) => ({
     tabBarIcon: ({ focused, size }) => {
         let iconPath;
@@ -117,9 +115,6 @@ const guardianScreenOptions = ({ route }) => ({
     tabBarInactiveTintColor: '#A9A9A9',
 });
 
-// ManagerScreenOptions (만약 사용한다면)
-// const ManagerScreenOptions = ({ route }) => ({ ... });
-
 
 // ✅  사용자 메인 탭 네비게이터
 const MainTabNavigator = () => (
@@ -133,8 +128,6 @@ const MainTabNavigator = () => (
 
 // ✅  보호자 메인 탭 네비게이터
 const GuardianMainTabNavigator = ({ route }) => {
-    // GuardianMainTabNavigator가 Stack.Screen으로 렌더링될 때 params를 받으므로,
-    // 여기서 guardianId를 사용하려면 route.params에서 가져와야 합니다.
     const guardianId = route.params?.guardianId; // Optional chaining으로 안전하게 접근
 
     return (
@@ -153,9 +146,32 @@ const GuardianMainTabNavigator = ({ route }) => {
 // ManagerMainTabNavigator (만약 사용한다면)
 // const ManagerMainTabNavigator = () => ( ... );
 
+const VOICE_RECOGNITION_ALLOWED_SCREENS = [
+    'Intro',
+    'UserModeSelectionScreen',
+    'UserLoginScreen',
+    'UserRegisterScreen',
+    'MoneyRecognitionHelpScreen',
+    'NavigationHelpScreen',
+    'UserHelpScreen',
+    'SettingHelpScreen',
+    'HomeStartScreen',
+    'BillScanScreen',
+    'MyProfileInfoScreen',
+    '홈 키',
+    '지폐 인식',
+    '도움말',
+    '기타 설정'
+];
+
 
 // ✅ 앱 전체 구성
 const App = () => {
+    const [currentRouteName, setCurrentRouteName] = useState(null);
+    const [isVoiceListening, setIsVoiceListening] = useState(false);
+
+    const routeNameRef = useRef(null);
+
     useEffect(() => {
         Tts.setDefaultLanguage('ko-KR');
         // 앱 시작 시 TTS 엔진 준비 (선택적이지만, 첫 TTS 지연 감소에 도움될 수 있음)
@@ -282,21 +298,58 @@ const App = () => {
 
     // ✅ 전체 화면 터치 시 STT 시작
     const handleStartListening = async () => {
-        try {
-            console.log('🟢 음성 인식이 시작되었습니다');
-            playSound('start.mp3'); // .mp3 확장자 확인
-            await Voice.start('ko-KR'); // 한국어 설정
-        } catch (e) {
-            console.error('🎤 음성인식 시작 실패:', e);
-            Tts.speak('음성 인식 시작에 실패했습니다. 마이크 권한을 확인해주세요.');
-        }
+       const activeRouteName = routeNameRef.current;
+       console.log(`화면 터치됨. ${activeRouteName}, 인식 중: ${isVoiceListening}`);
+
+       if(VOICE_RECOGNITION_ALLOWED_SCREENS.includes(activeRouteName)){
+           if(isVoiceListening){
+               console.log('음성인식 중 중지 시도');
+               try{
+                   await Voice.stop();
+               } catch(e){
+                   console.error('중지 실패', e);
+                   setIsVoiceListening(false);
+               }
+           } else{
+               console.log(`${activeRouteName} 화면에서 음성인식 시도.`);
+               try{
+                   await Voice.start('ko-KR');
+               } catch(e){
+                   console.error('음성인식 시작 실패', e);
+               }
+           }
+       } else{
+           console.log(`${activeRouteName} 화면은 음성인식 X`);
+       }
     };
+
+    const handleNavigationStateChange = (state) => {
+        const findCurrentRoute = (navState) => {
+            if (!navState) return null;
+            const route = navState.routes[navState.index];
+            if (route.state) {
+                return findCurrentRoute(route.state); // 중첩된 네비게이터 처리
+            }
+            return route.name;
+        };
+        const currentName = findCurrentRoute(state);
+        setCurrentRouteName(currentName);
+        routeNameRef.current = currentName; // ref에도 업데이트
+        console.log('Navigation state changed, Current Route:', currentName);
+    }
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <TouchableWithoutFeedback onPress={handleStartListening} style={{ flex: 1 }}>
                 <View style={{ flex: 1 }}>
-                    <NavigationContainer ref={navigationRef}>
+                    <NavigationContainer ref={navigationRef}
+                    onStateChange={handleNavigationStateChange}
+                    onReady={() => {
+                        const initialRouteName = navigationRef.current?.getCurrentRoute()?.name;
+                        routeNameRef.current = initialRouteName;
+                        setCurrentRouteName(initialRouteName);
+                        console.log('Navigation Ready Initial Route: ', initialRouteName);
+                    }}>
                         <Stack.Navigator initialRouteName="Intro" screenOptions={{ headerShown: false }}>
                             {/* 모든 스크린 정의 */}
                             <Stack.Screen name="Intro" component={IntroScreen} />

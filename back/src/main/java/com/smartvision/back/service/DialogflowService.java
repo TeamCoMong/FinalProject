@@ -60,6 +60,10 @@ public class DialogflowService {
             DetectIntentResponse response = sessionsClient.detectIntent(request);
             QueryResult result = response.getQueryResult();
 
+            Struct parameters = result.getParameters();
+
+            String loca = parameters.getFieldsOrDefault("way", Value.newBuilder().setStringValue("").build()).getStringValue();
+
             String intent = result.getIntent().getDisplayName();
             String answer = result.getFulfillmentText();
             String personName = extractPersonName(result.getParameters());
@@ -75,8 +79,9 @@ public class DialogflowService {
             System.out.println("💬 Fulfillment Text: " + answer);
             System.out.println("🙋 인식된 이름 (person): " + personName);
             System.out.println("📦 Output Contexts: " + outputContext );
+            System.out.println("Parameter: " + loca);
 
-            return new DialogflowResult(intent, answer, personName, outputContext);
+            return new DialogflowResult(intent, answer, personName, outputContext, loca);
         }
     }
 

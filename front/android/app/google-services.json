@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "1024127495206",
+    "firebase_url": "https://distancetest-6cba8-default-rtdb.firebaseio.com",
+    "project_id": "distancetest-6cba8",
+    "storage_bucket": "distancetest-6cba8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1024127495206:android:84da04c36c9bafbcbe8ae7",
+        "android_client_info": {
+          "package_name": "com.smartvision.back"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbkkAg32B2dWaR0DdQD3jwa3UAdDvLVKY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

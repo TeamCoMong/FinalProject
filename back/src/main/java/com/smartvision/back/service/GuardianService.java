@@ -4,6 +4,7 @@ import com.smartvision.back.config.JwtProvider;
 import com.smartvision.back.dto.EmailVerificationRequest;
 import com.smartvision.back.dto.GuardianResponseDto;
 import com.smartvision.back.dto.GuardianSignupRequestDto;
+import com.smartvision.back.dto.GuardianSimpleDto;
 import com.smartvision.back.entity.Guardian;
 import com.smartvision.back.entity.GuardianUserRelation;
 import com.smartvision.back.entity.User;
@@ -19,8 +20,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -123,5 +126,10 @@ public class GuardianService {
                 .refreshToken(refreshToken)
                 .build();
     }
-
+    // 관리자에서 보호자 리스트 불러오는 메서드
+    public List<GuardianSimpleDto> getAllGuardians() {
+        return guardianRepository.findAll().stream()
+                .map(g -> new GuardianSimpleDto(g.getGuardianId(), g.getGuardianName(), g.getPhone()))
+                .collect(Collectors.toList());
+    }
 }

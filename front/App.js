@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { TouchableWithoutFeedback, View, Text, StyleSheet } from 'react-native'; // Text, StyleSheet 사용 가능
-
+import './src/config/firebaseConfig';
 // 마이크 권한
 import { PermissionsAndroid, Platform } from 'react-native';
 import Voice from '@react-native-voice/voice';

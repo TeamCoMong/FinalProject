@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NGROK_URL } from '../../config/ngrok';
 import { getEventSource } from '../../services/SSEService';
-import EncryptedStorage from 'react-native-encrypted-storage'; // ⬅️ 이거 상단에 import 추가!
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 import Sound from 'react-native-sound';
 
@@ -96,12 +96,13 @@ const UserRegisterScreen = ({ navigation }) => {
                 await EncryptedStorage.setItem('userId', newUserId);
 
 
-                const spacedId = newUserId.split('').join(' ');
-                Tts.speak(`회원가입이 완료되었습니다. 회원님의 아이디는 ${spacedId} 입니다.`);
+                const spacedId = newUserId.split('').map(char => `${char}.`).join(' ');
+                const ttsMessage = `회원가입이 완료되었습니다. 회원님의 아이디는 ${spacedId} 입니다.`;
+                Tts.speak(ttsMessage);
 
                 // Alert.alert('회원가입 성공', `회원가입이 완료되었습니다.\n사용자 ID: ${newUserId}`);
                 setTimeout(() => {
-                    navigation.replace('Intro');
+                    navigation.replace('UserMain');
                 }, 6000);
             } else {
                 Alert.alert('회원가입 실패', response.data.message);
@@ -136,7 +137,6 @@ const UserRegisterScreen = ({ navigation }) => {
         const triggerSignupWelcome = async () => {
             try {
                 const res = await fetch(`${NGROK_URL}/dialogflow/triggerEvent?event=signup_welcome`);
-                console.log('에ㅖㅖㅖ예예예');
                 const data = await res.json();
                 if (data.person) {
                     setName(data.person);

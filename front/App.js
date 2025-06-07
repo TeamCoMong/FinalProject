@@ -58,11 +58,9 @@ import AdminStatsScreen from './src/screens/Admin/AdminStatsScreen';
 import AdminAIDetectionScreen from './src/screens/Admin/AdminAIDetectionScreen';
 import AdminSettingsScreen from './src/screens/Admin/AdminSettingsScreen';
 
-// import TestLoginScreen from "./src/screens/testscreen/TestLoginScreen";
-// import TmapScreen from "./src/screens/location/TmapScreen";
-// import TmapScreenVoice from "./src/screens/location/TmapScreenVoice";
+
 import GuardianMapScreen from "./src/screens/location/GuardianMapScreen";
-import TmapTTS from "./src/screens/location/TmapTTS";
+
 import TestPOI from "./src/screens/location/TestPOI";
 
 // 탭 & 스택 네비게이터
@@ -93,7 +91,7 @@ const userScreenOptions = ({ route }) => ({
     tabBarInactiveTintColor: '#A9A9A9',
 });
 
-const playSound = (filenameWithExtension) => { // 매개변수명 명확히
+const playSound = (filenameWithExtension) => {
     const sound = new Sound(filenameWithExtension, Sound.MAIN_BUNDLE, (error) => {
         if (error) {
             console.error(`❌ 사운드 로드 실패 (${filenameWithExtension}):`, error);
@@ -153,10 +151,10 @@ const ManagerScreenOptions = ({ route }) => ({
 });
 // ✅ 관리자 메인 탭 네비게이터 함수형 컴포넌트
 const ManagerMainTabNavigator = () => (
-    <Tab.Navigator screenOptions={ManagerScreenOptions}>
-        <Tab.Screen name="통계 데이터" component={AdminStatsScreen} />
-        <Tab.Screen name="AI객체감지 데이터" component={AdminAIDetectionScreen} />
-        <Tab.Screen name="관리자 설정" component={AdminSettingsScreen} />
+    <Tab.Navigator screenOptions={ManagerScreenOptions} >
+        <Tab.Screen name="통계 데이터" component={AdminStatsScreen} options={{ headerShown: false}}/>
+        <Tab.Screen name="AI객체감지 데이터" component={AdminAIDetectionScreen} options={{ headerShown: false}}/>
+        <Tab.Screen name="관리자 설정" component={AdminSettingsScreen} options={{ headerShown: false}}/>
     </Tab.Navigator>
 );
 
@@ -164,7 +162,7 @@ const ManagerMainTabNavigator = () => (
 const MainTabNavigator = () => (
     <Tab.Navigator screenOptions={userScreenOptions}>
         <Tab.Screen name="홈 키" component={HomeStartScreen} options={{ headerShown: false}} />
-        <Tab.Screen name="지폐 인식" component={BillScanScreen} options={{ headerShown: false}} />
+        {/*<Tab.Screen name="지폐 인식" component={BillScanScreen} options={{ headerShown: false}} />*/}
         <Tab.Screen name="도움말" component={UserHelpScreen} options={{ headerShown: false}} />
         <Tab.Screen name="기타 설정" component={SettingScreen} options={{ headerShown: false}} />
     </Tab.Navigator>
@@ -301,7 +299,7 @@ const App = () => {
                 })
                 .catch(err => {
                     console.error('❌ Dialogflow 요청 또는 처리 오류:', err);
-                    Tts.speak('죄송합니다, 요청 처리 중 오류가 발생했습니다.');
+                    Tts.speak('죄송합니다. 다시 시도해주세요.');
                 });
         };
 
@@ -321,10 +319,10 @@ const App = () => {
         const sseSubscription = AppState.addEventListener('change', (nextState) => {
             if (nextState === 'active') {
                 console.log("앱 활성화됨. SSE 재시작 (필요시).");
-                startSSE(); // 이미 startSSE 내부에서 중복 실행 방지 로직이 있을 것으로 가정
+                startSSE();
             } else if (nextState.match(/inactive|background/)) {
                 console.log("앱 비활성화됨. SSE 연결 유지 또는 중지 정책 필요.");
-                // stopSSE(); // 앱이 백그라운드로 갈 때 SSE를 중지할지 여부는 정책에 따라 결정
+
             }
         });
 
@@ -355,6 +353,7 @@ const App = () => {
                }
            } else{
                console.log(`${activeRouteName} 화면에서 음성인식 시도.`);
+               playSound('start.mp3');
                try{
                    await Voice.start('ko-KR');
                } catch(e){

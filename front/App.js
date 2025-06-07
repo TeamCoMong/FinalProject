@@ -119,10 +119,10 @@ const guardianScreenOptions = ({ route }) => ({
 // ✅  사용자 메인 탭 네비게이터
 const MainTabNavigator = () => (
     <Tab.Navigator screenOptions={userScreenOptions}>
-        <Tab.Screen name="홈 키" component={HomeStartScreen} />
-        <Tab.Screen name="지폐 인식" component={BillScanScreen} />
-        <Tab.Screen name="도움말" component={UserHelpScreen} />
-        <Tab.Screen name="기타 설정" component={SettingScreen} />
+        <Tab.Screen name="홈 키" component={HomeStartScreen} options={{ headerShown: false}} />
+        <Tab.Screen name="지폐 인식" component={BillScanScreen} options={{ headerShown: false}} />
+        <Tab.Screen name="도움말" component={UserHelpScreen} options={{ headerShown: false}} />
+        <Tab.Screen name="기타 설정" component={SettingScreen} options={{ headerShown: false}} />
     </Tab.Navigator>
 );
 

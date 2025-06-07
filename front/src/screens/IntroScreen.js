@@ -5,8 +5,8 @@ const IntroScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.logoContainer}>
-                <Image source={require('../assets/appicon2.png')} style={styles.logo} />
-                <Text style={styles.appName}>SafeWalk</Text>
+                <Image source={require('../assets/logo.png')} style={styles.logo} />
+                <Text style={styles.appName}>SmartVision</Text>
             </View>
 
             <View style={styles.buttonContainer}>

@@ -4,15 +4,15 @@ import { AppState, Vibration, Platform } from "react-native";
 import Tts from 'react-native-tts';
 
 const APP_SERVER_PORT = 5000;
-const VERY_CLOSE_ANNOUNCEMENT_COOLDOWN = 1500; // "매우 가까이" 안내 쿨다운 (1.5초)
-const DEFAULT_ANNOUNCEMENT_COOLDOWN = 5000;   // 일반적인 시간 기반 쿨다운 (5초) - "매우 가까이"가 아닌 경우 첫 안내 후 이 시간 동안은 동일 키 반복 안함
+const VERY_CLOSE_ANNOUNCEMENT_COOLDOWN = 1500; // "매우 가까이" 안내 쿨다운
+const DEFAULT_ANNOUNCEMENT_COOLDOWN = 5000;   // 일반적인 시간 기반 쿨다운
 const MIN_CONFIDENCE_FOR_ANNOUNCEMENT = 0.3; // 안내 최소 신뢰도
 const DISTANCE_M_THRESHOLD_VERY_CLOSE = 2.0; // 미터 (1m 미만)
 const DISTANCE_M_THRESHOLD_CLOSE = 3.5;    // 미터 (2m 미만)
 
 // 진동 패턴
 const VIBRATION_PATTERN_VERY_CLOSE = [0, 200, 100, 200]; // "매우 가까이" 시 짧고 빠른 패턴
-const VIBRATION_PATTERN_CLOSE = [0, 500];                // "가까이" 시 한 번 길게
+const VIBRATION_PATTERN_CLOSE = [0, 500]; // "가까이" 시 한 번 길게
 const VIBRATION_PATTERN_NONE = null;
 
 // 진동 주기
@@ -28,8 +28,6 @@ let appStateSubscription = null;
 let lastVibrationTime = 0;
 let lastVibrationType = VIBRATION_PATTERN_NONE;
 
-// TTS 기본 속도 설정은 App.js에서 앱 초기화 시 한 번 하는 것이 좋습니다.
-// 예: Tts.setDefaultRate(0.65, true); // App.js의 useEffect 등에서
 
 const translateClass = (cls) => {
     const dict = {
@@ -47,7 +45,6 @@ const translateClass = (cls) => {
 };
 
 // RPi 데이터 파싱 -> TTS 메시지 생성
-// 반환값: { ttsMessage: "TTS할 문장 (null이면 TTS 안함)", ttsKey: "쿨다운 비교용 키", isVeryClose: boolean }
 const parseDataAndGenerateTTS = (raw) => {
     try {
         const trimmedRaw = raw.trim();

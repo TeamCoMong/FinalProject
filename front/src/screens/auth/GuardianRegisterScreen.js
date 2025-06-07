@@ -159,18 +159,14 @@ const GuardianRegisterScreen = () => {
             if (response.data.success) {
                 Alert.alert(
                     '회원가입 완료 🎉',
-                    'Face ID를 지금 등록하시겠습니까?',
                     [
                         {
-                            text: '네',
-                            onPress: () => navigation.navigate('GuardianFaceIDScreen'),
-                        },
-                        {
-                            text: '나중에',
-                            onPress: () => navigation.navigate('GuardianLoginScreen'),
-                            style: 'cancel',
-                        },
-                    ]
+                            text: '확인',
+                            onPress: () => {
+                                navigation.replace('GuardianHomeScreen');
+                            }
+                        }
+                    ],
                 );
             } else {
                 Alert.alert('회원가입 실패', response.data.message);

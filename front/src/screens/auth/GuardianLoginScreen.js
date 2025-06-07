@@ -91,7 +91,7 @@ const GuardianLoginScreen = ({ navigation }) => {
                     <Text style={styles.footerText}>계정 찾기</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                <TouchableOpacity onPress={() => navigation.navigate('GuardianRegisterScreen')}>
                     <Text style={styles.footerText}>회원가입</Text>
                 </TouchableOpacity>
             </View>

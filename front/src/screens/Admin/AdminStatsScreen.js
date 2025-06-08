@@ -5,6 +5,25 @@ import { LineChart } from 'react-native-chart-kit';
 import { database } from '../../config/firebaseConfig';
 import { ref, onValue } from 'firebase/database';
 
+const getStrengthLevel = (value) => {
+    if (value < 100) return { level: '약함', color: '#FFCDD2' };
+    if (value < 500) return { level: '보통', color: '#FFF9C4' };
+    if (value < 1500) return { level: '좋음', color: '#C8E6C9' };
+    if (value < 3000) return { level: '매우 좋음', color: '#B3E5FC' };
+    return { level: '매우 강함', color: '#D1C4E9' };
+};
+
+const StrengthLegend = () => (
+    <View style={styles.legendBlock}>
+        <Text style={styles.legendTitle}>💡 강도(Level) 해석 기준</Text>
+        <View style={styles.legendRow}><View style={[styles.colorBox, { backgroundColor: '#FFCDD2' }]} /><Text style={styles.legendText}>0~100 : 약함 (감지 신뢰도 낮음)</Text></View>
+        <View style={styles.legendRow}><View style={[styles.colorBox, { backgroundColor: '#FFF9C4' }]} /><Text style={styles.legendText}>100~500 : 보통 (주의 필요)</Text></View>
+        <View style={styles.legendRow}><View style={[styles.colorBox, { backgroundColor: '#C8E6C9' }]} /><Text style={styles.legendText}>500~1500 : 좋음</Text></View>
+        <View style={styles.legendRow}><View style={[styles.colorBox, { backgroundColor: '#B3E5FC' }]} /><Text style={styles.legendText}>1500~3000 : 매우 좋음</Text></View>
+        <View style={styles.legendRow}><View style={[styles.colorBox, { backgroundColor: '#D1C4E9' }]} /><Text style={styles.legendText}>3000↑ : 매우 강함 (가까운 대상)</Text></View>
+    </View>
+);
+
 const AdminStatsScreen = () => {
     const [entries, setEntries] = useState([]);
     const [distanceData, setDistanceData] = useState([]);
@@ -40,13 +59,16 @@ const AdminStatsScreen = () => {
         return () => unsubscribe();
     }, []);
 
-    const renderItem = ({ item }) => (
-        <View style={styles.item}>
-            <Text>📏 거리: {item.distance}cm</Text>
-            <Text>💡 강도: {item.strength}</Text>
-            <Text>🌡 온도: {item.temp}°C</Text>
-        </View>
-    );
+    const renderItem = ({ item }) => {
+        const { level, color } = getStrengthLevel(item.strength);
+        return (
+            <View style={[styles.item, { backgroundColor: color }]}>
+                <Text style={styles.itemText}>📏 거리: {item.distance}cm</Text>
+                <Text style={styles.itemText}>💡 강도: {item.strength} ({level})</Text>
+                <Text style={styles.itemText}>🌡 온도: {item.temp}°C</Text>
+            </View>
+        );
+    };
 
     const renderHeader = () => (
         <>
@@ -74,6 +96,7 @@ const AdminStatsScreen = () => {
                 <Text>📉 유효한 거리 데이터가 없습니다</Text>
             )}
             <Text style={styles.title}>📋 상세 데이터</Text>
+            <StrengthLegend />
         </>
     );
 
@@ -96,6 +119,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '600',
         marginVertical: 10,
+        color: '#000',
     },
     chart: {
         borderRadius: 16,
@@ -104,6 +128,40 @@ const styles = StyleSheet.create({
         padding: 10,
         borderBottomColor: '#ccc',
         borderBottomWidth: 1,
+        borderRadius: 10,
+    },
+    itemText: {
+        color: '#000',
+        fontSize: 16,
+    },
+    legendBlock: {
+        backgroundColor: '#fff',
+        padding: 10,
+        borderRadius: 10,
+        marginVertical: 10,
+        borderWidth: 1,
+        borderColor: '#ccc',
+    },
+    legendTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 6,
+        color: '#000',
+    },
+    legendRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 4,
+    },
+    legendText: {
+        fontSize: 14,
+        color: '#000',
+    },
+    colorBox: {
+        width: 16,
+        height: 16,
+        marginRight: 8,
+        borderRadius: 4,
     },
 });
 

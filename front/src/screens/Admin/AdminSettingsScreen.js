@@ -84,6 +84,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         marginBottom: 20,
+        color: '#000',
     },
     button: {
         padding: 10,
@@ -99,6 +100,7 @@ const styles = StyleSheet.create({
         padding: 8,
         borderBottomColor: '#ccc',
         borderBottomWidth: 1,
+        color: '#000',
     },
 });
 

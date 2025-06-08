@@ -66,7 +66,7 @@ const UserLoginScreen = ({ navigation }) => {
                             name: name,
                             accessToken: accessToken,
                         });
-                    }, 3000); // TTS 끝나기를 기다리는 대략적인 시간
+                    }, 3000);
                 } else {
                     Alert.alert('로그인 실패', '서버에서 로그인에 실패했습니다.');
                 }
@@ -167,6 +167,24 @@ const UserLoginScreen = ({ navigation }) => {
                     <Text style={styles.loginButtonText}>지문 인증 로그인</Text>
                 </View>
             </TouchableOpacity>
+
+            <TouchableOpacity
+                style={[styles.loginButton, { marginTop: 20, backgroundColor: '#ffa07a' }]}
+                onPress={() => {
+                    console.log('🧪 프론트 테스트 버튼 클릭됨');
+                    Tts.stop();
+                    Tts.speak('프론트 테스트 성공입니다.');
+                    Alert.alert('프론트 테스트', '프론트 테스트 성공!');
+
+                    setTimeout(() => {
+                        navigation.replace('UserMain');
+                    }, 2500);
+                }}
+            >
+                <View style={styles.buttonContent}>
+                    <Text style={styles.loginButtonText}>🧪 프론트 테스트</Text>
+                </View>
+            </TouchableOpacity>
         </View>
     );
 };
@@ -209,7 +227,12 @@ const styles = StyleSheet.create({
     buttonIcon: {
         width: 80,
         height: 80,
-        marginRight: 8, // 텍스트와의 간격 (왼쪽 이미지니까 marginRight)
+        marginRight: 8,
+    },
+    loginButtonText: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#fff',
     },
 });
 

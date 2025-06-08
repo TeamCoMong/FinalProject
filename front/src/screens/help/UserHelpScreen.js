@@ -18,14 +18,14 @@ const UserHelpScreen = () => {
                 <Text style={styles.buttonText}>🚶 길 안내 기능</Text>
             </Pressable>
 
-            <Pressable
-                style={({ pressed }) => [
-                    styles.button,
-                    { backgroundColor: pressed ? '#FFD54F' : '#FFEB3B' }
-                ]}
-                onPress={() => navigation.navigate('MoneyRecognitionHelpScreen')}>
-                <Text style={styles.buttonText}>💵 지폐 인식 기능</Text>
-            </Pressable>
+            {/*<Pressable*/}
+            {/*    style={({ pressed }) => [*/}
+            {/*        styles.button,*/}
+            {/*        { backgroundColor: pressed ? '#FFD54F' : '#FFEB3B' }*/}
+            {/*    ]}*/}
+            {/*    onPress={() => navigation.navigate('MoneyRecognitionHelpScreen')}>*/}
+            {/*    <Text style={styles.buttonText}>💵 지폐 인식 기능</Text>*/}
+            {/*</Pressable>*/}
 
             <Pressable
                 style={({ pressed }) => [

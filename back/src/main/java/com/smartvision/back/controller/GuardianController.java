@@ -25,8 +25,6 @@ public class GuardianController {
 
     @PostMapping("/login")
     public ResponseEntity<GuardianResponseDto> login(@RequestBody GuardianLoginRequestDto requestDto) {
-        System.out.println("📥 guardianId: " + requestDto.getGuardianId());
-        System.out.println("📥 password: " + requestDto.getPassword());
         GuardianResponseDto responseDto = guardianService.login(
                 requestDto.getGuardianId(), requestDto.getPassword());
         return ResponseEntity.ok(responseDto);
@@ -87,7 +85,7 @@ public class GuardianController {
     }
     // ✅ 내 연결된 사용자 조회
     @GetMapping("/{guardianId}/users")
-    public ResponseEntity<List<UserSimpleDto>> getLinkedUsers(@PathVariable String guardianId) {
+    public ResponseEntity<List<UserSimpleDto>> getLinkedUsers(@PathVariable("guardianId") String guardianId) {
         List<GuardianUserRelation> relations = relationService.getUsersByGuardianId(guardianId);
 
         List<UserSimpleDto> users = relations.stream()
@@ -103,8 +101,10 @@ public class GuardianController {
     // ✅ 보호자 - 사용자 연결 (등록)
     @PostMapping("/{guardianId}/users/{userId}")
     public ResponseEntity<Void> linkUser(
-            @PathVariable String guardianId,
-            @PathVariable String userId
+//            @PathVariable String guardianId,
+//            @PathVariable String userId
+            @PathVariable("guardianId") String guardianId,
+            @PathVariable("userId") String userId
     ) {
         relationService.linkUser(guardianId, userId);
         return ResponseEntity.noContent().build(); // ✅ 204 No Content
@@ -113,8 +113,8 @@ public class GuardianController {
     // ✅ 보호자 - 사용자 연결 해제 (삭제)
     @DeleteMapping("/{guardianId}/users/{userId}")
     public ResponseEntity<Void> unlinkUser(
-            @PathVariable String guardianId,
-            @PathVariable String userId
+            @PathVariable("guardianId") String guardianId,
+            @PathVariable("userId") String userId
     ) {
         relationService.unlinkUser(guardianId, userId);
         return ResponseEntity.noContent().build(); // ✅ 204 No Content

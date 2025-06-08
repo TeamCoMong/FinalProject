@@ -65,12 +65,14 @@ public class DialogflowController {
             String answer = dialogflowResult.getAnswer();
             String person = dialogflowResult.getPerson();
             String outputContext = dialogflowResult.getOutputContext();
+            String dialogflowResultLocation = dialogflowResult.getLocation();
 
             Map<String, String> response = Map.of(
                     "intent", intent,
                     "message", answer,
                     "person", person == null ? "" : person,
-                    "outputContext", outputContext == null ? "" : outputContext
+                    "outputContext", outputContext == null ? "" : outputContext,
+                    "dialogLocation", dialogflowResultLocation == null ? "" : dialogflowResultLocation
             );
 
             ObjectMapper objectMapper = new ObjectMapper(); // ✅ 추가

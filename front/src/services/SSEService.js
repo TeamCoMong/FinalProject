@@ -96,4 +96,3 @@ const reconnectSSE = () => {
         startSSE();
     }, 5000);
 };
-

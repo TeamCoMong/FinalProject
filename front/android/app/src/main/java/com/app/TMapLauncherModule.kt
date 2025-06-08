@@ -21,7 +21,6 @@ class TMapLauncherModule(private val reactContext: ReactApplicationContext) : Re
             .emit(eventName, params)
     }
 
-
     @ReactMethod
     fun notifyPoiSearchFailed() {
         sendEventToJS("PoiSearchFailed", null)

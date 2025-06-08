@@ -16,6 +16,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 /**
  * Spring Security 설정
@@ -61,16 +66,17 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers( "/",                     // 루트 페이지Add commentMore actions
+                        .requestMatchers(
+                                "/",                     // 루트 페이지Add commentMore actions
                                 "/api/**",              // API 전체
-                                "/api/guardians/login", // 로그인
+                                "/api/guardians/**",    // 로그인
                                 "/favicon.ico",         // 아이콘 요청
-                                "/dialogflow/sse",      // ✅ SSE 허용
+                                "/dialogflow/**",      // ✅ SSE 허용
                                 "/error",               // 에러 페이지
                                 "/favicon.ico",         // 아이콘 요청
                                 "/swagger-ui/**",       // Swagger 문서Add commentMore actions
-                                "/v3/api-docs/**").permitAll()
-                        .anyRequest().authenticated()   // 회원가입, 로그인, 이메일 인증은 인증 없이 접근 가능
+                                "/v3/api-docs/**").permitAll()       // Swagger 문서 "/location/**").permitAll()  // 회원가입, 로그인, 이메일 인증은 인증 없이 접근 가능
+                        .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider, userDetailsService),
                         UsernamePasswordAuthenticationFilter.class); // JWT 인증 필터 추가

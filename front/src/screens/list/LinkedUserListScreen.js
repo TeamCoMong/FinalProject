@@ -36,8 +36,14 @@ const LinkedUserListScreen = ({ route }) => {
         navigation.navigate('AddNewUserScreen');
     };
 
-    const handleDeleteUser = (userId) => {
-        setUsers(users.filter(user => user.userId !== userId));
+    const handleDeleteUser = async (userId) => {
+        try {
+            await api.delete(`/guardians/${guardianId}/users/${userId}`);
+            setUsers(users.filter(user => user.userId !== userId)); // 성공 시 화면에서도 제거
+        } catch (error) {
+            console.error('사용자 삭제 중 오류', error);
+            Alert.alert('삭제 실패', '사용자 삭제에 실패했습니다.');
+        }
     };
 
     const handleSelectUser = (user) => {

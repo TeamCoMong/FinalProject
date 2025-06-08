@@ -5,12 +5,14 @@ public class DialogflowResult {
     private final String answer;
     private final String person;
     private final String outputContext;
+    private final String loca;
 
-    public DialogflowResult(String intent, String answer, String person, String outputContext) {
+    public DialogflowResult(String intent, String answer, String person, String outputContext, String location) {
         this.intent = intent;
         this.answer = answer;
         this.person = person;
         this.outputContext  = outputContext;
+        this.loca = location;
     }
 
     public String getIntent() {
@@ -28,4 +30,6 @@ public class DialogflowResult {
     public String getOutputContext() {
         return outputContext;
     }
+
+    public String getLocation() { return loca; }
 }

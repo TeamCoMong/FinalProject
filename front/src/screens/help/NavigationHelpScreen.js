@@ -24,7 +24,7 @@ const NavigationHelpScreen = ({ navigation }) => {
         <View style={styles.container}>
             <Text style={styles.title}>🚶 길 안내 기능</Text>
             <Text style={styles.content}>
-                SafeWalk의 길 안내 기능을 통해 사용자는 목적지까지 안전하게 이동할 수 있습니다.
+                SmartVision의 길 안내 기능을 통해 사용자는 목적지까지 안전하게 이동할 수 있습니다.
                 경로 안내와 음성 지시를 지원합니다.
             </Text>
 

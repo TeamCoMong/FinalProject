@@ -3,6 +3,7 @@ package com.smartvision.back.service;
 import com.smartvision.back.entity.Guardian;
 import com.smartvision.back.entity.GuardianUserRelation;
 import com.smartvision.back.entity.User;
+import com.smartvision.back.exception.BadRequestException;
 import com.smartvision.back.repository.GuardianRepository;
 import com.smartvision.back.repository.GuardianUserRelationRepository;
 import com.smartvision.back.repository.UserRepository;
@@ -25,9 +26,14 @@ public class GuardianUserRelationService {
     @Transactional
     public GuardianUserRelation linkGuardianToUser(String guardianId, String userId, String relationType, boolean isPrimary) {
         Guardian guardian = guardianRepository.findById(guardianId)
-                .orElseThrow(() -> new RuntimeException("보호자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BadRequestException("보호자를 찾을 수 없습니다."));
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BadRequestException("사용자를 찾을 수 없습니다."));
+
+        // ✅ 중복 연결 방지
+        if (relationRepository.existsByGuardian_GuardianIdAndUser_UserId(guardianId, userId)) {
+            throw new BadRequestException("이미 연결된 사용자입니다.");
+        }
 
         GuardianUserRelation relation = GuardianUserRelation.builder()
                 .guardian(guardian)

@@ -2,11 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- 퍼미션 추가 -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
     <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
+
+    <!-- ✅ 미디어/저장소 -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -16,22 +17,27 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
+    <!-- ✅ 진동 -->
+    <uses-permission android:name="android.permission.VIBRATE"/>
+
     <application
-            android:usesCleartextTraffic="true"
             android:name=".MainApplication"
             android:label="@string/app_name"
             android:icon="@mipmap/ic_launcher"
             android:roundIcon="@mipmap/ic_launcher_round"
-            android:allowBackup="true"
-            tools:replace="android:allowBackup"
             android:theme="@style/AppTheme"
-            android:supportsRtl="true">
+            android:allowBackup="true"
+            android:supportsRtl="true"
+            android:usesCleartextTraffic="true"
+            android:requestLegacyExternalStorage="true"
+            tools:replace="android:allowBackup,android:icon,android:roundIcon">
 
-        <!-- Tmap API Key 등록 -->
+        <!-- ✅ Tmap API Key -->
         <meta-data
                 android:name="com.skt.tmap.apiKey"
                 android:value="N58gCr0OpV7gn4udSAHyC3PZyY2HC7Jt8e4LQ5WB" />
 
+        <!-- ✅ MainActivity -->
         <activity
                 android:name=".MainActivity"
                 android:label="@string/app_name"
@@ -45,6 +51,7 @@
             </intent-filter>
         </activity>
 
+        <!-- ✅ GuardianMapActivity -->
         <activity
                 android:name=".GuardianMapActivity"
                 android:exported="false">
@@ -54,11 +61,14 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".TMapModule" android:exported="false" />
+        <!-- ✅ TMapModule -->
+        <activity
+                android:name=".TMapModule"
+                android:exported="false" />
 
     </application>
 
-    <!-- 쿼리 설정: 다른 앱 호출용 -->
+    <!-- ✅ 외부 앱 호출용 쿼리 설정 -->
     <queries>
         <package android:name="com.skt.tmap.ku" />
         <intent>

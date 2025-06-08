@@ -24,7 +24,7 @@ const SettingsHelpScreen = ({ navigation }) => {
         <View style={styles.container}>
             <Text style={styles.title}>⚙️ 기타 설정 기능</Text>
             <Text style={styles.content}>
-                SafeWalk의 다양한 설정 기능을 통해 사용자 맞춤형 서비스를
+                SmartVision의 다양한 설정 기능을 통해 사용자 맞춤형 서비스를
                 경험할 수 있습니다. 테마 변경, 알림 설정 등을 지원합니다.
             </Text>
 

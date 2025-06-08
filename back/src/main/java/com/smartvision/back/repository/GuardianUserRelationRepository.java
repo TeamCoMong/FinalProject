@@ -17,4 +17,7 @@ public interface GuardianUserRelationRepository extends JpaRepository<GuardianUs
 
     // 사용자 ID로 연결된 모든 관계 삭제
     void deleteByUser_UserId(String userId);
+
+    // ✅ 중복 관계 존재 여부 확인 (추가)
+    boolean existsByGuardian_GuardianIdAndUser_UserId(String guardianId, String userId);
 }

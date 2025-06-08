@@ -5,8 +5,8 @@ const IntroScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.logoContainer}>
-                <Image source={require('../assets/appicon2.png')} style={styles.logo} />
-                <Text style={styles.appName}>SafeWalk</Text>
+                <Image source={require('../assets/logo.png')} style={styles.logo} />
+                <Text style={styles.appName}>SmartVision</Text>
             </View>
 
             <View style={styles.buttonContainer}>
@@ -18,17 +18,6 @@ const IntroScreen = ({ navigation }) => {
                 <TouchableOpacity style={styles.signUpButton} onPress={() => navigation.navigate('GuardianModeSelectionScreen')}>
                     <Image source={require('../assets/protector.png')} style={styles.buttonIcon} />
                     <Text style={styles.buttonText}>보호자 모드</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('Camera')}>
-                    <Text style={styles.buttonText}>카메라 테스트</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('UserTmapScreen')}>
-                    <Text style={styles.buttonText}>사용자 길안내 테스트</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('GuardianTmapScreen')}>
-                    <Text style={styles.buttonText}>보호자 길안내 테스트</Text>
                 </TouchableOpacity>
             </View>
 
@@ -46,6 +35,10 @@ const IntroScreen = ({ navigation }) => {
                     <Text style={styles.iconLabel}>장애물 감지</Text>
                 </View>
             </View>
+
+
+             {/* face id 테스트*/}
+
 
             <View style={styles.footerContainer}>
                 <Text style={styles.footerText}>Created by CoMong</Text>

@@ -25,6 +25,7 @@ public class GuardianUserRelation {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;          // 연결된 사용자
 
+
     @Column(name = "relation_type", length = 30, nullable = false)
     private String relationType;  // 관계 유형 (예: 보호자, 가족 등)
 

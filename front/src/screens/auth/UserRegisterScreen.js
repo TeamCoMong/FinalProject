@@ -93,8 +93,18 @@ const UserRegisterScreen = ({ navigation }) => {
 
             if (response.status === 200 && response.data.userId) {
                 const newUserId = response.data.userId;
-                await EncryptedStorage.setItem('userId', newUserId);
 
+                await EncryptedStorage.setItem('userId', newUserId);
+                await EncryptedStorage.setItem('name', name);
+                await EncryptedStorage.setItem('accessToken', '');
+
+                console.log('✅ EncryptedStorage 저장됨:', newUserId, name);
+
+                const checkId = await EncryptedStorage.getItem('userId');
+                const checkName = await EncryptedStorage.getItem('name');
+                console.log('🔎 EncryptedStorage에서 확인된 값:', checkId, checkName);
+
+                setUserId(newUserId);                                 // ✅ state 반영
 
                 const spacedId = newUserId.split('').map(char => `${char}.`).join(' ');
                 const ttsMessage = `회원가입이 완료되었습니다. 회원님의 아이디는 ${spacedId} 입니다.`;
@@ -102,7 +112,11 @@ const UserRegisterScreen = ({ navigation }) => {
 
                 // Alert.alert('회원가입 성공', `회원가입이 완료되었습니다.\n사용자 ID: ${newUserId}`);
                 setTimeout(() => {
-                    navigation.replace('UserMain');
+                    navigation.replace('MainTab', {
+                        username: newUserId,
+                        name: name,
+                        accessToken: null, // or ''
+                    });
                 }, 6000);
             } else {
                 Alert.alert('회원가입 실패', response.data.message);
@@ -199,13 +213,13 @@ const UserRegisterScreen = ({ navigation }) => {
                 <Text style={styles.buttonText}>지문 인증</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-                style={[styles.submitButton, isAuthSuccess && name ? styles.activeButton : styles.inactiveButton]}
-                disabled={!name}
-                onPress={handleRegister}
-            >
-                <Text style={styles.buttonText}>회원가입</Text>
-            </TouchableOpacity>
+            {/*<TouchableOpacity*/}
+            {/*    style={[styles.submitButton, isAuthSuccess && name ? styles.activeButton : styles.inactiveButton]}*/}
+            {/*    disabled={!name}*/}
+            {/*    onPress={handleRegister}*/}
+            {/*>*/}
+            {/*    <Text style={styles.buttonText}>회원가입</Text>*/}
+            {/*</TouchableOpacity>*/}
 
             {userId && (
                 <View style={styles.resultContainer}>
@@ -213,6 +227,13 @@ const UserRegisterScreen = ({ navigation }) => {
                     <Text style={styles.resultText}>사용자 ID: {userId}</Text>
                 </View>
             )}
+
+            {!userId && isAuthSuccess && name.trim() !== '' && (
+                <Text style={{ marginTop: height * 0.02, fontSize: 16, color: '#555', fontWeight: 'bold' }}>
+                    ✅ 지문 인증 완료. 회원가입을 진행 중입니다...
+                </Text>
+            )}
+
         </View>
     );
 };

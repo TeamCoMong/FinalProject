@@ -15,7 +15,7 @@ const MoneyRecognitionHelpScreen = ({ navigation }) => {
 
     // 지폐 인식 기능 도움말에서 'UserMain'으로 네비게이트하고, '기타 설정' 탭으로 이동
     const handleNavigate = () => {
-        navigation.navigate('UserMain', {
+        navigation.navigate('HomeStartScreen', {
             screen: '지폐 인식', // '기타 설정' 탭으로 이동
         });
     };

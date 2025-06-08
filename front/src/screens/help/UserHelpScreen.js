@@ -32,7 +32,7 @@ const UserHelpScreen = () => {
                     styles.button,
                     { backgroundColor: pressed ? '#90CAF9' : '#64B5F6' }
                 ]}
-                onPress={() => navigation.navigate('GuardianRegisterHelpScreen')}>
+                onPress={() => navigation.navigate('LinkedGuardiansScreen')}>
                 <Text style={styles.buttonText}>👨‍👩‍👧‍👦 보호자 연동 기능 </Text>
             </Pressable>
 

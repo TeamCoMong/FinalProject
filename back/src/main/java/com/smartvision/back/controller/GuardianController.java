@@ -91,7 +91,8 @@ public class GuardianController {
         List<UserSimpleDto> users = relations.stream()
                 .map(relation -> new UserSimpleDto(
                         relation.getUser().getUserId(),
-                        relation.getUser().getName()
+                        relation.getUser().getName(),
+                        relation.getUser().getPhone()
                 ))
                 .toList();
 
@@ -101,10 +102,8 @@ public class GuardianController {
     // ✅ 보호자 - 사용자 연결 (등록)
     @PostMapping("/{guardianId}/users/{userId}")
     public ResponseEntity<Void> linkUser(
-//            @PathVariable String guardianId,
-//            @PathVariable String userId
-            @PathVariable("guardianId") String guardianId,
-            @PathVariable("userId") String userId
+            @PathVariable String guardianId,
+            @PathVariable String userId
     ) {
         relationService.linkUser(guardianId, userId);
         return ResponseEntity.noContent().build(); // ✅ 204 No Content
@@ -113,11 +112,16 @@ public class GuardianController {
     // ✅ 보호자 - 사용자 연결 해제 (삭제)
     @DeleteMapping("/{guardianId}/users/{userId}")
     public ResponseEntity<Void> unlinkUser(
-            @PathVariable("guardianId") String guardianId,
-            @PathVariable("userId") String userId
+            @PathVariable String guardianId,
+            @PathVariable String userId
     ) {
         relationService.unlinkUser(guardianId, userId);
         return ResponseEntity.noContent().build(); // ✅ 204 No Content
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<GuardianSimpleDto>> getAllGuardians() {
+        return ResponseEntity.ok(guardianService.getAllGuardians());
     }
 
 }

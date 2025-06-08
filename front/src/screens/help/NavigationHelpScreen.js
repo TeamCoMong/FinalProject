@@ -15,7 +15,7 @@ const NavigationHelpScreen = ({ navigation }) => {
 
     // 길 안내 시작 버튼 클릭 시 'UserMain'으로 네비게이트하고, '기타 설정' 탭으로 이동
     const handleNavigate = () => {
-        navigation.navigate('UserMain', {
+        navigation.navigate('HomeStartScreen', {
             screen: '홈 키', // '홈 키'
         });
     };

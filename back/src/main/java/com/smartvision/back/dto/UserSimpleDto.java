@@ -8,4 +8,5 @@ import lombok.Getter;
 public class UserSimpleDto {
     private String userId;
     private String name;
+    private String phone;
 }

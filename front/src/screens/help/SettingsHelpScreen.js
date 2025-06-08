@@ -15,7 +15,7 @@ const SettingsHelpScreen = ({ navigation }) => {
 
     // 기타 설정 도움말에서 'UserMain'으로 네비게이트하고, '기타 설정' 탭으로 이동
     const handleNavigate = () => {
-        navigation.navigate('UserMain', {
+        navigation.navigate('HomeStartScreen', {
             screen: '기타 설정', // '기타 설정' 탭으로 이동
         });
     };

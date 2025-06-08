@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import api from '../../api/api';
 import ReactNativeBiometrics from 'react-native-biometrics';
+import Tts from 'react-native-tts';
 
 const rnBiometrics = new ReactNativeBiometrics();
 
@@ -51,7 +52,21 @@ const MyProfileInfoScreen = () => {
         };
 
         authenticateAndFetch();
-    }, []);
+
+        return () => {
+            Tts.stop();
+        }
+    }, [navigation]);
+
+    useEffect(() => {
+        if (isAuthenticated && userCode) {
+            const codeWithPauses = userCode.split('').map(char => `${char}.`).join(' ');
+            const ttsMessage = `사용자님의 고유 코드는 ${codeWithPauses} 입니다.`;
+            console.log("TTS 안내 (고유 코드):", ttsMessage);
+            Tts.stop();
+            Tts.speak(ttsMessage);
+        }
+    }, [isAuthenticated, userCode]);
 
     const renderGuardianItem = ({ item }) => (
         <View style={styles.listItem}>
@@ -78,6 +93,7 @@ const MyProfileInfoScreen = () => {
             <Text style={styles.title}>나의 고유 코드</Text>
             <View style={styles.codeContainer}>
                 <Text style={styles.code}>{userCode}</Text>
+
             </View>
 
             <Text style={styles.subtitle}>등록된 보호자</Text>

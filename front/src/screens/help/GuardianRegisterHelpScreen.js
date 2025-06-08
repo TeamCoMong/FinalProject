@@ -14,7 +14,7 @@ const GuardianRegisterHelpScreen = ({ navigation }) => {
         <View style={styles.container}>
             <Text style={styles.title}>👨‍👩‍👧‍👦 보호자 등록 기능</Text>
             <Text style={styles.content}>
-                보호자가 사용자의 고유 코드를 입력받고, 사용자의 위치 정보를 공유 받으며, 등록한 보호자를 볼 수 있습니다.
+                보호자 등록은 보호자가 사용자의 고유 코드를 입력하면 사용자의 위치 정보를 공유 받을 수 있고, 위급상황 시 알림을 받을 수 있습니다.
             </Text>
 
             <TouchableOpacity style={styles.button} onPress={handleNavigate}>

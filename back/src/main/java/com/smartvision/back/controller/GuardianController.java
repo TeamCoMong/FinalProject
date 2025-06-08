@@ -85,7 +85,7 @@ public class GuardianController {
     }
     // ✅ 내 연결된 사용자 조회
     @GetMapping("/{guardianId}/users")
-    public ResponseEntity<List<UserSimpleDto>> getLinkedUsers(@PathVariable String guardianId) {
+    public ResponseEntity<List<UserSimpleDto>> getLinkedUsers(@PathVariable("guardianId") String guardianId) {
         List<GuardianUserRelation> relations = relationService.getUsersByGuardianId(guardianId);
 
         List<UserSimpleDto> users = relations.stream()

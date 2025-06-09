@@ -14,6 +14,9 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -46,16 +49,13 @@ import kotlin.math.min
 import com.app.geofence.Geofencer.OnGeofencingBaseDataReceivedCallback
 import com.app.geofence.Geofencer.OnGeofencingPolygonCreatedCallback
 import com.app.SLHttpRequest.OnResponseListener
-import com.facebook.react.bridge.Promise
-import com.facebook.react.bridge.ReactMethod
-import com.facebook.react.bridge.Arguments
-import com.facebook.react.bridge.WritableMap
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
 
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import com.app.utils.GlobalData
+import com.facebook.react.bridge.*
 import java.io.File
 import java.util.*
 
@@ -73,6 +73,9 @@ import javax.xml.XMLConstants
 import java.io.InputStream
 import javax.xml.parsers.DocumentBuilderFactory
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import org.java_websocket.client.WebSocketClient
+import org.java_websocket.handshake.ServerHandshake
+import java.net.URI
 
 
 class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
@@ -82,6 +85,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
     private lateinit var currentPlacemarks: Document
     private lateinit var tts: TextToSpeech
     private var initPoint: TMapPoint? = null
+    private var currentLocation: TMapPoint? = null
     private lateinit var menuButton: Button
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var zoomInImage: ImageView
@@ -105,6 +109,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
     private lateinit var autoComplete2Edit: EditText
     private lateinit var autoComplete2ListView: ListView
     private lateinit var autoComplete2ListAdapter: AutoComplete2ListAdapter
+    private lateinit var reactContext: ReactApplicationContext
 
 
     private lateinit var routeLayout: LinearLayout
@@ -128,6 +133,16 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
     private var gpsManager: TMapGpsManager? = null
     private var marker: TMapMarkerItem? = null
 
+    private var socketClient: WebSocketClient? = null
+
+    private var isWebSocketConnected = false
+
+
+    private var speechRecognizer: SpeechRecognizer? = null
+
+
+    private var gpsTrackingInitialized = false
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -142,90 +157,223 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
         initView()
         initTmap()
         initTTS(this)
-        // 목적지 꺼내서 사용
-       val destinationName = GlobalData.destination
-       Log.d("CHECK", "📥 onCreate에서 받은 목적지: $destinationName")
-       if (!destinationName.isNullOrEmpty()) {
-           searchPOIAndStartRoute(destinationName)
-        } else {
-            Log.e("CHECK", "❌ 목적지 없음")
+        initSpeechRecognizer()
+        startListening()
+
+        // 목적지 자체는 일단 받아서 보관만
+        val destinationName = GlobalData.destination
+        Log.d("CHECK", "📥 onCreate에서 받은 목적지: $destinationName")
+    }
+
+
+    private fun GetGPS( stPoint: TMapPoint){
+        Log.d("WebSocket", "GetGPS호출 완료")
+        val destination = GlobalData.destination
+        if (!destination.isNullOrEmpty()) {
+            //목적지 경로 탐색 시작
+            searchPOIAndStartRoute(destination, stPoint)
+            Log.d("WebSocket", " POI 호출됨")
+        }
+
+        //Reverse Geocoding 넣기 (테스트용)
+        reverseGeocodeCurrentLocation(stPoint)
+
+        sendLocationOverWebSocket(stPoint.latitude, stPoint.longitude)
+        Log.d("WebSocket", "위치데이터 전송 호출됨")
+    }
+
+    private fun initSpeechRecognizer() {
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+        speechRecognizer?.setRecognitionListener(object : RecognitionListener {
+            override fun onResults(results: Bundle?) {
+                val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                val recognizedText = matches?.get(0) ?: ""
+                Log.d("Voice", "Recognized: $recognizedText")
+
+                // 종료 키워드 체크
+                if (recognizedText.contains("종료") ||
+                    recognizedText.contains("닫아") ||
+                    recognizedText.contains("끝내")
+                ) {
+                    Log.d("Voice", "종료 키워드 감지됨 → TMapActivity 종료")
+                    finish() // TMapActivity 종료
+                } else {
+                    // 다시 리스닝 재시작 (지속적으로 인식 유지)
+                    startListening()
+                }
+            }
+
+            override fun onReadyForSpeech(params: Bundle?) {}
+            override fun onBeginningOfSpeech() {}
+            override fun onRmsChanged(rmsdB: Float) {}
+            override fun onBufferReceived(buffer: ByteArray?) {}
+            override fun onEndOfSpeech() {}
+            override fun onError(error: Int) {
+                Log.e("Voice", "Recognition Error: $error")
+                // 에러 발생 시 리스닝 재시작 시도
+                startListening()
+            }
+            override fun onPartialResults(partialResults: Bundle?) {}
+            override fun onEvent(eventType: Int, params: Bundle?) {}
+        })
+    }
+
+    private fun startListening() {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR")
+//        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "명령어를 말씀하세요")
+        speechRecognizer?.startListening(intent)
+    }
+
+
+
+
+
+
+
+    private fun reverseGeocodeCurrentLocation(currentPoint: TMapPoint) {
+        val tMapData = TMapData()
+        tMapData.reverseGeocoding(
+            currentPoint.latitude, currentPoint.longitude, "A10"
+        ) { info ->
+            if (info != null) {
+                var oldAddress = "법정동 : "
+                if (info.strLegalDong != null && info.strLegalDong != "") {
+                    oldAddress += info.strCity_do + " " + info.strGu_gun + " " + info.strLegalDong
+                    if (info.strRi != null && info.strRi != "") {
+                        oldAddress += (" " + info.strRi)
+                    }
+                    oldAddress += (" " + info.strBunji)
+                } else {
+                    oldAddress += "-"
+                }
+
+                var newAddress = "도로명 : "
+                newAddress += if (info.strRoadName != null && info.strRoadName != "") {
+                    info.strCity_do + " " + info.strGu_gun + " " + info.strRoadName + " " + info.strBuildingIndex
+                } else {
+                    "-"
+                }
+
+                // 최종 주소 문자열 구성
+                val finalAddress = "$oldAddress / $newAddress"
+
+                // 테스트용 로그
+                Log.d("ReverseGeo", "현재위치 주소 변환 결과 → $finalAddress")
+
+                // 주소까지 WebSocket 으로 전송
+                sendLocationOverWebSocket(currentPoint.latitude, currentPoint.longitude, finalAddress)
+
+                // emit 시도 (함수 분리)
+                emitAddressToJS(finalAddress)
+
+            } else {
+                Log.w("ReverseGeo", "주소 변환 실패")
+            }
         }
     }
 
-    private fun moveToCurrentLocationOnce() {
-        if (gpsManager == null) {
-            gpsManager = TMapGpsManager(this)
+    private fun emitAddressToJS(finalAddress: String) {
+        GlobalData.reactContext?.let { reactContext ->
+            if (GlobalData.isReverseGeoReady) {
+                val params = com.facebook.react.bridge.Arguments.createMap()
+                params.putString("address", finalAddress)
+
+                Log.d("ReverseGeo", "JS 로 emit 시도 중 [GlobalData.reactContext.hashCode=${reactContext.hashCode()}]")
+
+                reactContext
+                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                    .emit("ReverseGeocodeAddress", params)
+
+                Log.d("ReverseGeo", "JS 로 주소 emit 성공 (Ready)")
+            } else {
+                Log.w("ReverseGeo", "JS Ready flag 수신 전 → emit 보류 → Queue 저장 예정 (추후 구현 가능)")
+            }
+        } ?: run {
+            Log.w("ReverseGeo", "ReactContext 없음 → JS emit 불가")
+        }
+    }
+
+
+
+
+
+    private fun sendLocationOverWebSocket(lat: Double, lon: Double, address: String = "") {
+        val json = """
+        {
+            "lat": $lat,
+            "lon": $lon,
+            "address": "$address"
+        }
+    """.trimIndent()
+
+        if (isWebSocketConnected) {
+            Log.d("WebSocket", "위치 전송: $json")
+            socketClient?.send(json)
+        } else {
+            Log.w("WebSocket", "WebSocket 연결 안 됨 → 위치 전송 스킵")
+        }
+    }
+
+
+    private fun initWebSocket() {
+//        val serverUri = URI("ws://YOUR_NGROK_URL/socket.io/?EIO=4&transport=websocket")  // 여기에 ngrok URL 넣기
+        val serverUri = URI("ws://192.168.34.30:8080/location/user")
+
+        socketClient = object : WebSocketClient(serverUri) {
+            override fun onOpen(handshakedata: ServerHandshake?) {
+                Log.d("WebSocket", "Connected to WebSocket server")
+                isWebSocketConnected = true
+            }
+
+            override fun onMessage(message: String?) {
+                Log.d("WebSocket", "Received message: $message")
+            }
+
+            override fun onClose(code: Int, reason: String?, remote: Boolean) {
+                Log.d("WebSocket", "WebSocket closed: $reason")
+            }
+
+            override fun onError(ex: Exception?) {
+                Log.e("WebSocket", " WebSocket error", ex)
+            }
         }
 
-        gpsManager!!.provider = TMapGpsManager.PROVIDER_NETWORK
-
-        // 🔑 1. 먼저 리스너부터 설정 (순서 중요할 수 있음)
-        gpsManager!!.setOnLocationChangeListener { location: TMapPoint ->
-            val lat = location.latitude
-            val lon = location.longitude
-            Log.d("GPS_TEST", "📍 위치 업데이트: 위도=$lat, 경도=$lon")
-
-            // 지도 중심 이동
-            tMapView.setCenterPoint(lat, lon)
-            tMapView.locationPoint = location
-
-            // 현재 위치 마커
-            val marker = TMapMarkerItem().apply {
-                icon = BitmapFactory.decodeResource(resources, com.skt.tmap.R.drawable.location_marker)
-                id = "current_location"
-                tMapPoint = location
-                setPosition(0.5f, 0.5f)
+        Thread {
+            try {
+                socketClient?.connectBlocking()  // connect() 대신 connectBlocking() 쓰면 예외를 여기서 catch 가능
+            } catch (e: Exception) {
+                Log.e("WebSocket", "WebSocket connect error", e)
             }
-
-            if (tMapView.getMarkerItemFromId("current_location") == null) {
-                tMapView.addTMapMarkerItem(marker)
-            } else {
-                tMapView.updateTMapMarkerItem(marker)
-            }
-
-            // 콜백 제거 (한 번만 동작)
-            gpsManager?.setOnLocationChangeListener(null)
-
-            // ✅ 현재 위치 설정이 끝났으니 이제 목적지 검색 시작 가능
-            val destination = GlobalData.destination
-            if (!destination.isNullOrEmpty()) {
-                searchPOIAndStartRoute(destination)
-            } else {
-                Log.e("GPS", "❌ 목적지 정보 없음")
-            }
-
-        }
-
-        // 🔑 2. 콜백 등록 이후에 GPS 열기
-        gpsManager!!.openGps()
+        }.start()
     }
 
 
     // js 양뱡향 통신 목적지 입력 기능
-    private fun searchPOIAndStartRoute(destinationName: String) {
+    private fun searchPOIAndStartRoute(destinationName: String, stPoint: TMapPoint) {
         val tMapData = TMapData()
 
-        // 1️⃣ 목적지 POI 검색
+        // 목적지 POI 검색
         tMapData.findAllPOI(destinationName) { poiList ->
             if (poiList != null && poiList.isNotEmpty()) {
                 val poi = poiList[0]
-                val destPoint = poi.poiPoint
-                Log.d("ROUTE", "🎯 목적지 좌표: ${destPoint.latitude}, ${destPoint.longitude}")
+                val endPoint = poi.poiPoint
+                Log.d("ROUTE", "목적지 좌표: ${endPoint.latitude}, ${endPoint.longitude}")
 
-                // 2️⃣ 현재 GPS 위치 (출발지)
-                val startPoint = tMapView.locationPoint
-                if (startPoint != null) {
-                    Log.d("ROUTE", "🚶 출발지(GPS): ${startPoint.latitude}, ${startPoint.longitude}")
-                    // 3️⃣ 경로 탐색 함수 호출
-                    findPathAllType(TMapPathType.PEDESTRIAN_PATH, this, startPoint, destPoint)
+                // 현재 GPS 위치 (출발지)
+                if (stPoint != null) {
+                    Log.d("ROUTE", "출발지(GPS): ${stPoint.latitude}, ${stPoint.longitude}")
+                    // 경로 탐색 함수 호출
+                    findPathAllType(TMapPathType.PEDESTRIAN_PATH ,this, stPoint, endPoint)
+//                    ,startPoint, destPoint
                 } else {
-                    Log.e("ROUTE", "❌ 출발지(GPS 위치) 없음")
+                    Log.e("ROUTE", "출발지(GPS 위치) 없음")
                 }
             } else {
-                Log.e("ROUTE", "❌ 목적지 POI 검색 실패")
-                // ✅ 여기에서 JS로 이벤트 전송
+                Log.e("ROUTE", "목적지 POI 검색 실패")
+                // JS로 이벤트 전송
                 sendEventToJS("PoiSearchFailed")
-                // ✅ JS 화면으로 돌아가게 Activity 종료도 수행
+                //JS 화면으로 돌아가게 Activity 종료도 수행
                 finish()
             }
         }
@@ -243,6 +391,8 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
 
 
 
+
+
 //    음성안내
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
@@ -255,11 +405,9 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
     }
 
         fun speak(text: String) {
-            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "GENERIC")
     }
-    //음성안내
-
-
+//    음성안내
 
 
 
@@ -280,6 +428,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
 
         tMapView.setOnMapReadyListener(onMapReadyListener)
 
+
         val tmapLayout = findViewById<FrameLayout>(R.id.tmapLayout)
         tmapLayout.addView(tMapView)
 
@@ -294,7 +443,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
             }
         }
 
-        tMapView.setOnDisableScrollWithZoomLevelListener { v, tMapPoint -> reverseGeoCoding(isReverseGeocoding) }
+//        tMapView.setOnDisableScrollWithZoomLevelListener { v, tMapPoint -> reverseGeoCoding(isReverseGeocoding) }
 
         tMapView.setOnClickListenerCallback(object : OnClickListenerCallback {
             override fun onPressDown(
@@ -398,61 +547,66 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
     }
 
 
-    private fun reverseGeoCoding(isReverseGeocoding: Boolean) {
-        this.isReverseGeocoding = isReverseGeocoding
+    //사용자 위험 사항 발생 시 사용자의 좌표를 주소로변환에서 보호자에게 사용자의 현재 상세 주소를 알림
 
-        if (this.isReverseGeocoding) {
-            val centerPoint = tMapView.centerPoint
-            if (tMapView.isValidTMapPoint(centerPoint)) {
-                val tMapData = TMapData()
-                tMapData.reverseGeocoding(
-                    centerPoint.latitude, centerPoint.longitude, "A10"
-                ) { info ->
-                    if (info != null) {
-                        //법정동
-                        var oldAddress = "법정동 : "
-                        if (info.strLegalDong != null && info.strLegalDong != "") {
-                            oldAddress += info.strCity_do + " " + info.strGu_gun + " " + info.strLegalDong
-                            if (info.strRi != null && info.strRi != "") {
-                                oldAddress += (" " + info.strRi)
-                            }
-                            oldAddress += (" " + info.strBunji)
-                        } else {
-                            oldAddress += "-"
-                        }
+//    private fun reverseGeoCoding(isReverseGeocoding: Boolean) {
+//        this.isReverseGeocoding = isReverseGeocoding
+//
+//        if (this.isReverseGeocoding) {
+//            val centerPoint = tMapView.centerPoint
+//            if (tMapView.isValidTMapPoint(centerPoint)) {
+//                val tMapData = TMapData()
+//                tMapData.reverseGeocoding(
+//                    centerPoint.latitude, centerPoint.longitude, "A10"
+//                ) { info ->
+//                    if (info != null) {
+//                        //법정동
+//                        var oldAddress = "법정동 : "
+//                        if (info.strLegalDong != null && info.strLegalDong != "") {
+//                            oldAddress += info.strCity_do + " " + info.strGu_gun + " " + info.strLegalDong
+//                            if (info.strRi != null && info.strRi != "") {
+//                                oldAddress += (" " + info.strRi)
+//                            }
+//                            oldAddress += (" " + info.strBunji)
+//                        } else {
+//                            oldAddress += "-"
+//                        }
+//
+//                        //새주소
+//                        var newAddress = "도로명 : "
+//                        newAddress += if (info.strRoadName != null && info.strRoadName != "") {
+//                            info.strCity_do + " " + info.strGu_gun + " " + info.strRoadName + " " + info.strBuildingIndex
+//                        } else {
+//                            "-"
+//                        }
+//
+//                        setReverseGeocoding(oldAddress, newAddress, centerPoint)
+//                    }
+//                }
+//            }
+//        } else {
+//            tMapView.removeAllTMapMarkerItem2()
+//        }
+//    }
+//
+//    private fun setReverseGeocoding(oldAddress: String, newAddress: String, point: TMapPoint) {
+//        tMapView.removeAllTMapMarkerItem2()
+//
+//        val view: ReverseLabelView = ReverseLabelView(this)
+//        view.setText(oldAddress, newAddress)
+//
+//        val marker = TMapMarkerItem2("marker2")
+//        marker.iconView = view
+//        marker.tMapPoint = point
+//
+//        tMapView.addTMapMarkerItem2View(marker)
+//    }
 
-                        //새주소
-                        var newAddress = "도로명 : "
-                        newAddress += if (info.strRoadName != null && info.strRoadName != "") {
-                            info.strCity_do + " " + info.strGu_gun + " " + info.strRoadName + " " + info.strBuildingIndex
-                        } else {
-                            "-"
-                        }
-
-                        setReverseGeocoding(oldAddress, newAddress, centerPoint)
-                    }
-                }
-            }
-        } else {
-            tMapView.removeAllTMapMarkerItem2()
-        }
-    }
-
-    private fun setReverseGeocoding(oldAddress: String, newAddress: String, point: TMapPoint) {
-        tMapView.removeAllTMapMarkerItem2()
-
-        val view: ReverseLabelView = ReverseLabelView(this)
-        view.setText(oldAddress, newAddress)
-
-        val marker = TMapMarkerItem2("marker2")
-        marker.iconView = view
-        marker.tMapPoint = point
-
-        tMapView.addTMapMarkerItem2View(marker)
-    }
+    //사용자 위험 사항 발생 시 사용자의 좌표를 주소로변환에서 보호자에게 사용자의 현재 상세 주소를 알림  기능 확장 가능성 있음
 
     private val onMapReadyListener = OnMapReadyListener {
-        initPoint = tMapView.centerPoint // 여기서 초기 로딩된 좌표 저장 이 값은 TMap SDK 내부에서 기본적으로 설정한 지도 중심 위치이며 **서울 시청 근처(대략 37.5665, 126.9780)
+        initPoint = tMapView.centerPoint
+        // 여기서 초기 로딩된 좌표 저장 이 값은 TMap SDK 내부에서 기본적으로 설정한 지도 중심 위치이며 **서울 시청 근처(대략 37.5665, 126.9780)
         initAll()
 
         val zoom = tMapView.zoomLevel
@@ -460,12 +614,14 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
         // 현재 위치로 지도 이동 추가
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                moveToCurrentLocationOnce()
+                setTrackingMode(true)
+                    initWebSocket()
             } else {
                 requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 200)
             }
         } else {
-            moveToCurrentLocationOnce()
+            setTrackingMode(true)
+                initWebSocket()
         }
     }
 
@@ -476,12 +632,12 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
         drawerLayout = findViewById<DrawerLayout>(R.id.drawerLayout)
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
 
-        menuButton = findViewById<Button>(R.id.menuButton)
-        menuButton.setOnClickListener(onClickListener)
-        zoomInImage = findViewById<ImageView>(R.id.zoomInImage)
-        zoomInImage.setOnClickListener(onClickListener)
-        zoomOutImage = findViewById<ImageView>(R.id.zoomOutImage)
-        zoomOutImage.setOnClickListener(onClickListener)
+//        menuButton = findViewById<Button>(R.id.menuButton)
+//        menuButton.setOnClickListener(onClickListener)
+//        zoomInImage = findViewById<ImageView>(R.id.zoomInImage)
+//        zoomInImage.setOnClickListener(onClickListener)
+//        zoomOutImage = findViewById<ImageView>(R.id.zoomOutImage)
+//        zoomOutImage.setOnClickListener(onClickListener)
 
         locationImage = findViewById<ImageView>(R.id.locationImage)
         locationImage.setOnClickListener(onClickListener)
@@ -496,9 +652,6 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
         centerImage.setVisibility(GONE)
         centerPointTextView = findViewById<TextView>(R.id.centerText)
         centerPointTextView.setVisibility(GONE)
-
-        initAutoComplete()
-        initAuto2Complete2()
 
         initRoute()
 
@@ -528,23 +681,6 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
         val item1: MenuItem = MenuItem("지도 컨트롤", child1)
         menuList.add(item1)
 
-        val child2 = ArrayList<String>()
-        child2.add("POI통합검색")
-        child2.add("주변POI검색")
-        child2.add("읍면동/도로명조회")
-        child2.add("POI자동완성")
-        child2.add("POI초기화")
-        child2.add("POI자동완성V2")
-        val item2: MenuItem = MenuItem("POI", child2)
-        menuList.add(item2)
-
-        val child3 = ArrayList<String>()
-        child3.add("Reverse Geocoding")
-        child3.add("Full Text Geocoding")
-        child3.add("우편번호 검색")
-        val item3: MenuItem = MenuItem("Geocoding", child3)
-        menuList.add(item3)
-
         val child4 = ArrayList<String>()
         child4.add("트래킹 모드")
         child4.add("나침반모드")
@@ -565,16 +701,6 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
         val item6: MenuItem = MenuItem("Reverse Label", child6)
         menuList.add(item6)
 
-        val child7 = ArrayList<String>()
-        child7.add("실행하기")
-        child7.add("길안내")
-        child7.add("통합검색")
-        child7.add("주변 카페 검색")
-        child7.add("주변 음식점 검색")
-        child7.add("설치")
-        val item7: MenuItem = MenuItem("Tmap연동", child7)
-        menuList.add(item7)
-
         val child8 = ArrayList<String>()
         val item8: MenuItem = MenuItem("Geofencing", child8)
         menuList.add(item8)
@@ -588,7 +714,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
 
         menuListView.setOnGroupClickListener(OnGroupClickListener { expandableListView: ExpandableListView?, view: View?, position: Int, id: Long ->
             if (position == 0 || position == 6 || position == 8 || position == 9) {
-                selectMenu(position, -1)
+//                selectMenu(position, -1)
                 drawerLayout.closeDrawer(Gravity.LEFT)
                 menuListView.collapseGroup(position)
             }
@@ -597,7 +723,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
 
 
         menuListView.setOnChildClickListener(OnChildClickListener { expandableListView: ExpandableListView?, view: View?, groupPosition: Int, childPosition: Int, id: Long ->
-            selectMenu(groupPosition, childPosition)
+//            selectMenu(groupPosition, childPosition)
             drawerLayout.closeDrawer(Gravity.LEFT)
             false
         })
@@ -610,84 +736,6 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
         routeFareTextView = findViewById<TextView>(R.id.routeFareText)
     }
 
-    private fun initAuto2Complete2() {
-        autoComplete2Layout = findViewById<LinearLayout>(R.id.autoComplete2Layout)
-        autoComplete2Layout.setVisibility(GONE)
-        autoComplete2Edit = findViewById<EditText>(R.id.autoComplete2Edit)
-        autoComplete2ListView = findViewById<ListView>(R.id.autoComplete2ListView)
-        autoComplete2ListAdapter = AutoComplete2ListAdapter(this)
-        autoComplete2ListView.setAdapter(autoComplete2ListAdapter)
-        autoComplete2ListView.setOnItemClickListener(OnItemClickListener { adapterView, view, position, id ->
-            tMapView.removeAllTMapMarkerItem()
-            autoComplete2Layout.setVisibility(GONE)
-
-            val item = autoComplete2ListAdapter.getItem(position) as TMapAutoCompleteV2
-
-            val marker = TMapMarkerItem()
-            marker.id = item.poiId
-            marker.icon = BitmapFactory.decodeResource(resources, R.drawable.poi_dot)
-            marker.setTMapPoint(item.lat.toDouble(), item.lon.toDouble())
-            marker.calloutTitle = item.keyword
-            marker.calloutSubTitle = item.poiId
-            marker.canShowCallout = true
-            marker.isAnimation = true
-
-            tMapView.addTMapMarkerItem(marker)
-            tMapView.setCenterPoint(item.lat.toDouble(), item.lon.toDouble())
-        })
-
-
-        autoComplete2Edit.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                val tMapData = TMapData()
-
-                val keyword = s.toString()
-                val lat = tMapView.centerPoint.latitude
-                val lon = tMapView.centerPoint.longitude
-
-                tMapData.autoCompleteV2(
-                    keyword, lat, lon, 0, 100
-                ) { arrayList -> runOnUiThread { autoComplete2ListAdapter.setItemList(arrayList) } }
-            }
-
-            override fun beforeTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {
-            }
-
-            override fun afterTextChanged(editable: Editable) {
-            }
-        })
-    }
-
-    private fun initAutoComplete() {
-        autoCompleteLayout = findViewById<LinearLayout>(R.id.autoCompleteLayout)
-        autoCompleteLayout.setVisibility(GONE)
-        autoCompleteEdit = findViewById<EditText>(R.id.autoCompleteEdit)
-        autoCompleteListView = findViewById<ListView>(R.id.autoCompleteListView)
-        autoCompleteListAdapter = AutoCompleteListAdapter(this)
-        autoCompleteListView.setAdapter(autoCompleteListAdapter)
-        autoCompleteListView.setOnItemClickListener(OnItemClickListener { adapterView, view, position, l ->
-            val keyword = autoCompleteListAdapter.getItem(position) as String
-            autoCompleteLayout.setVisibility(GONE)
-        })
-
-        autoCompleteEdit.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                val keyword = s.toString()
-
-                val tMapData = TMapData()
-
-                tMapData.autoComplete(
-                    keyword
-                ) { itemList -> runOnUiThread { autoCompleteListAdapter.setItemList(itemList) } }
-            }
-
-            override fun beforeTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {
-            }
-
-            override fun afterTextChanged(editable: Editable) {
-            }
-        })
-    }
 
     private val onClickListener = View.OnClickListener { v ->
         if (v == menuButton) {
@@ -703,95 +751,74 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
     }
 
 
-    private fun selectMenu(groupPosition: Int, childPosition: Int) {
-        if (groupPosition == 0) { // 초기화
-            initAll()
-        } else if (groupPosition == 1) { // 지도컨트롤
-            if (childPosition == 0) { // 줌레벨 선택
-                selectZoomLevel()
-            } else if (childPosition == 1) { // 화면 중심좌표
-                selectCenterPoint()
-            } else if (childPosition == 2) { // 지도 타입 선택
-                Toast.makeText(this, "지원하지 않습니다.", Toast.LENGTH_SHORT).show()
-            } else if (childPosition == 4) { // 직선
-                selectLine()
-            } else if (childPosition == 5) { // 폴리곤
-                selectPolygon()
-            } else if (childPosition == 6) { // 오버레이
-                selectOverlay()
-            } else if (childPosition == 7) { //지도 회전
-                setRotateEnable()
-            } else if (childPosition == 8) { //지도 기울기
-                setTiltEnable()
-            } else if (childPosition == 9) { // 마커 회전
-                selectRotateMarker()
-            } else if (childPosition == 10) { // 로고 보기
-                selectVisibleLogo()
-            } else if (childPosition == 11) { // poi 크기 설정
-                selectPOIScale()
-            } else if (childPosition == 12) { // 지도 유형 선택
-                selectMapType()
-            }
-        } else if (groupPosition == 2) { // POI
-            if (childPosition == 0) { // poi 통합검색
-                findAllPoi() // 검색 창
-            } else if (childPosition == 1) { // 주변 poi 검색
-
-            } else if (childPosition == 2) { // 읍면동/도로명 조회
-
-            } else if (childPosition == 3) { // poi 자동완성
-                if (autoCompleteLayout.visibility == GONE) {
-                    autoCompleteLayout.visibility = VISIBLE
-                    autoCompleteListAdapter.clear()
-                    autoCompleteEdit.setText("티맵모빌리티")
-                } else {
-                    autoCompleteLayout.visibility = GONE
-                }
-            } else if (childPosition == 4) { // poi 초기화
-                tMapView.removeAllTMapMarkerItem()
-            } else if (childPosition == 5) { // poi 자동완성 v2
-                if (autoComplete2Layout.visibility == GONE) {
-                    autoComplete2Layout.visibility = VISIBLE
-                    autoComplete2ListAdapter.clear()
-                    autoComplete2Edit.setText("")
-                } else {
-                    autoComplete2Layout.visibility = GONE
-                }
-            }
-        } else if (groupPosition == 3) { // Geocoding
-            if (childPosition == 0) { // reverse Geocoding
-                selectReverseGeocoding()
-            } else if (childPosition == 1) { // full Text Geocoding
-
-            } else if (childPosition == 2) { // 우편번호 검색
-                selectPostCode()
-            }
-        } else if (groupPosition == 4) { // 위치트래킹
-            if (childPosition == 0) { // 트래킹모드
-                selectTrackingMode()
-            } else if (childPosition == 1) { // 나침반모드
-                selectCompass()
-            } else if (childPosition == 2) { // 시야표출여부
-                selectSightVisible()
-            } else if (childPosition == 3) { // 나침반모드 고정
-                selectCompassFix()
-            }
-        } else if (groupPosition == 5) { // 경로안내
-            if (childPosition == 0) { // 자동차 경로
-//                findPathAllType(TMapPathType.CAR_PATH,this ) //test 시각 음성 으로 이용시 매개변수 ,this 추가
-            } else if (childPosition == 1) { // 보행자 경로
-//                findPathAllType(TMapPathType.PEDESTRIAN_PATH,this ) //test 시각 음성 으로 이용시 매개변수 ,this 추가
-            } else if (childPosition == 2) { // 자동차 경로 및 교통정보
-                findRouteAndTrafficInfo()
-            } else if (childPosition == 3) { // 경로 지우기
-                tMapView.removeTMapPath()
-                tMapView.removeAllTMapTrafficLine()
-                routeLayout.visibility = GONE
-            }
-        } else if (groupPosition == 8) { // Geofencing
-            selectGeofencing()
-        }
-    }
+//    private fun selectMenu(groupPosition: Int, childPosition: Int) {
+//        if (groupPosition == 0) { // 초기화
+//            initAll()
+//        } else if (groupPosition == 1) { // 지도컨트롤
+//            if (childPosition == 0) { // 줌레벨 선택
+//                selectZoomLevel()
+//            } else if (childPosition == 1) { // 화면 중심좌표
+//                selectCenterPoint()
+//            } else if (childPosition == 2) { // 지도 타입 선택
+//                Toast.makeText(this, "지원하지 않습니다.", Toast.LENGTH_SHORT).show()
+//            } else if (childPosition == 4) { // 직선
+//                selectLine()
+//            } else if (childPosition == 5) {
+//            }
+//                selectMapType()
+//
+//        } else if (groupPosition == 2) { // POI
+//            if (childPosition == 0) { // poi 통합검색
+//            } else if (childPosition == 1) { // 주변 poi 검색
+//
+//            } else if (childPosition == 2) { // 읍면동/도로명 조회
+//
+//            } else if (childPosition == 3) { // poi 자동완성
+//                if (autoCompleteLayout.visibility == GONE) {
+//                    autoCompleteLayout.visibility = VISIBLE
+//                    autoCompleteListAdapter.clear()
+//                } else {
+//                    autoCompleteLayout.visibility = GONE
+//                }
+//            } else if (childPosition == 4) { // poi 초기화
+//                tMapView.removeAllTMapMarkerItem()
+//            } else if (childPosition == 5) { // poi 자동완성 v2
+//                if (autoComplete2Layout.visibility == GONE) {
+//                    autoComplete2Layout.visibility = VISIBLE
+//                    autoComplete2ListAdapter.clear()
+//                    autoComplete2Edit.setText("")
+//                } else {
+//                    autoComplete2Layout.visibility = GONE
+//                }
+//            }
+//        } else if (groupPosition == 3) { // Geocoding
+//            if (childPosition == 0) { // reverse Geocoding
+//            } else if (childPosition == 1) { // full Text Geocoding
+//            }
+//        } else if (groupPosition == 4) { // 위치트래킹
+//            if (childPosition == 0) { // 트래킹모드
+//                selectTrackingMode()
+//            } else if (childPosition == 1) { // 나침반모드
+//                selectCompass()
+//            } else if (childPosition == 2) { // 시야표출여부
+//                selectSightVisible()
+//            } else if (childPosition == 3) { // 나침반모드 고정
+//                selectCompassFix()
+//            }
+//        } else if (groupPosition == 5) { // 경로안내
+//            if (childPosition == 0) { // 자동차 경로
+////                findPathAllType(TMapPathType.CAR_PATH,this ) //test 시각 음성 으로 이용시 매개변수 ,this 추가
+//            } else if (childPosition == 1) { // 보행자 경로
+////                findPathAllType(TMapPathType.PEDESTRIAN_PATH,this ) //test 시각 음성 으로 이용시 매개변수 ,this 추가
+//            } else if (childPosition == 2) { // 자동차 경로 및 교통정보
+////                findRouteAndTrafficInfo()
+//            } else if (childPosition == 3) { // 경로 지우기
+//                tMapView.removeTMapPath()
+//                tMapView.removeAllTMapTrafficLine()
+//                routeLayout.visibility = GONE
+//            }
+//        }
+//    }
 
 
     private fun selectMapType() {
@@ -810,55 +837,6 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
             }).create().show()
     }
 
-
-    private fun selectPOIScale() {
-        AlertDialog.Builder(this)
-            .setTitle("POI 크기 설정")
-            .setIcon(R.drawable.tmark)
-            .setSingleChoiceItems(R.array.select4, -1, DialogInterface.OnClickListener { dialog, position ->
-                if (position == 0) {
-                    tMapView.setPOIScale(POIScale.SMALL)
-                } else if (position == 1) {
-                    tMapView.setPOIScale(POIScale.NORMAL)
-                } else if (position == 2) {
-                    tMapView.setPOIScale(POIScale.LARGE)
-                }
-                dialog.dismiss()
-            }).create().show()
-    }
-
-    private fun selectOverlay() {
-        AlertDialog.Builder(this)
-            .setTitle("오버레이 그리기")
-            .setIcon(R.drawable.tmark)
-            .setSingleChoiceItems(R.array.select2, -1, DialogInterface.OnClickListener { dialog, position ->
-                if (position == 0) {
-                    tMapView.removeAllTMapOverlay()
-
-                    val centerX = tMapView.width / 2
-                    val centerY = tMapView.height / 2
-
-                    val leftTop = tMapView.convertPointToGps((centerX - 100).toFloat(), (centerY - 100).toFloat())
-                    val rightBottom = tMapView.convertPointToGps((centerX + 100).toFloat(), (centerY + 100).toFloat())
-
-                    val overlay = TMapOverlay()
-                    overlay.id = "overlay"
-                    overlay.setOverlayImage(this@TMapModule, R.drawable.icon)
-                    overlay.leftTopPoint = leftTop
-                    overlay.rightBottomPoint = rightBottom
-                    overlay.alpha = 100
-
-                    tMapView.addTMapOverlay(overlay)
-                } else {
-                    tMapView.removeAllTMapOverlay()
-                }
-                dialog.dismiss()
-            }).create().show()
-    }
-
-    private fun selectPostCode() {
-        PostCode(this, API_KEY).showFindPopup()
-    }
 
     private fun selectRotateMarker() {
         AlertDialog.Builder(this)
@@ -897,7 +875,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
 
         tMapView.setCenterPoint(initPoint!!.latitude, initPoint!!.longitude)
 
-        reverseGeoCoding(false)
+//        reverseGeoCoding(false)
 
         isVisibleCenter = false
         centerPointTextView.visibility = GONE
@@ -915,91 +893,8 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
     }
 
 
-    private fun selectGeofencing() {
-        val regionNames = arrayOf<CharSequence>("시,도 단위", "시,군,구 단위", "법정동", "행정동")
-        val builder = android.app.AlertDialog.Builder(this)
-        builder.setTitle("Geofencing").setIcon(R.drawable.tmark)
-        val input = EditText(this)
-
-        builder.setSingleChoiceItems(
-            regionNames, geofencingType
-        ) { dialog, whichButton -> geofencingType = whichButton }.setPositiveButton(
-            "확인"
-        ) { dialog, which ->
-            tMapView.removeAllTMapPolygon()
-            geofencing(input.text.toString())
-        }.setNegativeButton("취소") { dialog, which -> dialog.cancel() }
-
-        builder.setView(input)
-        builder.show()
-    }
-
-
-    var geofencingCallback: Geofencer.OnGeofencingPolygonCreatedCallback =
-        object : OnGeofencingPolygonCreatedCallback {
-            override fun onReceived(polygons: ArrayList<TMapPolygon>) {
-                if (polygons.size > 0) {
-                    var latitudeSum = 0.0
-                    var longitudeSum = 0.0
-                    var zoomSum = 0
-
-                    tMapView.removeAllTMapPolygon()
-
-                    for (i in polygons.indices) {
-                        polygons[i].areaColor = Color.BLACK
-                        polygons[i].areaAlpha = 50
-                        tMapView.addTMapPolygon(polygons[i])
-                        val mapInfo = tMapView.getDisplayTMapInfo(polygons[i].polygonPoint)
-                        latitudeSum += mapInfo.point.latitude
-                        longitudeSum += mapInfo.point.longitude
-                        zoomSum += mapInfo.zoom
-                    }
-                    tMapView.zoomLevel = (zoomSum / polygons.size)
-                    tMapView.setCenterPoint(latitudeSum / polygons.size, longitudeSum / polygons.size)
-                }
-            }
-        }
-
-    private fun geofencing(regionName: String) {
-        val geofencer: Geofencer = Geofencer(API_KEY)
-        geofencer.requestGeofencingBaseData(
-            geofencer.getRegionTypeFromOrder(geofencingType),
-            regionName,
-            object : OnGeofencingBaseDataReceivedCallback {
-                override fun onReceived(datas: ArrayList<GeofenceData>) {
-                    if (datas.size == 1) {
-//					Log.d("JSON Test", datas.get(0).getRegionId());
-                        // 1개인경우 바로 draw
-                        val geofencer2: Geofencer = Geofencer(API_KEY)
-                        geofencer2.requestGeofencingPolygon(datas[0], geofencingCallback)
-                    } else if (datas.size > 1) {
-                        // 1개 이상인경우 리스트 표출하여 선택하도록
-                        val regionNames = arrayOfNulls<CharSequence>(datas.size)
-                        for (i in datas.indices) regionNames[i] =
-                            datas[i].getRegionName() + "/" + datas[i].getDescription()
-
-                        val builder = android.app.AlertDialog.Builder(this@TMapModule)
-                        builder.setTitle("결과내 선택").setIcon(R.drawable.tmark)
-
-                        builder.setSingleChoiceItems(
-                            regionNames, -1
-                        ) { dialog, which ->
-                            val geofencer2: Geofencer = Geofencer(API_KEY)
-                            geofencer2.requestGeofencingPolygon(datas[which], geofencingCallback)
-                            dialog.dismiss()
-                        }
-
-                        builder.show()
-                    } else {
-                        Toast.makeText(this@TMapModule, "검색에 실패하였습니다. 확인 후 다시 시도해주세요.", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            })
-    }
-
-
     //보행자 길안내 로직
-    private fun findPathAllType(
+    private fun findPathAllTypeTEST(
         type: TMapPathType,
         context: Context,
         startPoint: TMapPoint,
@@ -1055,7 +950,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
                     Log.e("TMap", "Polyline 비어 있음 - 경로 없음")
                 }
             } else {
-                Log.e("TMap", "❌ 경로 응답 없음")
+                Log.e("TMap", "경로 응답 없음")
             }
         }
     }
@@ -1068,9 +963,9 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
 
 
     //test-시각화-음성안내
-    private fun findPathAllTypeTest(type: TMapPathType, context: Context) {
-        val startPoint = tMapView.centerPoint
-        val endPoint = if (type == TMapPathType.CAR_PATH) randomTMapPoint() else randomTMapPointTest2()
+    private fun findPathAllType(type: TMapPathType, context: Context, startPoint: TMapPoint, endPoint : TMapPoint) {
+//        val startPoint = tMapView.centerPoint
+//        val endPoint = if (type == TMapPathType.CAR_PATH) randomTMapPoint() else randomTMapPointTest2()
 
 
 
@@ -1085,25 +980,6 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
             }
 
             if (doc != null) {
-//                // 1️⃣ KML 문자열로 변환
-//                val kmlString = StringWriter().apply {
-//                    val transformer = TransformerFactory.newInstance().newTransformer()
-//                    transformer.setOutputProperty(OutputKeys.INDENT, "yes")
-//                    transformer.transform(DOMSource(doc), StreamResult(this))
-//                }.toString()
-//
-//                // 2️⃣ 디버깅용 로그
-//                Log.d("KML_RAW", kmlString)
-//
-//                // 3️⃣ (선택) 파일로 저장
-//                try {
-//                    val file = File(context.filesDir, "route_kml.xml")
-//                    file.writeText(kmlString)
-//                    Log.d("FILE_PATH", "✅ KML 저장 완료: ${file.absolutePath}")
-//                } catch (e: Exception) {
-//                    Log.e("FILE_SAVE", "❌ 파일 저장 실패", e)
-//                }
-
                 val lines = doc.getElementsByTagName("LineString")
                 for (i in 0 until lines.length) {
                     val item = lines.item(i) as? Element ?: continue
@@ -1122,13 +998,14 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
                 if (polyline.linePointList.isNotEmpty()) {
                     tMapView.setTMapPath(polyline)
                     val info = tMapView.getDisplayTMapInfo(polyline.linePointList)
-                    tMapView.zoomLevel = info.zoom.coerceAtMost(12)
+                    tMapView.zoomLevel = info.zoom.coerceAtMost(17)
                     tMapView.setCenterPoint(info.point.latitude, info.point.longitude)
 
                     currentPolyline = polyline
                     currentPlacemarks = doc
                     currentStep = 0
-                    simulateRouteWithTTS(context)
+//                    simulateRouteWithTTS(context)
+//                    startLiveNavigationWithTTS(context)
                 } else {
                     Log.e("TMap", "Polyline이 비어 있음 - 경로 없음")
                 }
@@ -1144,41 +1021,107 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
         moveToNextPoint(context)
     }
 
+    //시뮬레이션 TEST
+//    private fun moveToNextPoint(context: Context) {
+//        val points = currentPolyline.linePointList
+//        if (currentStep >= points.size) return
+//
+//        val point = points[currentStep]
+//        tMapView.setCenterPoint(point.longitude, point.latitude)
+//        showMarkerAt(point, context)
+//
+//        val turnType = findNearbyTurnTypeByXPath(context, point)
+//        Log.d("DEBUG", "turnType 결과: $turnType")
+//        if (turnType != null) {
+//            if (turnType != lastAnnouncedTurnType) {
+//                lastAnnouncedTurnType = turnType
+//                speakByTurnTypeWithCallback(turnType)
+//            } else {
+//                Log.d("TTS", "이미 안내된 turnType=$turnType, 생략")
+//            }
+//
+//            currentStep++
+//            Handler(Looper.getMainLooper()).postDelayed({
+//                moveToNextPoint(context)
+//            }, 3000)
+//
+//        } else {
+//            currentStep++
+//            Handler(Looper.getMainLooper()).postDelayed({
+//                moveToNextPoint(context)
+//            }, 2500)
+//        }
+//    }
+
     private fun moveToNextPoint(context: Context) {
         val points = currentPolyline.linePointList
         if (currentStep >= points.size) return
 
         val point = points[currentStep]
-        tMapView.setCenterPoint(point.longitude, point.latitude)
-        showMarkerAt(point, context)
+        processLocationPoint(context, point)  // 공통 처리 함수 사용
 
-        val turnType = findNearbyTurnTypeByXPath(context, point)
-        Log.d("DEBUG", "👉 turnType 결과: $turnType")
-        if (turnType != null) {
-            if (turnType != lastAnnouncedTurnType) {
-                lastAnnouncedTurnType = turnType
-                speakByTurnTypeWithCallback(turnType)
-            } else {
-                Log.d("TTS", "🚫 이미 안내된 turnType=$turnType, 생략")
+        currentStep++
+        val delay = if (lastAnnouncedTurnType == null) 2500L else 3000L
+        Handler(Looper.getMainLooper()).postDelayed({
+            moveToNextPoint(context)
+        }, delay)
+    }
+
+//    실시간 네비게이션 시작 함수 06 05
+    private fun startLiveNavigationWithTTS(context: Context) {
+        if (gpsManager == null) {
+            gpsManager = TMapGpsManager(this)
+            gpsManager!!.provider = TMapGpsManager.PROVIDER_GPS
+        }
+
+        if (!gpsTrackingInitialized) {
+            gpsTrackingInitialized = true
+            gpsManager!!.setOnLocationChangeListener { location: TMapPoint ->
+                processLocationPoint(context, location) // 공통 함수 사용
             }
-
-            currentStep++
-            Handler(Looper.getMainLooper()).postDelayed({
-                moveToNextPoint(context)
-            }, 2000)
-
-        } else {
-            currentStep++
-            Handler(Looper.getMainLooper()).postDelayed({
-                moveToNextPoint(context)
-            }, 1500)
+            gpsManager!!.openGps()
+            Log.d("NAV", "실시간 GPS 기반 네비게이션 시작됨")
         }
     }
+
+//    실시간 네비게이션 시작 함수 06 05
+
+
+
+
+
+    private fun processLocationPoint(context: Context, point: TMapPoint) {
+        //지도 중심 이동
+        tMapView.setCenterPoint(point.longitude, point.latitude)
+        Log.d("ROUTE", "settracking 에서 받아온 좌표: ${point.latitude}, ${point.longitude}")
+
+        sendLocationOverWebSocket(point.latitude, point.longitude)
+        Log.d("WebSocket", "위치데이터 전송 호출됨")
+        // 마커 이동
+        showMarkerAt(point, context)
+
+        // turnType 탐지 및 음성 안내
+        val turnType = findNearbyTurnTypeByXPath(context, point)
+        Log.d("DEBUG", "👉 turnType 결과: $turnType")
+
+        if (turnType != null && turnType != lastAnnouncedTurnType) {
+            lastAnnouncedTurnType = turnType
+            speakByTurnTypeWithCallback(turnType)
+        } else {
+            Log.d("TTS", "이미 안내된 turnType=$turnType, 생략")
+        }
+    }
+
+
+
+
+
+
 
     private fun showMarkerAt(point: TMapPoint, context: Context) {
         if (marker == null) {
             marker = TMapMarkerItem().apply {
-                icon = BitmapFactory.decodeResource(context.resources, R.drawable.i_location)
+                icon = BitmapFactory.decodeResource(context.resources, R.drawable.person_marker_50x50)
                 id = "current_location"
                 setPosition(0.5f, 0.5f)
             }
@@ -1199,35 +1142,37 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
             else -> null
         }
         direction?.let {
-            Log.d("TTS", "🔊 말합니다: $it (turnType=$turnType)")
+            Log.d("TTS", "말합니다: $it (turnType=$turnType)")
             tts.speak(it, TextToSpeech.QUEUE_FLUSH, null, "DIR_$turnType")
-        } ?: Log.d("TTS", "❌ 해당 turnType 없음: $turnType")
+        } ?: Log.d("TTS", "해당 turnType 없음: $turnType")
     }
 
     fun initTTS(context: Context) {
         tts = TextToSpeech(context) {
             if (it == TextToSpeech.SUCCESS) {
-                Log.d("TTS", "✅ TTS 초기화 성공")
+                Log.d("TTS", "TTS 초기화 성공")
                 tts.language = Locale.KOREAN
                 tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                     override fun onStart(utteranceId: String?) {
-                        Log.d("TTS", "🗣 시작됨: $utteranceId")
+                        Log.d("TTS", "시작됨: $utteranceId")
                     }
 
                     override fun onDone(utteranceId: String?) {
-                        Log.d("TTS", "✅ 끝남: $utteranceId")
+                        Log.d("TTS", "끝남: $utteranceId")
                         Handler(Looper.getMainLooper()).post {
-                            currentStep++
-                            moveToNextPoint(context)
+                            if (utteranceId?.startsWith("DIR_") == true) {
+                                currentStep++
+//                            moveToNextPoint(context)
+                            }
                         }
                     }
 
                     override fun onError(utteranceId: String?) {
-                        Log.e("TTS", "❗오류 발생: $utteranceId")
+                        Log.e("TTS", "오류 발생: $utteranceId")
                     }
                 })
             } else {
-                Log.e("TTS", "❌ TTS 초기화 실패")
+                Log.e("TTS", "TTS 초기화 실패")
             }
         }
     }
@@ -1251,7 +1196,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
 
     fun findNearbyTurnTypeByXPath(context: Context, currentPoint: TMapPoint): Int? {
         val doc = loadLocalKMLDocument(context) ?: run {
-            Log.w("TTS", "⚠️ KML 파일 로드 실패")
+            Log.w("DES", "KML 파일 로드 실패")
             return null
         }
 
@@ -1267,14 +1212,14 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
             override fun getPrefixes(namespaceURI: String?) = null
         }
 
-        Log.d("TTS", "📍 currentPoint = (${currentPoint.latitude}, ${currentPoint.longitude})")
+        Log.d("DES", "currentPoint = (${currentPoint.latitude}, ${currentPoint.longitude})")
 
-        val maxDistance = 0.0005  // 🔧 50m까지 허용
+        val maxDistance = 0.0002  // 20m까지 허용
 
-        // ✅ 1차 탐색: POINT 노드
+        // 1차 탐색: POINT 노드
         val expr = xpath.compile("//*[local-name()='Placemark' and *[local-name()='nodeType']='POINT']")
         val placemarks = expr.evaluate(doc, XPathConstants.NODESET) as NodeList
-        Log.d("TTS", "📌 [1차] POINT Placemark 수: ${placemarks.length}")
+        Log.d("DES", "[1차] POINT Placemark 수: ${placemarks.length}")
 
         for (i in 0 until placemarks.length) {
             val node = placemarks.item(i) as? Element ?: continue
@@ -1291,23 +1236,23 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
 
             val dist = Math.hypot(currentPoint.longitude - lon, currentPoint.latitude - lat)
 
-            // turnType: 네임스페이스가 붙은 경우에도 안전하게 local-name으로 찾기
+            // turnType: 네임스페이스가 붙은 경우 local-name으로 확인
             val turnExpr = xpath.compile(".//*[local-name()='turnType']")
             val turnNode = turnExpr.evaluate(node, XPathConstants.NODE) as? Element
             val turnTypeStr = turnNode?.textContent
 
-            Log.d("TTS", "🔎 비교 좌표: ($lat, $lon), 거리: $dist, turnType: $turnTypeStr")
+            Log.d("DES", "비교 좌표: ($lat, $lon), 거리: $dist, turnType: $turnTypeStr")
 
             if (dist < maxDistance) {
-                Log.d("TTS", "✅ [1차] 매칭 성공: turnType=$turnTypeStr, 좌표=$coordStr")
+                Log.d("DES", "[1차] 매칭 성공: turnType=$turnTypeStr, 좌표=$coordStr")
                 return turnTypeStr?.toIntOrNull()
             }
         }
 
-        // ✅ 2차 fallback: LINE 마지막 좌표 → 다음 Placemark에서 turnType
+        // 2차 fallback: LINE 마지막 좌표 다음 Placemark에서 turnType
         val lineExpr = xpath.compile("//*[local-name()='Placemark' and *[local-name()='nodeType']='LINE']")
         val linePlacemarks = lineExpr.evaluate(doc, XPathConstants.NODESET) as NodeList
-        Log.d("TTS", "📌 [2차] LINE Placemark 수: ${linePlacemarks.length}")
+        Log.d("DES", "[2차] LINE Placemark 수: ${linePlacemarks.length}")
 
         for (i in 0 until linePlacemarks.length) {
             val lineNode = linePlacemarks.item(i) as? Element ?: continue
@@ -1324,7 +1269,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
             if (lon == null || lat == null) continue
 
             val dist = Math.hypot(currentPoint.longitude - lon, currentPoint.latitude - lat)
-            Log.d("TTS", "🔎 [2차] 마지막좌표 거리: $dist")
+            Log.d("DES", "[2차] 마지막좌표 거리: $dist")
 
             if (dist < maxDistance) {
                 val nextPlacemark = if (i + 1 < linePlacemarks.length)
@@ -1334,12 +1279,12 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
                     ?.getElementsByTagNameNS("http://tlp.tmap.co.kr/", "turnType")
                     ?.item(0)?.textContent
 
-                Log.d("TTS", "✅ [2차] fallback: turnType=$turnTypeStr @ $lastCoord")
+                Log.d("DES", "[2차] fallback: turnType=$turnTypeStr @ $lastCoord")
                 return turnTypeStr?.toIntOrNull()
             }
         }
 
-        Log.w("TTS", "⚠️ [결과] 근접한 turnType 못 찾음")
+        Log.w("DES", "[결과] 근접한 turnType 못 찾음")
         return null
     }
 
@@ -1370,84 +1315,6 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
                 routeFareTextView.text = "유료도로 요금 : $fare 원"
             } else {
                 routeFareTextView.visibility = GONE
-            }
-        }
-    }
-
-    private fun findRouteAndTrafficInfo() {
-        tMapView.removeAllTMapTrafficLine()
-        val startPoint = randomTMapPoint2()
-        val endPoint = randomTMapPoint2()
-
-        TMapData().findPathDataAllType(
-            TMapPathType.CAR_PATH, startPoint, endPoint
-        ) { doc: Document? ->
-            if (doc != null) {
-                val nodeList = doc.getElementsByTagName("LineString")
-
-                val tmapTrafficLine = TMapTrafficLine("TestTrafficLine")
-                tmapTrafficLine.trafficLineList = ArrayList()
-                // 교통 정보 표출 여부, 활성화 시 티맵과 동일한 디자인으로 표출
-                // trafficLine 생성 시 입력한 traffic 정보 기반
-                tmapTrafficLine.isShowTraffic = true
-                // Indicator 추가 (화살표)
-                tmapTrafficLine.isShowIndicator = true
-                // 선의 두께
-                tmapTrafficLine.lineWidth = 9
-                // 외곽선 두께
-                tmapTrafficLine.outLineWidth = 2
-
-                // TMAP API 자동차 경로 조회
-                for (i in 0..<nodeList.length) {
-                    val item = nodeList.item(i) as Element
-                    val pointList = ArrayList<TMapPoint>()
-
-                    // 좌표 파싱
-                    val coordStr = getContentFromNode(item, "coordinates")
-                    if (coordStr != null) {
-                        val coordStrArr = coordStr.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                        for (string in coordStrArr) {
-                            val lon =
-                                string.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0].toDouble()
-                            val lat =
-                                string.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1].toDouble()
-                            pointList.add(TMapPoint(lat, lon))
-                        }
-                    }
-
-                    // 교통 정보 파싱
-                    val trafficStr = getContentFromNode(item, "traffic")
-                    if (trafficStr != null) {
-                        val trafficStrArr =
-                            trafficStr.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                        for (s in trafficStrArr) {
-                            val trafficItem = s.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                            val tStart = trafficItem[0].toInt()
-                            val tEnd = trafficItem[1].toInt()
-                            // 0: 정보없음, 1: 원활, 2: 서행, 3: 지체, 4: 정체
-                            var trafficInfo = trafficItem[2].toInt()
-                            if (trafficInfo == 4) trafficInfo = 3
-
-                            val tPointList = ArrayList<TMapPoint>()
-                            for (k in tStart..<tEnd + 1) {
-                                tPointList.add(pointList[k])
-                            }
-                            // 교통 정보 및 라인 설정
-                            val trafficLine = TrafficLine(trafficInfo, tPointList)
-                            tmapTrafficLine.trafficLineList.add(trafficLine)
-                        }
-                    }
-                }
-
-                // 지도에 TrafficLine 추가
-                tMapView.addTrafficLine(tmapTrafficLine)
-
-                // 지도 영역 이동
-                val bounds = tMapView.getBoundsFromTrafficLine(tmapTrafficLine)
-                if (bounds != null) {
-                    val insets = TMapInsets.of(100, 100, 100, 100)
-                    tMapView.fitBounds(bounds, insets)
-                }
             }
         }
     }
@@ -1498,6 +1365,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
     }
 
     private fun setTrackingMode(isTracking: Boolean) {
+        Log.d("CALL_CHECK", "setTrackingMode($isTracking) 호출됨")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             var isGranted = true
             val permissionArr =
@@ -1512,7 +1380,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
             }
 
             if (isGranted) {
-                setTracking(isTracking)
+                setTracking(isTracking,this)
             } else {
                 requestPermissions(checkPer.toTypedArray<String>(), 100)
             }
@@ -1534,22 +1402,25 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
-        if (tMapView != null) {
-            tMapView.onDestroy()
-        }
-        //음성안내
+        // 🗺 지도 뷰 정리
+        tMapView?.onDestroy()
+
+        // 🛰 GPS 추적 중지
+        gpsManager?.setOnLocationChangeListener(null)
+        gpsManager?.closeGps()
+
+        // 🗣 TTS 정리
         if (::tts.isInitialized) {
             tts.stop()
             tts.shutdown()
         }
-        //음성안내
 
+        super.onDestroy()  // 항상 마지막에 호출
+        speechRecognizer?.destroy()
+        speechRecognizer = null
     }
 
-
-
-    private fun setTracking(isTracking: Boolean) {
+    private fun setTracking(isTracking: Boolean, context: Context) {
         if (gpsManager == null) {
             gpsManager = TMapGpsManager(this)
         }
@@ -1561,6 +1432,10 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
 
             // GPS, 방향 변경 이벤트 리스너
             gpsManager!!.setOnLocationChangeListener { location: TMapPoint ->
+                Log.d("CHECK_CALL", "setTracking 콜백 진행 ")
+
+                currentLocation = location
+
                 // 위치 Tracking
                 tMapView.locationPoint = location
                 tMapView.setCenterPoint(location.latitude, location.longitude)
@@ -1576,12 +1451,21 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
                 } else {
                     tMapView.updateTMapMarkerItem(marker)
                 }
+
+                processLocationPoint(context, location)
+                GetGPS(location)
             }
         } else {
             gpsManager!!.setOnLocationChangeListener(null)
             tMapView.removeTMapMarkerItem("position")
         }
     }
+
+
+
+//     GPS 기반 실시간 위치 추적
+
+
 
     private fun selectSightVisible() {
         AlertDialog.Builder(this)
@@ -1597,48 +1481,6 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
             }).create().show()
     }
 
-
-
-
-    private fun selectReverseGeocoding() {
-        AlertDialog.Builder(this)
-            .setTitle("Reverse Geocoding")
-            .setIcon(R.drawable.tmark)
-            .setSingleChoiceItems(R.array.select3, -1, DialogInterface.OnClickListener { dialog, position ->
-                if (position == 0) {
-                    reverseGeoCoding(true)
-                } else {
-                    reverseGeoCoding(false)
-                }
-                dialog.dismiss()
-            }).create().show()
-    }
-
-
-    private fun findAllPoi() {
-        val input = EditText(this)
-        AlertDialog.Builder(this)
-            .setTitle("POI 통합 검색")
-            .setView(input)
-            .setPositiveButton("확인", null)
-            .setNegativeButton("취소", null)
-            .create().show()
-    }
-
-
-    private fun selectVisibleLogo() {
-        AlertDialog.Builder(this)
-            .setTitle("로고 보기")
-            .setIcon(R.drawable.tmark)
-            .setSingleChoiceItems(R.array.select3, -1, DialogInterface.OnClickListener { dialog, position ->
-                if (position == 0) {
-                    tMapView.setVisibleLogo(true)
-                } else {
-                    tMapView.setVisibleLogo(false)
-                }
-                dialog.dismiss()
-            }).create().show()
-    }
 
     private fun setRotateEnable() {
         AlertDialog.Builder(this)

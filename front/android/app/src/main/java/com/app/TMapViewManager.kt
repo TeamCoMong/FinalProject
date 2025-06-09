@@ -21,7 +21,7 @@ class TMapViewManager : SimpleViewManager<TMapNativeView>() {
 
         view.post {
             view.setMapReadyListener {
-                Log.d("TMapManager", "✅ Listener 등록 성공 from Manager")
+                Log.d("TMapManager", "Listener 등록 성공 from Manager")
             }
         }
 

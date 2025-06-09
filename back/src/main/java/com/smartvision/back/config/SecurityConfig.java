@@ -75,7 +75,8 @@ public class SecurityConfig {
                                 "/error",               // 에러 페이지
                                 "/favicon.ico",         // 아이콘 요청
                                 "/swagger-ui/**",       // Swagger 문서Add commentMore actions
-                                "/v3/api-docs/**").permitAll()       // Swagger 문서 "/location/**").permitAll()  // 회원가입, 로그인, 이메일 인증은 인증 없이 접근 가능
+                                "/v3/api-docs/**",
+                                "/location/**" ).permitAll()       // Swagger 문서 "/location/**").permitAll()  // 회원가입, 로그인, 이메일 인증은 인증 없이 접근 가능
                         .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider, userDetailsService),

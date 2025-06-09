@@ -304,5 +304,27 @@
                 <coordinates>127.07549,36.79946 </coordinates>
             </Point>
         </Placemark>
+        <Placemark>
+            <tmap:index>0</tmap:index>
+            <tmap:pointIndex>0</tmap:pointIndex>
+            <name/>
+            <description>
+                <![CDATA[ 목적지 인문관 node04 도착입니다 ]]>
+            </description>
+            <styleUrl>#startPointStyle</styleUrl>
+            <tmap:direction/>
+            <tmap:nearPoiName/>
+            <tmap:nearPoiX>0.0</tmap:nearPoiX>
+            <tmap:nearPoiY>0.0</tmap:nearPoiY>
+            <tmap:intersectionName/>
+            <tmap:nodeType>POINT</tmap:nodeType>
+            <tmap:turnType>16</tmap:turnType>
+            <tmap:pointType>SP</tmap:pointType>
+            <tmap:facilityType>11</tmap:facilityType>
+            <tmap:facilityName/>
+            <Point>
+                <coordinates>127.07581135,36.79882252 </coordinates>
+            </Point>
+        </Placemark>
     </Document>
 </kml>

@@ -61,3 +61,5 @@ const GuardianSettingScreen = ({ navigation }) => {
         </View>
     );
 };
+
+export default GuardianSettingScreen;

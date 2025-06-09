@@ -217,7 +217,8 @@ const VOICE_RECOGNITION_ALLOWED_SCREENS = [
     'MyProfileInfoScreen',
     '지폐 인식',
     '도움말',
-    '기타 설정'
+    '기타 설정',
+    '홈 키',
 ];
 
 

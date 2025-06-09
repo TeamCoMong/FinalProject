@@ -33,7 +33,7 @@ import SettingScreen from "./src/screens/Setting/SettingScreen";
 import UserHelpScreen from "./src/screens/help/UserHelpScreen";
 import NavigationHelpScreen from "./src/screens/help/NavigationHelpScreen";
 import MoneyRecognitionHelpScreen from "./src/screens/help/MoneyRecognitionHelpScreen";
-import GuardianRegisterHelpScreen from "./src/screens/help/GuardianRegisterHelpScreen";
+import LinkedGuardiansScreen from "./src/screens/help/LinkedGuardiansScreen";
 import SettingsHelpScreen from "./src/screens/help/SettingsHelpScreen";
 import IntroScreen from './src/screens/IntroScreen';
 import FindAccountScreen from "./src/screens/auth/FindAccountScreen";
@@ -439,12 +439,10 @@ const App = () => {
 
                             <Stack.Screen name="NavigationHelpScreen" component={NavigationHelpScreen} />
                             <Stack.Screen name="MoneyRecognitionHelpScreen" component={MoneyRecognitionHelpScreen} />
-                            <Stack.Screen name="GuardianRegisterHelpScreen" component={GuardianRegisterHelpScreen} />
+                            <Stack.Screen name="LinkedGuardiansScreen" component={LinkedGuardiansScreen} />
                             <Stack.Screen name="SettingsHelpScreen" component={SettingsHelpScreen} />
-
+                            <Stack.Screen name="MainTab" component={MainTabNavigator} />
                             <Stack.Screen name="MyProfileInfoScreen" component={MyProfileInfoScreen} />
-
-                            <Stack.Screen name="UserMain" component={MainTabNavigator} />
                             <Stack.Screen name="GuardianMain" component={GuardianMainTabNavigator} />
                             <Stack.Screen name="ManagerMain" component={ManagerMainTabNavigator} />
 

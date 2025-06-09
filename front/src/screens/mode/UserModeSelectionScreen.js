@@ -19,7 +19,7 @@ const UserModeSelectionScreen = ({ navigation }) => {
             </View>
 
             <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.loginButton} onPress={() => navigation.navigate('UserMain')}>
+                <TouchableOpacity style={styles.loginButton} onPress={() => navigation.navigate('UserLoginScreen')}>
                     <Image source={require('../../assets/login.png')} style={styles.buttonIcon} />
                     <Text style={styles.buttonText}>{t('userMode.login')}</Text>
                 </TouchableOpacity>

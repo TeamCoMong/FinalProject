@@ -109,12 +109,14 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#FFF5EE',
         paddingTop: 30,
+        color: '#000', // 제목 글자색
     },
     title: {
         fontSize: 22,
         fontWeight: 'bold',
         textAlign: 'center',
         marginBottom: 10,
+        color: '#000',
     },
     list: {
         paddingHorizontal: 20,
@@ -132,15 +134,17 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 5,
+        color: '#000',
     },
     statText: {
         fontSize: 16,
-        color: '#444',
+        color: '#000',
     },
     legendRow: {
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 5,
+        color: '#000',
     },
     legendColor: {
         width: 16,
@@ -164,6 +168,6 @@ const styles = StyleSheet.create({
     },
     itemText: {
         fontSize: 16,
-        color: '#333',
+        color: '#000',
     },
 });

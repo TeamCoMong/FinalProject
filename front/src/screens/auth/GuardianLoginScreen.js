@@ -106,18 +106,6 @@ const GuardianLoginScreen = ({ navigation }) => {
             </TouchableOpacity>
 
 
-
-
-
-            <TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('GuardianMain')}>
-                <Text style={styles.buttonText}>(보호자)프론트 테스트</Text>
-            </TouchableOpacity>
-
-            {/* (관리자) 프론트 테스트 버튼 추가 */}
-            <TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('ManagerMain')}>
-                <Text style={styles.buttonText}>(관리자)프론트 테스트</Text>
-            </TouchableOpacity>
-
         </View>
     );
 };

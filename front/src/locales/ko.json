@@ -72,11 +72,11 @@
     "createdBy": "Created by CoMong"
   },
   "userMode": {
-    "title": "User Mode",
-    "login": "Login",
-    "signup": "Sign Up",
-    "guide": "Navigation",
-    "voice": "Voice Guide",
-    "obstacle": "Obstacle Detection"
+    "title": "사용자 모드",
+    "login": "로그인",
+    "signup": "회원가입",
+    "guide": "길안내",
+    "voice": "음성 안내",
+    "obstacle": "장애물 감지"
   }
 }

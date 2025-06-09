@@ -37,7 +37,6 @@ import SettingsHelpScreen from "./src/screens/help/SettingsHelpScreen";
 import IntroScreen from './src/screens/IntroScreen';
 import FindAccountScreen from "./src/screens/auth/FindAccountScreen";
 import ResetPasswordScreen from "./src/screens/auth/ResetPasswordScreen";
-import KakaoMapScreen from "./src/screens/location/KakaoMapScreen";
 import MyProfileInfoScreen from "./src/screens/Setting/MyProfileInfoScreen";
 import GuardianHomeScreen from "./src/screens/start/GuardianHomeScreen";
 import GuardianSettingScreen from "./src/screens/Setting/GuardianSettingScreen";
@@ -49,19 +48,11 @@ import GuardianLoginScreen from './src/screens/auth/GuardianLoginScreen';
 import GuardianRegisterScreen from './src/screens/auth/GuardianRegisterScreen';
 import UserLoginScreen from './src/screens/auth/UserLoginScreen';
 import UserRegisterScreen from './src/screens/auth/UserRegisterScreen';
-
-import UserTmapScreen from "./src/screens/location/UserTmapScreen";
-import GuardianTmapScreen from "./src/screens/location/GuardianTmapScreen";
-
 import AdminSecondPwScreen from "./src/screens/auth/AdminSecondPwScreen";
 import AdminStatsScreen from './src/screens/Admin/AdminStatsScreen';
 import AdminAIDetectionScreen from './src/screens/Admin/AdminAIDetectionScreen';
 import AdminSettingsScreen from './src/screens/Admin/AdminSettingsScreen';
 
-
-import GuardianMapScreen from "./src/screens/location/GuardianMapScreen";
-
-import TestPOI from "./src/screens/location/TestPOI";
 
 // 탭 & 스택 네비게이터
 const Tab = createBottomTabNavigator();
@@ -161,7 +152,7 @@ const ManagerMainTabNavigator = () => (
 // ✅  사용자 메인 탭 네비게이터
 const MainTabNavigator = () => (
     <Tab.Navigator screenOptions={userScreenOptions}>
-        <Tab.Screen name="홈 키" component={HomeStartScreen} options={{ headerShown: false}} />
+        <Tab.Screen name="HomeStartScreen" component={HomeStartScreen} options={{ headerShown: false}} />
         {/*<Tab.Screen name="지폐 인식" component={BillScanScreen} options={{ headerShown: false}} />*/}
         <Tab.Screen name="도움말" component={UserHelpScreen} options={{ headerShown: false}} />
         <Tab.Screen name="기타 설정" component={SettingScreen} options={{ headerShown: false}} />
@@ -199,7 +190,6 @@ const VOICE_RECOGNITION_ALLOWED_SCREENS = [
     'HomeStartScreen',
     'BillScanScreen',
     'MyProfileInfoScreen',
-    '홈 키',
     '지폐 인식',
     '도움말',
     '기타 설정'
@@ -281,6 +271,14 @@ const App = () => {
                     if (data && data.intent) { // <--- 여기를 수정했습니다!
                         const intentName = data.intent.toLowerCase(); // <--- 여기를 수정했습니다!
                         console.log('🔍 감지된 인텐트 (수정 후):', intentName);
+
+                        if (intentName === '길안내') {
+                            console.log('🚗 길안내 → navigationRef로 HomeStartScreen 이동 + destination param 넘기기:', data.destination);
+
+                            navigationRef.current?.navigate('HomeStartScreen', {
+                                destination: data.destination
+                            });
+                        }
 
                         if (intentName === 'detection') {
                             console.log('🚀 "detection" 인텐트 수신. DetectionService 시작 요청.');
@@ -397,23 +395,9 @@ const App = () => {
                             <Stack.Screen name="Intro" component={IntroScreen} />
                             <Stack.Screen name="FindAccount" component={FindAccountScreen} />
                             <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
-                            <Stack.Screen name="KakaoMap" component={KakaoMapScreen} />
-
-                            {/* 사용자 테스트 전용 */}
-                            <Stack.Screen name="UserTmapScreen" component={UserTmapScreen} />
-                            {/* 보호자 테스트 전용 */}
-                            <Stack.Screen name="GuardianTmapScreen" component={GuardianTmapScreen} />
-                            {/* 보호자 테스트 2222 */}
-                            <Stack.Screen name="GuardianMapScreen" component={GuardianMapScreen} />
-
-                            {/* POT 테스트 2222 */}
-                            <Stack.Screen name="TestPOI" component={TestPOI} />
-
-                            {/*창현 T-map 스크린 끝*/}
                             {/* 4/24 메인 이전 로그인/회원가입 화면 */}
                             <Stack.Screen name="GuardianModeSelectionScreen" component={GuardianModeSelectionScreen} />
                             <Stack.Screen name="UserModeSelectionScreen" component={UserModeSelectionScreen} />
-
                             <Stack.Screen name="GuardianRegisterScreen" component={GuardianRegisterScreen} />
                             <Stack.Screen name="GuardianLoginScreen" component={GuardianLoginScreen} />
                             <Stack.Screen name="UserRegisterScreen" component={UserRegisterScreen} />

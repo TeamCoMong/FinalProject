@@ -14,6 +14,9 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -70,7 +73,9 @@ import javax.xml.XMLConstants
 import java.io.InputStream
 import javax.xml.parsers.DocumentBuilderFactory
 import com.facebook.react.modules.core.DeviceEventManagerModule
-
+import org.java_websocket.client.WebSocketClient
+import org.java_websocket.handshake.ServerHandshake
+import java.net.URI
 
 
 class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
@@ -80,6 +85,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
     private lateinit var currentPlacemarks: Document
     private lateinit var tts: TextToSpeech
     private var initPoint: TMapPoint? = null
+    private var currentLocation: TMapPoint? = null
     private lateinit var menuButton: Button
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var zoomInImage: ImageView
@@ -127,8 +133,12 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
     private var gpsManager: TMapGpsManager? = null
     private var marker: TMapMarkerItem? = null
 
+    private var socketClient: WebSocketClient? = null
+
+    private var isWebSocketConnected = false
 
 
+    private var speechRecognizer: SpeechRecognizer? = null
 
 
     private var gpsTrackingInitialized = false
@@ -147,82 +157,223 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
         initView()
         initTmap()
         initTTS(this)
+        initSpeechRecognizer()
+        startListening()
 
         // 목적지 자체는 일단 받아서 보관만
         val destinationName = GlobalData.destination
         Log.d("CHECK", "📥 onCreate에서 받은 목적지: $destinationName")
     }
 
-    private fun startLocationAndRoutingFlow() {
-        Log.d("FLOW", "🛰️ 위치 수신 및 경로 탐색 플로우 시작")
 
-        // 1️⃣ 기존 좌표가 있으면 무시 (무조건 GPS 콜백 기반으로만 수행)
-        tMapView.locationPoint = TMapPoint(0.0, 0.0)
-
-        // 2️⃣ gpsManager 초기화
-        if (gpsManager == null) {
-            gpsManager = TMapGpsManager(this).apply {
-                provider = TMapGpsManager.PROVIDER_GPS  // 실외기준 GPS로
-            }
-            Log.d("GPS_INIT", "📌 gpsManager 초기화 완료")
+    private fun GetGPS( stPoint: TMapPoint){
+        Log.d("WebSocket", "GetGPS호출 완료")
+        val destination = GlobalData.destination
+        if (!destination.isNullOrEmpty()) {
+            //목적지 경로 탐색 시작
+            searchPOIAndStartRoute(destination, stPoint)
+            Log.d("WebSocket", " POI 호출됨")
         }
 
-        // 3️⃣ 위치 수신 콜백 등록
-        var hasStarted = false
-        gpsManager!!.setOnLocationChangeListener { location: TMapPoint ->
-            if (!hasStarted) {
-                hasStarted = true
-                Log.d("GPS", "📍 최초 위치 수신됨: (${location.latitude}, ${location.longitude})")
+        //Reverse Geocoding 넣기 (테스트용)
+        reverseGeocodeCurrentLocation(stPoint)
 
-                gpsManager!!.setOnLocationChangeListener(null)  // 콜백 제거
-                tMapView.locationPoint = location
-                val destination = GlobalData.destination
-                if (!destination.isNullOrEmpty()) {
-                    // 4️⃣ 목적지 경로 탐색 시작
-                    searchPOIAndStartRoute(destination)
+        sendLocationOverWebSocket(stPoint.latitude, stPoint.longitude)
+        Log.d("WebSocket", "위치데이터 전송 호출됨")
+    }
+
+    private fun initSpeechRecognizer() {
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+        speechRecognizer?.setRecognitionListener(object : RecognitionListener {
+            override fun onResults(results: Bundle?) {
+                val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                val recognizedText = matches?.get(0) ?: ""
+                Log.d("Voice", "Recognized: $recognizedText")
+
+                // 종료 키워드 체크
+                if (recognizedText.contains("종료") ||
+                    recognizedText.contains("닫아") ||
+                    recognizedText.contains("끝내")
+                ) {
+                    Log.d("Voice", "종료 키워드 감지됨 → TMapActivity 종료")
+                    finish() // TMapActivity 종료
+                } else {
+                    // 다시 리스닝 재시작 (지속적으로 인식 유지)
+                    startListening()
                 }
-                // 5️⃣ 이후 실시간 위치 추적 활성화 (마커 포함)
-                setTrackingMode(true)
             }
-        }
 
-        // 6️⃣ GPS 수신 시작 (살짝 딜레이 주는 게 안정적)
-        Handler(Looper.getMainLooper()).postDelayed({
-            gpsManager!!.openGps()
-            Log.d("GPS_INIT", "📡 openGps() 호출 완료")
-        }, 300)
+            override fun onReadyForSpeech(params: Bundle?) {}
+            override fun onBeginningOfSpeech() {}
+            override fun onRmsChanged(rmsdB: Float) {}
+            override fun onBufferReceived(buffer: ByteArray?) {}
+            override fun onEndOfSpeech() {}
+            override fun onError(error: Int) {
+                Log.e("Voice", "Recognition Error: $error")
+                // 에러 발생 시 리스닝 재시작 시도
+                startListening()
+            }
+            override fun onPartialResults(partialResults: Bundle?) {}
+            override fun onEvent(eventType: Int, params: Bundle?) {}
+        })
+    }
+
+    private fun startListening() {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR")
+//        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "명령어를 말씀하세요")
+        speechRecognizer?.startListening(intent)
     }
 
 
 
 
 
+
+
+    private fun reverseGeocodeCurrentLocation(currentPoint: TMapPoint) {
+        val tMapData = TMapData()
+        tMapData.reverseGeocoding(
+            currentPoint.latitude, currentPoint.longitude, "A10"
+        ) { info ->
+            if (info != null) {
+                var oldAddress = "법정동 : "
+                if (info.strLegalDong != null && info.strLegalDong != "") {
+                    oldAddress += info.strCity_do + " " + info.strGu_gun + " " + info.strLegalDong
+                    if (info.strRi != null && info.strRi != "") {
+                        oldAddress += (" " + info.strRi)
+                    }
+                    oldAddress += (" " + info.strBunji)
+                } else {
+                    oldAddress += "-"
+                }
+
+                var newAddress = "도로명 : "
+                newAddress += if (info.strRoadName != null && info.strRoadName != "") {
+                    info.strCity_do + " " + info.strGu_gun + " " + info.strRoadName + " " + info.strBuildingIndex
+                } else {
+                    "-"
+                }
+
+                // 최종 주소 문자열 구성
+                val finalAddress = "$oldAddress / $newAddress"
+
+                // 테스트용 로그
+                Log.d("ReverseGeo", "현재위치 주소 변환 결과 → $finalAddress")
+
+                // 주소까지 WebSocket 으로 전송
+                sendLocationOverWebSocket(currentPoint.latitude, currentPoint.longitude, finalAddress)
+
+                // emit 시도 (함수 분리)
+                emitAddressToJS(finalAddress)
+
+            } else {
+                Log.w("ReverseGeo", "주소 변환 실패")
+            }
+        }
+    }
+
+    private fun emitAddressToJS(finalAddress: String) {
+        GlobalData.reactContext?.let { reactContext ->
+            if (GlobalData.isReverseGeoReady) {
+                val params = com.facebook.react.bridge.Arguments.createMap()
+                params.putString("address", finalAddress)
+
+                Log.d("ReverseGeo", "JS 로 emit 시도 중 [GlobalData.reactContext.hashCode=${reactContext.hashCode()}]")
+
+                reactContext
+                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                    .emit("ReverseGeocodeAddress", params)
+
+                Log.d("ReverseGeo", "JS 로 주소 emit 성공 (Ready)")
+            } else {
+                Log.w("ReverseGeo", "JS Ready flag 수신 전 → emit 보류 → Queue 저장 예정 (추후 구현 가능)")
+            }
+        } ?: run {
+            Log.w("ReverseGeo", "ReactContext 없음 → JS emit 불가")
+        }
+    }
+
+
+
+
+
+    private fun sendLocationOverWebSocket(lat: Double, lon: Double, address: String = "") {
+        val json = """
+        {
+            "lat": $lat,
+            "lon": $lon,
+            "address": "$address"
+        }
+    """.trimIndent()
+
+        if (isWebSocketConnected) {
+            Log.d("WebSocket", "위치 전송: $json")
+            socketClient?.send(json)
+        } else {
+            Log.w("WebSocket", "WebSocket 연결 안 됨 → 위치 전송 스킵")
+        }
+    }
+
+
+    private fun initWebSocket() {
+//        val serverUri = URI("ws://YOUR_NGROK_URL/socket.io/?EIO=4&transport=websocket")  // 여기에 ngrok URL 넣기
+        val serverUri = URI("ws://192.168.34.30:8080/location/user")
+
+        socketClient = object : WebSocketClient(serverUri) {
+            override fun onOpen(handshakedata: ServerHandshake?) {
+                Log.d("WebSocket", "Connected to WebSocket server")
+                isWebSocketConnected = true
+            }
+
+            override fun onMessage(message: String?) {
+                Log.d("WebSocket", "Received message: $message")
+            }
+
+            override fun onClose(code: Int, reason: String?, remote: Boolean) {
+                Log.d("WebSocket", "WebSocket closed: $reason")
+            }
+
+            override fun onError(ex: Exception?) {
+                Log.e("WebSocket", " WebSocket error", ex)
+            }
+        }
+
+        Thread {
+            try {
+                socketClient?.connectBlocking()  // connect() 대신 connectBlocking() 쓰면 예외를 여기서 catch 가능
+            } catch (e: Exception) {
+                Log.e("WebSocket", "WebSocket connect error", e)
+            }
+        }.start()
+    }
+
+
     // js 양뱡향 통신 목적지 입력 기능
-    private fun searchPOIAndStartRoute(destinationName: String) {
+    private fun searchPOIAndStartRoute(destinationName: String, stPoint: TMapPoint) {
         val tMapData = TMapData()
 
-        // 1️⃣ 목적지 POI 검색
+        // 목적지 POI 검색
         tMapData.findAllPOI(destinationName) { poiList ->
             if (poiList != null && poiList.isNotEmpty()) {
                 val poi = poiList[0]
                 val endPoint = poi.poiPoint
-                Log.d("ROUTE", "🎯 목적지 좌표: ${endPoint.latitude}, ${endPoint.longitude}")
+                Log.d("ROUTE", "목적지 좌표: ${endPoint.latitude}, ${endPoint.longitude}")
 
-                // 2️⃣ 현재 GPS 위치 (출발지)
-                val startPoint = tMapView.locationPoint
-                if (startPoint != null) {
-                    Log.d("ROUTE", "🚶 출발지(GPS): ${startPoint.latitude}, ${startPoint.longitude}")
-                    // 3️⃣ 경로 탐색 함수 호출
-                    findPathAllType(TMapPathType.PEDESTRIAN_PATH ,this, startPoint, endPoint)
+                // 현재 GPS 위치 (출발지)
+                if (stPoint != null) {
+                    Log.d("ROUTE", "출발지(GPS): ${stPoint.latitude}, ${stPoint.longitude}")
+                    // 경로 탐색 함수 호출
+                    findPathAllType(TMapPathType.PEDESTRIAN_PATH ,this, stPoint, endPoint)
 //                    ,startPoint, destPoint
                 } else {
-                    Log.e("ROUTE", "❌ 출발지(GPS 위치) 없음")
+                    Log.e("ROUTE", "출발지(GPS 위치) 없음")
                 }
             } else {
-                Log.e("ROUTE", "❌ 목적지 POI 검색 실패")
-                // ✅ 여기에서 JS로 이벤트 전송
+                Log.e("ROUTE", "목적지 POI 검색 실패")
+                // JS로 이벤트 전송
                 sendEventToJS("PoiSearchFailed")
-                // ✅ JS 화면으로 돌아가게 Activity 종료도 수행
+                //JS 화면으로 돌아가게 Activity 종료도 수행
                 finish()
             }
         }
@@ -254,7 +405,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
     }
 
         fun speak(text: String) {
-            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "GENERIC")
     }
 //    음성안내
 
@@ -463,18 +614,14 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
         // 현재 위치로 지도 이동 추가
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-//                moveToCurrentLocationOnce()
-//                moveToCurrentLocationOnceAndStartRoute()
                 setTrackingMode(true)
-                startLocationAndRoutingFlow()
+                    initWebSocket()
             } else {
                 requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 200)
             }
         } else {
-//            moveToCurrentLocationOnce()
-//            moveToCurrentLocationOnceAndStartRoute()
             setTrackingMode(true)
-            startLocationAndRoutingFlow()
+                initWebSocket()
         }
     }
 
@@ -803,7 +950,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
                     Log.e("TMap", "Polyline 비어 있음 - 경로 없음")
                 }
             } else {
-                Log.e("TMap", "❌ 경로 응답 없음")
+                Log.e("TMap", "경로 응답 없음")
             }
         }
     }
@@ -874,6 +1021,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
         moveToNextPoint(context)
     }
 
+    //시뮬레이션 TEST
 //    private fun moveToNextPoint(context: Context) {
 //        val points = currentPolyline.linePointList
 //        if (currentStep >= points.size) return
@@ -883,13 +1031,13 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
 //        showMarkerAt(point, context)
 //
 //        val turnType = findNearbyTurnTypeByXPath(context, point)
-//        Log.d("DEBUG", "👉 turnType 결과: $turnType")
+//        Log.d("DEBUG", "turnType 결과: $turnType")
 //        if (turnType != null) {
 //            if (turnType != lastAnnouncedTurnType) {
 //                lastAnnouncedTurnType = turnType
 //                speakByTurnTypeWithCallback(turnType)
 //            } else {
-//                Log.d("TTS", "🚫 이미 안내된 turnType=$turnType, 생략")
+//                Log.d("TTS", "이미 안내된 turnType=$turnType, 생략")
 //            }
 //
 //            currentStep++
@@ -910,7 +1058,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
         if (currentStep >= points.size) return
 
         val point = points[currentStep]
-        processLocationPoint(context, point)  // ✅ 공통 처리 함수 사용
+        processLocationPoint(context, point)  // 공통 처리 함수 사용
 
         currentStep++
         val delay = if (lastAnnouncedTurnType == null) 2500L else 3000L
@@ -929,10 +1077,10 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
         if (!gpsTrackingInitialized) {
             gpsTrackingInitialized = true
             gpsManager!!.setOnLocationChangeListener { location: TMapPoint ->
-                processLocationPoint(context, location) // ⬅️ 공통 함수 사용
+                processLocationPoint(context, location) // 공통 함수 사용
             }
             gpsManager!!.openGps()
-            Log.d("NAV", "📡 실시간 GPS 기반 네비게이션 시작됨")
+            Log.d("NAV", "실시간 GPS 기반 네비게이션 시작됨")
         }
     }
 
@@ -943,13 +1091,16 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
 
 
     private fun processLocationPoint(context: Context, point: TMapPoint) {
-        // 1️⃣ 지도 중심 이동
+        //지도 중심 이동
         tMapView.setCenterPoint(point.longitude, point.latitude)
+        Log.d("ROUTE", "settracking 에서 받아온 좌표: ${point.latitude}, ${point.longitude}")
 
-        // 2️⃣ 마커 이동
+        sendLocationOverWebSocket(point.latitude, point.longitude)
+        Log.d("WebSocket", "위치데이터 전송 호출됨")
+        // 마커 이동
         showMarkerAt(point, context)
 
-        // 3️⃣ turnType 탐지 및 음성 안내
+        // turnType 탐지 및 음성 안내
         val turnType = findNearbyTurnTypeByXPath(context, point)
         Log.d("DEBUG", "👉 turnType 결과: $turnType")
 
@@ -957,7 +1108,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
             lastAnnouncedTurnType = turnType
             speakByTurnTypeWithCallback(turnType)
         } else {
-            Log.d("TTS", "🚫 이미 안내된 turnType=$turnType, 생략")
+            Log.d("TTS", "이미 안내된 turnType=$turnType, 생략")
         }
     }
 
@@ -970,7 +1121,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
     private fun showMarkerAt(point: TMapPoint, context: Context) {
         if (marker == null) {
             marker = TMapMarkerItem().apply {
-                icon = BitmapFactory.decodeResource(context.resources, R.drawable.i_location)
+                icon = BitmapFactory.decodeResource(context.resources, R.drawable.person_marker_50x50)
                 id = "current_location"
                 setPosition(0.5f, 0.5f)
             }
@@ -991,35 +1142,37 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
             else -> null
         }
         direction?.let {
-            Log.d("TTS", "🔊 말합니다: $it (turnType=$turnType)")
+            Log.d("TTS", "말합니다: $it (turnType=$turnType)")
             tts.speak(it, TextToSpeech.QUEUE_FLUSH, null, "DIR_$turnType")
-        } ?: Log.d("TTS", "❌ 해당 turnType 없음: $turnType")
+        } ?: Log.d("TTS", "해당 turnType 없음: $turnType")
     }
 
     fun initTTS(context: Context) {
         tts = TextToSpeech(context) {
             if (it == TextToSpeech.SUCCESS) {
-                Log.d("TTS", "✅ TTS 초기화 성공")
+                Log.d("TTS", "TTS 초기화 성공")
                 tts.language = Locale.KOREAN
                 tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                     override fun onStart(utteranceId: String?) {
-                        Log.d("TTS", "🗣 시작됨: $utteranceId")
+                        Log.d("TTS", "시작됨: $utteranceId")
                     }
 
                     override fun onDone(utteranceId: String?) {
-                        Log.d("TTS", "✅ 끝남: $utteranceId")
+                        Log.d("TTS", "끝남: $utteranceId")
                         Handler(Looper.getMainLooper()).post {
-                            currentStep++
+                            if (utteranceId?.startsWith("DIR_") == true) {
+                                currentStep++
 //                            moveToNextPoint(context)
+                            }
                         }
                     }
 
                     override fun onError(utteranceId: String?) {
-                        Log.e("TTS", "❗오류 발생: $utteranceId")
+                        Log.e("TTS", "오류 발생: $utteranceId")
                     }
                 })
             } else {
-                Log.e("TTS", "❌ TTS 초기화 실패")
+                Log.e("TTS", "TTS 초기화 실패")
             }
         }
     }
@@ -1043,7 +1196,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
 
     fun findNearbyTurnTypeByXPath(context: Context, currentPoint: TMapPoint): Int? {
         val doc = loadLocalKMLDocument(context) ?: run {
-            Log.w("TTS", "⚠️ KML 파일 로드 실패")
+            Log.w("DES", "KML 파일 로드 실패")
             return null
         }
 
@@ -1059,14 +1212,14 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
             override fun getPrefixes(namespaceURI: String?) = null
         }
 
-        Log.d("TTS", "📍 currentPoint = (${currentPoint.latitude}, ${currentPoint.longitude})")
+        Log.d("DES", "currentPoint = (${currentPoint.latitude}, ${currentPoint.longitude})")
 
-        val maxDistance = 0.0005  // 🔧 50m까지 허용
+        val maxDistance = 0.0002  // 20m까지 허용
 
-        // ✅ 1차 탐색: POINT 노드
+        // 1차 탐색: POINT 노드
         val expr = xpath.compile("//*[local-name()='Placemark' and *[local-name()='nodeType']='POINT']")
         val placemarks = expr.evaluate(doc, XPathConstants.NODESET) as NodeList
-        Log.d("TTS", "📌 [1차] POINT Placemark 수: ${placemarks.length}")
+        Log.d("DES", "[1차] POINT Placemark 수: ${placemarks.length}")
 
         for (i in 0 until placemarks.length) {
             val node = placemarks.item(i) as? Element ?: continue
@@ -1083,23 +1236,23 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
 
             val dist = Math.hypot(currentPoint.longitude - lon, currentPoint.latitude - lat)
 
-            // turnType: 네임스페이스가 붙은 경우에도 안전하게 local-name으로 찾기
+            // turnType: 네임스페이스가 붙은 경우 local-name으로 확인
             val turnExpr = xpath.compile(".//*[local-name()='turnType']")
             val turnNode = turnExpr.evaluate(node, XPathConstants.NODE) as? Element
             val turnTypeStr = turnNode?.textContent
 
-            Log.d("TTS", "🔎 비교 좌표: ($lat, $lon), 거리: $dist, turnType: $turnTypeStr")
+            Log.d("DES", "비교 좌표: ($lat, $lon), 거리: $dist, turnType: $turnTypeStr")
 
             if (dist < maxDistance) {
-                Log.d("TTS", "✅ [1차] 매칭 성공: turnType=$turnTypeStr, 좌표=$coordStr")
+                Log.d("DES", "[1차] 매칭 성공: turnType=$turnTypeStr, 좌표=$coordStr")
                 return turnTypeStr?.toIntOrNull()
             }
         }
 
-        // ✅ 2차 fallback: LINE 마지막 좌표 → 다음 Placemark에서 turnType
+        // 2차 fallback: LINE 마지막 좌표 다음 Placemark에서 turnType
         val lineExpr = xpath.compile("//*[local-name()='Placemark' and *[local-name()='nodeType']='LINE']")
         val linePlacemarks = lineExpr.evaluate(doc, XPathConstants.NODESET) as NodeList
-        Log.d("TTS", "📌 [2차] LINE Placemark 수: ${linePlacemarks.length}")
+        Log.d("DES", "[2차] LINE Placemark 수: ${linePlacemarks.length}")
 
         for (i in 0 until linePlacemarks.length) {
             val lineNode = linePlacemarks.item(i) as? Element ?: continue
@@ -1116,7 +1269,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
             if (lon == null || lat == null) continue
 
             val dist = Math.hypot(currentPoint.longitude - lon, currentPoint.latitude - lat)
-            Log.d("TTS", "🔎 [2차] 마지막좌표 거리: $dist")
+            Log.d("DES", "[2차] 마지막좌표 거리: $dist")
 
             if (dist < maxDistance) {
                 val nextPlacemark = if (i + 1 < linePlacemarks.length)
@@ -1126,12 +1279,12 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
                     ?.getElementsByTagNameNS("http://tlp.tmap.co.kr/", "turnType")
                     ?.item(0)?.textContent
 
-                Log.d("TTS", "✅ [2차] fallback: turnType=$turnTypeStr @ $lastCoord")
+                Log.d("DES", "[2차] fallback: turnType=$turnTypeStr @ $lastCoord")
                 return turnTypeStr?.toIntOrNull()
             }
         }
 
-        Log.w("TTS", "⚠️ [결과] 근접한 turnType 못 찾음")
+        Log.w("DES", "[결과] 근접한 turnType 못 찾음")
         return null
     }
 
@@ -1212,7 +1365,7 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
     }
 
     private fun setTrackingMode(isTracking: Boolean) {
-        Log.d("CALL_CHECK", "✅ setTrackingMode($isTracking) 호출됨")
+        Log.d("CALL_CHECK", "setTrackingMode($isTracking) 호출됨")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             var isGranted = true
             val permissionArr =
@@ -1263,26 +1416,10 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
         }
 
         super.onDestroy()  // 항상 마지막에 호출
+        speechRecognizer?.destroy()
+        speechRecognizer = null
     }
 
-
-
-//    override fun onDestroy() {
-//        super.onDestroy()
-//        if (tMapView != null) {
-//            tMapView.onDestroy()
-//        }
-//        //음성안내
-//        if (::tts.isInitialized) {
-//            tts.stop()
-//            tts.shutdown()
-//        }
-//        //음성안내
-//
-//    }
-
-
-//  GPS 기반 실시간 위치 추적
     private fun setTracking(isTracking: Boolean, context: Context) {
         if (gpsManager == null) {
             gpsManager = TMapGpsManager(this)
@@ -1295,7 +1432,10 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
 
             // GPS, 방향 변경 이벤트 리스너
             gpsManager!!.setOnLocationChangeListener { location: TMapPoint ->
-                Log.d("DEBUG", "setTracking 콜백 진행 ")
+                Log.d("CHECK_CALL", "setTracking 콜백 진행 ")
+
+                currentLocation = location
+
                 // 위치 Tracking
                 tMapView.locationPoint = location
                 tMapView.setCenterPoint(location.latitude, location.longitude)
@@ -1313,20 +1453,17 @@ class TMapModule : AppCompatActivity() , TextToSpeech.OnInitListener {
                 }
 
                 processLocationPoint(context, location)
+                GetGPS(location)
             }
         } else {
             gpsManager!!.setOnLocationChangeListener(null)
             tMapView.removeTMapMarkerItem("position")
         }
     }
+
+
+
 //     GPS 기반 실시간 위치 추적
-
-
-
-
-
-
-
 
 
 

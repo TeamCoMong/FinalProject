@@ -72,7 +72,7 @@ public class DialogflowController {
                     "message", answer,
                     "person", person == null ? "" : person,
                     "outputContext", outputContext == null ? "" : outputContext,
-                    "dialogLocation", dialogflowResultLocation == null ? "" : dialogflowResultLocation
+                    "destination", dialogflowResultLocation == null ? "" : dialogflowResultLocation
             );
 
             ObjectMapper objectMapper = new ObjectMapper(); // ✅ 추가

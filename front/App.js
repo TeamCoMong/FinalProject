@@ -183,18 +183,30 @@ const MainTabNavigator = () => {
 };
 
 // ✅  보호자 메인 탭 네비게이터
+// ✅ 보호자 메인 탭 네비게이터
 const GuardianMainTabNavigator = ({ route }) => {
-    const {guardianId} = route.params;
+    const { t, i18n } = useTranslation();
+    const language = i18n.language;
+    const { guardianId } = route.params;
 
     return (
-        <Tab.Navigator screenOptions={guardianScreenOptions}>
-            <Tab.Screen name="사용자 위치확인" component={GuardianHomeScreen} />
+        <Tab.Navigator key={language} screenOptions={guardianScreenOptions}>
+            <Tab.Screen
+                name="사용자 위치확인"
+                component={GuardianHomeScreen}
+                options={{ tabBarLabel: t('guardianTab.location') }}
+            />
             <Tab.Screen
                 name="등록 사용자 리스트"
                 component={LinkedUserListScreen}
-                initialParams={{guardianId}} // ✅ 여기서 전달
+                initialParams={{ guardianId }}
+                options={{ tabBarLabel: t('guardianTab.users') }}
             />
-            <Tab.Screen name="기타 설정" component={GuardianSettingScreen}/>
+            <Tab.Screen
+                name="기타 설정"
+                component={GuardianSettingScreen}
+                options={{ tabBarLabel: t('guardianTab.settings') }}
+            />
         </Tab.Navigator>
     );
 };

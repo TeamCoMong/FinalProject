@@ -1,10 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { useTranslation } from 'react-i18next'; // ✅ 추가
 
 const UserModeSelectionScreen = ({ navigation }) => {
+    const { t } = useTranslation(); // ✅ 번역 함수
+
     return (
         <View style={styles.container}>
-            {/* 뒤로 가기 버튼 추가 */}
             <TouchableOpacity style={styles.backButton} onPress={() => navigation.replace('Intro')}>
                 <Image source={require('../../assets/back-button.png')} style={styles.backButtonIcon} />
             </TouchableOpacity>
@@ -12,39 +14,39 @@ const UserModeSelectionScreen = ({ navigation }) => {
             <View style={styles.logoContainer}>
                 <Image source={require('../../assets/schoolboy2.png')} style={styles.logo} />
                 <View style={styles.textWrapper}>
-                    <Text style={styles.appName}>사용자 모드</Text>
+                    <Text style={styles.appName}>{t('userMode.title')}</Text>
                 </View>
             </View>
 
             <View style={styles.buttonContainer}>
                 <TouchableOpacity style={styles.loginButton} onPress={() => navigation.navigate('UserMain')}>
                     <Image source={require('../../assets/login.png')} style={styles.buttonIcon} />
-                    <Text style={styles.buttonText}>로그인</Text>
+                    <Text style={styles.buttonText}>{t('userMode.login')}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.signUpButton} onPress={() => navigation.navigate('UserRegisterScreen')}>
                     <Image source={require('../../assets/join.png')} style={styles.buttonIcon} />
-                    <Text style={styles.buttonText}>회원가입</Text>
+                    <Text style={styles.buttonText}>{t('userMode.signup')}</Text>
                 </TouchableOpacity>
             </View>
 
             <View style={styles.iconSection}>
                 <View style={styles.iconCard}>
                     <Image source={require('../../assets/joomin_map.png')} style={styles.icon} />
-                    <Text style={styles.iconLabel}>길안내</Text>
+                    <Text style={styles.iconLabel}>{t('userMode.guide')}</Text>
                 </View>
                 <View style={styles.iconCard}>
                     <Image source={require('../../assets/technology.png')} style={styles.icon} />
-                    <Text style={styles.iconLabel}>음성 안내</Text>
+                    <Text style={styles.iconLabel}>{t('userMode.voice')}</Text>
                 </View>
                 <View style={styles.iconCard}>
                     <Image source={require('../../assets/login_obstacles.png')} style={styles.icon} />
-                    <Text style={styles.iconLabel}>장애물 감지</Text>
+                    <Text style={styles.iconLabel}>{t('userMode.obstacle')}</Text>
                 </View>
             </View>
 
             <View style={styles.footerContainer}>
-                <Text style={styles.footerText}>Created by CoMong</Text>
+                <Text style={styles.footerText}>{t('common.createdBy')}</Text>
                 <Image source={require('../../assets/copyright.png')} style={styles.footerIcon} />
             </View>
         </View>

@@ -1,8 +1,10 @@
 import React, { useLayoutEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 const SettingsHelpScreen = ({ navigation }) => {
-    // 뒤로가기 버튼 설정
+    const { t } = useTranslation();
+
     useLayoutEffect(() => {
         navigation.setOptions({
             headerLeft: () => (
@@ -13,23 +15,21 @@ const SettingsHelpScreen = ({ navigation }) => {
         });
     }, [navigation]);
 
-    // 기타 설정 도움말에서 'UserMain'으로 네비게이트하고, '기타 설정' 탭으로 이동
     const handleNavigate = () => {
         navigation.navigate('UserMain', {
-            screen: '기타 설정', // '기타 설정' 탭으로 이동
+            screen: t('tabs.settings'), // 다국어 탭 라벨 사용
         });
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>⚙️ 기타 설정 기능</Text>
+            <Text style={styles.title}>⚙️ {t('settingsHelp.title')}</Text>
             <Text style={styles.content}>
-                SmartVision의 다양한 설정 기능을 통해 사용자 맞춤형 서비스를
-                경험할 수 있습니다. 테마 변경, 알림 설정 등을 지원합니다.
+                {t('settingsHelp.description')}
             </Text>
 
             <TouchableOpacity style={styles.button} onPress={handleNavigate}>
-                <Text style={styles.buttonText}>기타 설정 시작하기</Text>
+                <Text style={styles.buttonText}>{t('settingsHelp.button')}</Text>
             </TouchableOpacity>
         </View>
     );
@@ -38,7 +38,7 @@ const SettingsHelpScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F3E5F5', // 부드러운 보라색 배경
+        backgroundColor: '#F3E5F5',
         alignItems: 'center',
         justifyContent: 'center',
         padding: 20,
@@ -47,8 +47,8 @@ const styles = StyleSheet.create({
         fontSize: 28,
         fontWeight: '700',
         marginBottom: 20,
-        color: '#8E24AA', // 강렬한 보라색
-        textShadowColor: '#F8BBD0', // 텍스트 그림자 효과
+        color: '#8E24AA',
+        textShadowColor: '#F8BBD0',
         textShadowOffset: { width: 1, height: 1 },
         textShadowRadius: 5,
     },
@@ -61,12 +61,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
     },
     button: {
-        backgroundColor: '#AB47BC', // 버튼 색상
+        backgroundColor: '#AB47BC',
         paddingVertical: 15,
         paddingHorizontal: 40,
         borderRadius: 30,
         alignItems: 'center',
-        elevation: 5, // 그림자 효과
+        elevation: 5,
         shadowColor: '#8E24AA',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,

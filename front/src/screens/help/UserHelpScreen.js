@@ -1,13 +1,15 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next'; // ✅ i18n 추가
 
 const UserHelpScreen = () => {
     const navigation = useNavigation();
+    const { t } = useTranslation(); // ✅ 번역 함수
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>SafeWalk 사용자 도움말</Text>
+            <Text style={styles.title}>{t('userHelp.title')}</Text>
 
             <Pressable
                 style={({ pressed }) => [
@@ -15,17 +17,10 @@ const UserHelpScreen = () => {
                     { backgroundColor: pressed ? '#8BC34A' : '#A5D6A7' }
                 ]}
                 onPress={() => navigation.navigate('NavigationHelpScreen')}>
-                <Text style={styles.buttonText}>🚶 길 안내 기능</Text>
+                <Text style={styles.buttonText}>🚶 {t('userHelp.navigation')}</Text>
             </Pressable>
 
-            {/*<Pressable*/}
-            {/*    style={({ pressed }) => [*/}
-            {/*        styles.button,*/}
-            {/*        { backgroundColor: pressed ? '#FFD54F' : '#FFEB3B' }*/}
-            {/*    ]}*/}
-            {/*    onPress={() => navigation.navigate('MoneyRecognitionHelpScreen')}>*/}
-            {/*    <Text style={styles.buttonText}>💵 지폐 인식 기능</Text>*/}
-            {/*</Pressable>*/}
+            {/* 지폐 인식 도움말 비활성화됨 */}
 
             <Pressable
                 style={({ pressed }) => [
@@ -33,7 +28,7 @@ const UserHelpScreen = () => {
                     { backgroundColor: pressed ? '#90CAF9' : '#64B5F6' }
                 ]}
                 onPress={() => navigation.navigate('GuardianRegisterHelpScreen')}>
-                <Text style={styles.buttonText}>👨‍👩‍👧‍👦 보호자 연동 기능 </Text>
+                <Text style={styles.buttonText}>👨‍👩‍👧‍👦 {t('userHelp.guardian')}</Text>
             </Pressable>
 
             <Pressable
@@ -42,7 +37,7 @@ const UserHelpScreen = () => {
                     { backgroundColor: pressed ? '#CE93D8' : '#BA68C8' }
                 ]}
                 onPress={() => navigation.navigate('SettingsHelpScreen')}>
-                <Text style={styles.buttonText}>⚙️ 기타 설정 기능</Text>
+                <Text style={styles.buttonText}>⚙️ {t('userHelp.settings')}</Text>
             </Pressable>
         </View>
     );

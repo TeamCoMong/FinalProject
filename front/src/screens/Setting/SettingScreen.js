@@ -1,73 +1,63 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Switch } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 const SettingScreen = ({ navigation }) => {
-    // 설정 상태 관리
-    const [language, setLanguage] = useState('한국어'); // 기본 언어 설정
-    const [isNotificationEnabled, setIsNotificationEnabled] = useState(true); // 알림 설정
-    const [isVoiceFeedbackEnabled, setIsVoiceFeedbackEnabled] = useState(true); // 음성 피드백 설정
+    const { t, i18n } = useTranslation();
+    const [isNotificationEnabled, setIsNotificationEnabled] = useState(true);
+    const [isVoiceFeedbackEnabled, setIsVoiceFeedbackEnabled] = useState(true);
 
-    // 로그아웃 기능
+    const handleToggleLanguage = () => {
+        const newLang = i18n.language === 'ko' ? 'en' : 'ko';
+        i18n.changeLanguage(newLang);
+    };
+
     const handleLogout = () => {
-        // 로그아웃 동작 예시
-        // 여기서는 간단히 로그인 화면으로 이동하도록 설정
-        // 실제로는 세션 초기화 등을 해야 할 수 있습니다.
         navigation.navigate('LoginScreen');
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>내 설정</Text>
+            <Text style={styles.title}>{t('settings.title')}</Text>
 
-            {/* 언어 설정 */}
             <View style={styles.settingRow}>
-                <Text style={styles.settingText}>언어: {language}</Text>
-                <TouchableOpacity
-                    style={styles.languageButton} // 별도의 스타일 적용
-                    onPress={() => {
-                        setLanguage(language === '한국어' ? 'English' : '한국어');
-                    }}
-                >
-                    <Text style={styles.buttonText}>언어 변경</Text>
+                <Text style={styles.settingText}>
+                    {t('settings.language')}: {i18n.language === 'ko' ? '한국어' : 'English'}
+                </Text>
+                <TouchableOpacity style={styles.languageButton} onPress={handleToggleLanguage}>
+                    <Text style={styles.buttonText}>{t('settings.change_language')}</Text>
                 </TouchableOpacity>
             </View>
 
-            {/* 알림 설정 */}
             <View style={styles.settingRow}>
-                <Text style={styles.settingText}>알림</Text>
+                <Text style={styles.settingText}>{t('settings.notifications')}</Text>
                 <Switch
                     value={isNotificationEnabled}
                     onValueChange={() => setIsNotificationEnabled(!isNotificationEnabled)}
                 />
             </View>
 
-            {/* 음성 피드백 설정 */}
             <View style={styles.settingRow}>
-                <Text style={styles.settingText}>음성 피드백</Text>
+                <Text style={styles.settingText}>{t('settings.voice_feedback')}</Text>
                 <Switch
                     value={isVoiceFeedbackEnabled}
                     onValueChange={() => setIsVoiceFeedbackEnabled(!isVoiceFeedbackEnabled)}
                 />
             </View>
 
-            {/* 내 고유 코드 번호, 등록한 사용자 보기 버튼 (열쇠 아이콘) */}
             <TouchableOpacity
                 style={styles.button}
                 onPress={() => navigation.navigate('MyProfileInfoScreen')}>
-                <Text style={styles.buttonText}>🔑상세 정보</Text>
+                <Text style={styles.buttonText}>🔑 {t('settings.details')}</Text>
             </TouchableOpacity>
 
-
-            {/* 로그아웃 버튼 */}
-            <TouchableOpacity
-                style={styles.logoutButton}
-                onPress={handleLogout}>
-                <Text style={styles.logoutButtonText}>로그 아웃</Text>
+            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                <Text style={styles.logoutButtonText}>{t('settings.logout')}</Text>
             </TouchableOpacity>
-
         </View>
     );
 };
+
 
 const styles = StyleSheet.create({
     container: {
@@ -113,11 +103,11 @@ const styles = StyleSheet.create({
         minWidth: '80%', // 버튼 크기 동일하게 맞추기 위해 최소 너비 설정
     },
     languageButton: {
-        backgroundColor: '#4CAF50', // 기존 버튼 스타일 그대로 유지
-        paddingVertical: 15,
-        paddingHorizontal: 40,
+        backgroundColor: '#4CAF50',
+        paddingVertical: 12,           // 살짝 줄이기
+        paddingHorizontal: 24,         // ✅ 기존 40 → 24
         borderRadius: 30,
-        marginTop: 10, // 기존 버튼보다 약간 위로 올림
+        marginTop: 10,
         alignItems: 'center',
         justifyContent: 'center',
         elevation: 5,
@@ -125,7 +115,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 6,
-        minWidth: '70%', // "언어 변경" 버튼 크기 줄이기
+        minWidth: undefined            // ✅ 제거하거나 숫자 축소
     },
     buttonText: {
         color: '#fff',

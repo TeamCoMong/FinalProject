@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { TouchableWithoutFeedback, View, Text, StyleSheet } from 'react-native'; // Text, StyleSheet 사용 가능
+import { useTranslation } from 'react-i18next'; // 메인탭 다국어 처리 라이브러리 사용
 import './src/config/firebaseConfig';
 // 마이크 권한
 import { PermissionsAndroid, Platform } from 'react-native';
@@ -25,7 +26,7 @@ import {
 } from './src/services/DetectionService'; // DetectionService 경로 확인!
 
 // 스크린 import (기존과 동일하게 유지)
-
+import './i18n'; // 다국어 처리 코드파일
 import HomeStartScreen from "./src/screens/start/HomeStartScreen";
 import BillScanScreen from "./src/screens/scan/BillScanScreen";
 import SettingScreen from "./src/screens/Setting/SettingScreen";
@@ -74,9 +75,6 @@ const userScreenOptions = ({ route }) => ({
         switch (route.name) {
             case '홈 키':
                 iconPath = require('./src/assets/home.png');
-                break;
-            case '지폐 인식':
-                iconPath = require('./src/assets/search.png');
                 break;
             case '도움말':
                 iconPath = require('./src/assets/info.png');
@@ -159,14 +157,30 @@ const ManagerMainTabNavigator = () => (
 );
 
 // ✅  사용자 메인 탭 네비게이터
-const MainTabNavigator = () => (
-    <Tab.Navigator screenOptions={userScreenOptions}>
-        <Tab.Screen name="홈 키" component={HomeStartScreen} options={{ headerShown: false}} />
-        {/*<Tab.Screen name="지폐 인식" component={BillScanScreen} options={{ headerShown: false}} />*/}
-        <Tab.Screen name="도움말" component={UserHelpScreen} options={{ headerShown: false}} />
-        <Tab.Screen name="기타 설정" component={SettingScreen} options={{ headerShown: false}} />
-    </Tab.Navigator>
-);
+const MainTabNavigator = () => {
+    const { t, i18n } = useTranslation();
+    const language = i18n.language;
+
+    return (
+        <Tab.Navigator key={language} screenOptions={userScreenOptions}>
+            <Tab.Screen
+                name="홈 키"
+                component={HomeStartScreen}
+                options={{ tabBarLabel: t('tab.home'), headerShown: false }}
+            />
+            <Tab.Screen
+                name="도움말"
+                component={UserHelpScreen}
+                options={{ tabBarLabel: t('tab.help'), headerShown: false }}
+            />
+            <Tab.Screen
+                name="기타 설정"
+                component={SettingScreen}
+                options={{ tabBarLabel: t('tab.settings'), headerShown: false }}
+            />
+        </Tab.Navigator>
+    );
+};
 
 // ✅  보호자 메인 탭 네비게이터
 const GuardianMainTabNavigator = ({ route }) => {

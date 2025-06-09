@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useLayoutEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { useTranslation } from 'react-i18next'; // ✅ 다국어 훅 추가
 
 const GuardianModeSelectionScreen = ({ navigation }) => {
+    const { t } = useTranslation(); // ✅ 번역 함수 사용
+
     return (
         <View style={styles.container}>
 
@@ -18,43 +21,39 @@ const GuardianModeSelectionScreen = ({ navigation }) => {
             <View style={styles.logoContainer}>
                 <Image source={require('../../assets/protector.png')} style={styles.logo} />
                 <View style={styles.textWrapper}>
-                    <Text style={styles.appName}>보호자 모드</Text>
+                    <Text style={styles.appName}>{t('guardianMode.title')}</Text> {/* ✅ 다국어 */}
                 </View>
             </View>
 
             <View style={styles.buttonContainer}>
                 <TouchableOpacity style={styles.loginButton} onPress={() => navigation.navigate('GuardianLoginScreen')}>
                     <Image source={require('../../assets/login.png')} style={styles.buttonIcon} />
-                    <Text style={styles.buttonText}>로그인</Text>
+                    <Text style={styles.buttonText}>{t('guardianMode.login')}</Text> {/* ✅ 다국어 */}
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.signUpButton} onPress={() => navigation.navigate('GuardianRegisterScreen')}>
                     <Image source={require('../../assets/join.png')} style={styles.buttonIcon} />
-                    <Text style={styles.buttonText}>회원가입</Text>
+                    <Text style={styles.buttonText}>{t('guardianMode.signup')}</Text> {/* ✅ 다국어 */}
                 </TouchableOpacity>
-
-                {/*<TouchableOpacity style={styles.testButton2} onPress={() => navigation.navigate('TestLoginScreen')}>*/}
-                {/*    <Text style={styles.buttonText}>프론트 테스트</Text>*/}
-                {/*</TouchableOpacity>*/}
             </View>
 
             <View style={styles.iconSection}>
                 <View style={styles.iconCard}>
                     <Image source={require('../../assets/joomin_map.png')} style={styles.icon} />
-                    <Text style={styles.iconLabel}>길안내</Text>
+                    <Text style={styles.iconLabel}>{t('guardianMode.feature.navigation')}</Text>
                 </View>
                 <View style={styles.iconCard}>
                     <Image source={require('../../assets/technology.png')} style={styles.icon} />
-                    <Text style={styles.iconLabel}>음성 안내</Text>
+                    <Text style={styles.iconLabel}>{t('guardianMode.feature.voice')}</Text>
                 </View>
                 <View style={styles.iconCard}>
                     <Image source={require('../../assets/login_obstacles.png')} style={styles.icon} />
-                    <Text style={styles.iconLabel}>장애물 감지</Text>
+                    <Text style={styles.iconLabel}>{t('guardianMode.feature.obstacle')}</Text>
                 </View>
             </View>
 
             <View style={styles.footerContainer}>
-                <Text style={styles.footerText}>Created by CoMong</Text>
+                <Text style={styles.footerText}>{t('common.createdBy')}</Text>
                 <Image source={require('../../assets/copyright.png')} style={styles.footerIcon} />
             </View>
         </View>

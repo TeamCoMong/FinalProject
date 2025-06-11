@@ -79,5 +79,10 @@
     "guide": "Navigation",
     "voice": "Voice Guide",
     "obstacle": "Obstacle Detection"
+  },
+  "guardianTab": {
+    "location": "Location",
+    "users": "User List",
+    "settings": "Settings"
   }
 }

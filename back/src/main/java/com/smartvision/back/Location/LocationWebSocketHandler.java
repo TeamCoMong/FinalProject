@@ -43,10 +43,14 @@ public class LocationWebSocketHandler extends TextWebSocketHandler {
         String uri = session.getUri().toString();
         if (uri.contains("/guardian")) {
             guardianSessions.add(session);
-            System.out.println("👁️ 보호자 연결됨: " + session.getId());
+            System.out.println("websocket 보호자 연결됨: " + session.getId());
+            System.out.println("현재 guardianSessions 수: " + guardianSessions.size());
         } else if (uri.contains("/user")) {
             userSessions.add(session);
-            System.out.println("🧑 사용자 연결됨: " + session.getId());
+            System.out.println("websocket 사용자 연결됨: " + session.getId());
+            System.out.println("현재 userSessions 수: " + userSessions.size());
+        } else {
+            System.out.println("알 수 없는 URI 연결됨: " + uri + " → sessionId: " + session.getId());
         }
     }
 
@@ -55,58 +59,58 @@ public class LocationWebSocketHandler extends TextWebSocketHandler {
         String payload = message.getPayload();
 
         try {
-            // JSON 문자열을 JsonElement로 파싱
             JsonElement jsonElement = JsonParser.parseString(payload);
-
-            // JsonObject로 변환
             JsonObject jsonMessage = jsonElement.getAsJsonObject();
 
-            // "role" 필드가 없거나 null인 경우 기본값을 설정
-            String role = jsonMessage.has("role") && !jsonMessage.get("role").isJsonNull() ?
-                    jsonMessage.get("role").getAsString() : "unknown";
+            double lat = jsonMessage.has("lat") ? jsonMessage.get("lat").getAsDouble() :
+                    jsonMessage.has("latitude") ? jsonMessage.get("latitude").getAsDouble() : 0.0;
 
-            // 위치 정보 추출, 값이 없으면 기본값 0.0을 사용
-            double lat = jsonMessage.has("lat") ? jsonMessage.get("lat").getAsDouble() : 0.0;
-            double lon = jsonMessage.has("lon") ? jsonMessage.get("lon").getAsDouble() : 0.0;
+            double lon = jsonMessage.has("lon") ? jsonMessage.get("lon").getAsDouble() :
+                    jsonMessage.has("longitude") ? jsonMessage.get("longitude").getAsDouble() : 0.0;
 
-            // 역할에 따라 사용자 또는 보호자 위치 업데이트
-            if ("user".equals(role)) {
-                updateUserLocation(lat, lon);
-            } else if ("guardian".equals(role)) {
-                updateGuardianLocation(lat, lon);
-            } else {
-                System.out.println("알 수 없는 역할: " + role);
+            System.out.println("위치 수신 lat=" + lat + ", lon=" + lon);
+
+            JsonObject locationJson = new JsonObject();
+            locationJson.addProperty("lat", lat);
+            locationJson.addProperty("lon", lon);
+
+            String locationMessage = locationJson.toString();
+
+            System.out.println("userSessions 전체 전송 대상 수: " + userSessions.size());
+
+            for (WebSocketSession user : userSessions) {
+                System.out.println("user 에게 전송 시도: " + user.getId() + " → isOpen=" + user.isOpen());
+                if (user.isOpen()) {
+                    user.sendMessage(new TextMessage(locationMessage));
+                    System.out.println("user 에게 전송됨: " + user.getId());
+                } else {
+                    System.out.println("user 세션 닫힘 상태: " + user.getId());
+                }
             }
+
+            for (WebSocketSession guardian : guardianSessions) {
+                System.out.println("guardian 에게 전송 시도: " + guardian.getId() + " → isOpen=" + guardian.isOpen());
+                if (guardian.isOpen()) {
+                    guardian.sendMessage(new TextMessage(locationMessage));
+                    System.out.println("guardian 에게 전송됨: " + guardian.getId());
+                } else {
+                    System.out.println("guardian 세션 닫힘 상태: " + guardian.getId());
+                }
+            }
+
         } catch (Exception e) {
             System.err.println("위치 정보 처리 에러: " + e.getMessage());
         }
-
-        // 사용자의 위치를 보호자에게 전달
-        if (userSessions.contains(session)) {
-            for (WebSocketSession guardian : guardianSessions) {
-                if (guardian.isOpen()) {
-                    String locationMessage = String.format("{\"lat\": %f, \"lon\": %f, \"role\": \"user\"}",
-                            userLat, userLon);
-                    guardian.sendMessage(new TextMessage(locationMessage));
-                }
-            }
-        }
-
-        // 보호자의 위치를 사용자에게 전달
-        if (guardianSessions.contains(session)) {
-            for (WebSocketSession user : userSessions) {
-                if (user.isOpen()) {
-                    String locationMessage = String.format("{\"lat\": %f, \"lon\": %f, \"role\": \"guardian\"}",
-                            guardianLat, guardianLon);
-                    user.sendMessage(new TextMessage(locationMessage));
-                }
-            }
-        }
     }
+
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         guardianSessions.remove(session);
         userSessions.remove(session);
+
+        System.out.println("세션 종료됨: " + session.getId() + " → CloseStatus: " + status);
+        System.out.println("현재 userSessions 수: " + userSessions.size());
+        System.out.println("현재 guardianSessions 수: " + guardianSessions.size());
     }
 }

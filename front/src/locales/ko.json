@@ -78,5 +78,20 @@
     "guide": "길안내",
     "voice": "음성 안내",
     "obstacle": "장애물 감지"
+  },
+  "guardianSettings": {
+    "title": "내 설정",
+    "language": "언어",
+    "change_language": "언어 변경",
+    "notifications": "알림",
+    "voice_feedback": "음성 피드백",
+    "logout": "로그 아웃"
+  },
+  "guardianTab": {
+    "location": "위치 확인",
+    "users": "사용자 목록",
+    "settings": "기타 설정"
   }
+
+
 }

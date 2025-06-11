@@ -3,48 +3,68 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 
 const IntroScreen = ({ navigation }) => {
     return (
-        <View style={styles.container}>
-            <View style={styles.logoContainer}>
-                <Image source={require('../assets/logo.png')} style={styles.logo} />
-                <Text style={styles.appName}>SmartVision</Text>
-            </View>
-
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.loginButton} onPress={() => navigation.navigate('UserModeSelectionScreen')}>
-                    <Image source={require('../assets/blindness.png')} style={styles.buttonIcon} />
-                    <Text style={styles.buttonText}>사용자 모드</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.signUpButton} onPress={() => navigation.navigate('GuardianModeSelectionScreen')}>
-                    <Image source={require('../assets/protector.png')} style={styles.buttonIcon} />
-                    <Text style={styles.buttonText}>보호자 모드</Text>
-                </TouchableOpacity>
-            </View>
-
-            <View style={styles.iconSection}>
-                <View style={styles.iconCard}>
-                    <Image source={require('../assets/joomin_map.png')} style={styles.icon} />
-                    <Text style={styles.iconLabel}>길안내</Text>
-                </View>
-                <View style={styles.iconCard}>
-                    <Image source={require('../assets/technology.png')} style={styles.icon} />
-                    <Text style={styles.iconLabel}>음성 안내</Text>
-                </View>
-                <View style={styles.iconCard}>
-                    <Image source={require('../assets/login_obstacles.png')} style={styles.icon} />
-                    <Text style={styles.iconLabel}>장애물 감지</Text>
-                </View>
-            </View>
-
-
-             {/* face id 테스트*/}
-
-
-            <View style={styles.footerContainer}>
-                <Text style={styles.footerText}>Created by CoMong</Text>
-                <Image source={require('../assets/copyright.png')} style={styles.footerIcon} />
-            </View>
+      <View style={styles.container}>
+        <View style={styles.logoContainer}>
+          <Image source={require('../assets/logo.png')} style={styles.logo} />
+          <Text style={styles.appName}>SmartVision</Text>
         </View>
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={() => navigation.navigate('UserModeSelectionScreen')}>
+            <Image
+              source={require('../assets/blindness.png')}
+              style={styles.buttonIcon}
+            />
+            <Text style={styles.buttonText}>사용자 모드</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.signUpButton}
+            onPress={() => navigation.navigate('GuardianModeSelectionScreen')}>
+            <Image
+              source={require('../assets/protector.png')}
+              style={styles.buttonIcon}
+            />
+            <Text style={styles.buttonText}>보호자 모드</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.iconSection}>
+          <View style={styles.iconCard}>
+            <Image
+              source={require('../assets/joomin_map.png')}
+              style={styles.icon}
+            />
+            <Text style={styles.iconLabel}>길안내</Text>
+          </View>
+          <View style={styles.iconCard}>
+            <Image
+              source={require('../assets/technology.png')}
+              style={styles.icon}
+            />
+            <Text style={styles.iconLabel}>음성 안내</Text>
+          </View>
+          <View style={styles.iconCard}>
+            <Image
+              source={require('../assets/login_obstacles.png')}
+              style={styles.icon}
+            />
+            <Text style={styles.iconLabel}>장애물 감지</Text>
+          </View>
+        </View>
+
+        {/* face id 테스트*/}
+
+        <View style={styles.footerContainer}>
+          <Text style={styles.footerText}>Created by CoMong</Text>
+          <Image
+            source={require('../assets/copyright.png')}
+            style={styles.footerIcon}
+          />
+        </View>
+      </View>
     );
 };
 

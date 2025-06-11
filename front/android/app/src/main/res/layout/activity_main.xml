@@ -11,40 +11,41 @@
             android:layout_height="match_parent">
 
         <!-- 상단 바 -->
-        <FrameLayout
-                android:id="@+id/topBar"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:background="@android:color/black"
-                android:layout_alignParentTop="true">
+<!--        <FrameLayout-->
+<!--                android:id="@+id/topBar"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="50dp"-->
+<!--                android:background="@android:color/black"-->
+<!--                android:layout_alignParentTop="true">-->
 
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_centerInParent="true"
-                    android:text="길 안내"
-                    android:textColor="@android:color/white"
-                    android:textSize="15dp" />
+<!--            <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_gravity="center"-->
+<!--                    android:layout_centerInParent="true"-->
+<!--                    android:text="길 안내"-->
+<!--                    android:textColor="@android:color/white"-->
+<!--                    android:textSize="15dp" />-->
 
-            <Button
-                    android:id="@+id/menuButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="10dp"
-                    android:text="검색"
-                    android:textAllCaps="false" />
-        </FrameLayout>
+<!--&lt;!&ndash;            <Button&ndash;&gt;-->
+<!--&lt;!&ndash;                    android:id="@+id/menuButton"&ndash;&gt;-->
+<!--&lt;!&ndash;                    android:layout_width="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;                    android:layout_height="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;                    android:layout_alignParentStart="true"&ndash;&gt;-->
+<!--&lt;!&ndash;                    android:layout_centerVertical="true"&ndash;&gt;-->
+<!--&lt;!&ndash;                    android:layout_marginStart="10dp"&ndash;&gt;-->
+<!--&lt;!&ndash;                    android:text="검색"&ndash;&gt;-->
+<!--&lt;!&ndash;                    android:textAllCaps="false" />&ndash;&gt;-->
+<!--        </FrameLayout>-->
 
         <!-- 지도 + 정보 -->
         <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/mapArea"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@id/topBar"
-                android:layout_above="@id/bottomNavLayout">
+                android:layout_height="match_parent">
+<!--                android:layout_below="@id/topBar"-->
+<!--                android:layout_above="@id/bottomNavLayout">-->
+
 
             <FrameLayout
                     android:id="@+id/tmapLayout"
@@ -116,20 +117,20 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- 하단 탭 -->
-        <LinearLayout
-                android:id="@+id/bottomNavLayout"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_alignParentBottom="true"
-                android:orientation="horizontal"
-                android:background="@android:color/black"
-                android:gravity="center">
+<!--        <LinearLayout-->
+<!--                android:id="@+id/bottomNavLayout"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="60dp"-->
+<!--                android:layout_alignParentBottom="true"-->
+<!--                android:orientation="horizontal"-->
+<!--                android:background="@android:color/black"-->
+<!--                android:gravity="center">-->
 
-            <Button android:id="@+id/btnNavigate" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="길찾기" android:textColor="@android:color/white" android:background="@android:color/transparent"/>
-            <Button android:id="@+id/btnSearch" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="검색" android:textColor="@android:color/white" android:background="@android:color/transparent"/>
-            <Button android:id="@+id/btnCommunity" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="커뮤니티" android:textColor="@android:color/white" android:background="@android:color/transparent"/>
-            <Button android:id="@+id/btnMyPage" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="마이페이지" android:textColor="@android:color/white" android:background="@android:color/transparent"/>
-        </LinearLayout>
+<!--&lt;!&ndash;            <Button android:id="@+id/btnNavigate" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="길찾기" android:textColor="@android:color/white" android:background="@android:color/transparent"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            <Button android:id="@+id/btnSearch" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="검색" android:textColor="@android:color/white" android:background="@android:color/transparent"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            <Button android:id="@+id/btnCommunity" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="커뮤니티" android:textColor="@android:color/white" android:background="@android:color/transparent"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            <Button android:id="@+id/btnMyPage" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="마이페이지" android:textColor="@android:color/white" android:background="@android:color/transparent"/>&ndash;&gt;-->
+<!--        </LinearLayout>-->
     </RelativeLayout>
 
     <!-- Drawer 메뉴 -->

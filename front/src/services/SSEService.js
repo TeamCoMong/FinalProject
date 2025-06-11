@@ -17,20 +17,20 @@ const intentToRoute = {
 
 };
 
-// 1. SSE 연결
+// SSE 연결
 export const startSSE = () => {
     if (eventSource) {
-        console.log("⚠️ SSE 이미 연결됨");
+        console.log("SSE 이미 연결됨");
         return;
     }
 
-    console.log("🚀 SSE 연결 시작");
+    console.log("SSE 연결 시작");
 
     eventSource = new EventSource(`${NGROK_URL}/dialogflow/sse`);
 
     eventSource.onmessage = (event) => {
-        console.log("📩 [onmessage] raw 이벤트:", event);
-        console.log('🌟 기본 onmessage 수신:', event.data);
+        console.log("[onmessage] raw 이벤트:", event);
+        console.log('기본 onmessage 수신:', event.data);
     };
 
 
@@ -41,10 +41,10 @@ export const startSSE = () => {
         console.log("📶 ping 수신:", new Date(lastPingTime).toLocaleTimeString());
     });
 
-    // 3. intent 이벤트 감지
+    // intent 이벤트 감지
     eventSource.addEventListener('intent', (event) => {
         const data = JSON.parse(event.data);
-        console.log('🔥 [SSE] intent 수신:', data.intent);
+        console.log('[SSE] intent 수신:', data.intent);
 
         const route = intentToRoute[data.intent];
         if (route && navigationRef.isReady()) {
@@ -60,7 +60,7 @@ export const startSSE = () => {
         heartbeatChecker = setInterval(() => {
             const now = Date.now();
             if (now - lastPingTime > 15000) {
-                console.warn("💥 ping 수신 끊김 → SSE 재연결 시도");
+                console.warn("ping 수신 끊김 → SSE 재연결 시도");
                 reconnectSSE();
             }
         }, 5000);
@@ -72,10 +72,10 @@ export const startSSE = () => {
     };
 };
 
-// 5. 연결 종료
+// 연결 종료
 export const stopSSE = () => {
     if (eventSource) {
-        console.log("🧹 SSE 연결 종료");
+        console.log("SSE 연결 종료");
         eventSource.close();
         eventSource = null;
     }
@@ -88,11 +88,11 @@ export const stopSSE = () => {
 
 export const getEventSource = () => eventSource;
 
-// 6. 재연결 로직
+// 재연결 로직
 const reconnectSSE = () => {
     stopSSE();
     setTimeout(() => {
-        console.log("🔁 SSE 재연결 시도 중...");
+        console.log("SSE 재연결 시도 중...");
         startSSE();
     }, 5000);
 };

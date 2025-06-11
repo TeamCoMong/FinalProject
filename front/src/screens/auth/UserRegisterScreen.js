@@ -21,12 +21,12 @@ const UserRegisterScreen = ({ navigation }) => {
     const playSound = (filename) => {
         const sound = new Sound(filename, Sound.MAIN_BUNDLE, (error) => {
             if (error) {
-                console.error('❌ 사운드 로드 실패:', error);
+                console.error('사운드 로드 실패:', error);
                 return;
             }
             sound.play((success) => {
                 if (!success) {
-                    console.error('❌ 사운드 재생 실패');
+                    console.error('사운드 재생 실패');
                 }
                 sound.release();
             });
@@ -36,18 +36,18 @@ const UserRegisterScreen = ({ navigation }) => {
     const handleIntentEvent = (event) => {
         try {
             const data = JSON.parse(event.data);
-            console.log('📦 파싱된 데이터:', data);
+            console.log('파싱된 데이터:', data);
 
             if (data.intent === '회원가입_이름입력') {
                 if (data.person) {
-                    console.log('🧍 이름 세팅:', data.person);
+                    console.log('이름 세팅:', data.person);
                     setName(data.person);
                 }
             }
 
             if (data.intent === '회원가입_이름확인') {
                 if (data.outputContext && data.outputContext.includes('awaiting_finger')) {
-                    console.log('🖐️ 지문 인증 시작');
+                    console.log('🖐지문 인증 시작');
                     handleBiometricAuth();
                 }
             }
@@ -62,9 +62,8 @@ const UserRegisterScreen = ({ navigation }) => {
             if (available) {
                 const { success } = await rnBiometrics.simplePrompt({ promptMessage: '지문으로 인증해주세요.' });
                 if (success) {
-                    console.log('✅ 지문 인증 성공');
+                    console.log('지문 인증 성공');
                     setIsAuthSuccess(true);
-                    // Alert.alert('인증 성공', '지문 인증에 성공했습니다.');
                 } else {
                     setIsAuthSuccess(false);
                     Alert.alert('인증 실패', '지문 인증에 실패했습니다.');
@@ -98,13 +97,13 @@ const UserRegisterScreen = ({ navigation }) => {
                 await EncryptedStorage.setItem('name', name);
                 await EncryptedStorage.setItem('accessToken', '');
 
-                console.log('✅ EncryptedStorage 저장됨:', newUserId, name);
+                console.log('EncryptedStorage 저장됨:', newUserId, name);
 
                 const checkId = await EncryptedStorage.getItem('userId');
                 const checkName = await EncryptedStorage.getItem('name');
-                console.log('🔎 EncryptedStorage에서 확인된 값:', checkId, checkName);
+                console.log('EncryptedStorage에서 확인된 값:', checkId, checkName);
 
-                setUserId(newUserId);                                 // ✅ state 반영
+                setUserId(newUserId);
 
                 const spacedId = newUserId.split('').map(char => `${char}.`).join(' ');
                 const ttsMessage = `회원가입이 완료되었습니다. 회원님의 아이디는 ${spacedId} 입니다.`;
@@ -115,7 +114,7 @@ const UserRegisterScreen = ({ navigation }) => {
                     navigation.replace('MainTab', {
                         username: newUserId,
                         name: name,
-                        accessToken: null, // or ''
+                        accessToken: null,
                     });
                 }, 6000);
             } else {
@@ -143,9 +142,9 @@ const UserRegisterScreen = ({ navigation }) => {
         tryRegisterIntentListener();
 
         Voice.onSpeechEnd = () => {
-            console.log('🛑 음성 인식이 끝났습니다');
+            console.log('음성 인식이 끝났습니다');
 
-            playSound('end'); // end.mp3 (띠롱)
+            playSound('end');
         };
 
         const triggerSignupWelcome = async () => {
@@ -164,19 +163,19 @@ const UserRegisterScreen = ({ navigation }) => {
                         playSound('start');
                         await Voice.start('ko-KR');
                     } catch (e) {
-                        console.error('❌ 음성 인식 시작 실패:', e);
+                        console.error('음성 인식 시작 실패:', e);
                     }
                 });
 
             } catch (err) {
-                console.error('❌ 웰컴 이벤트 호출 실패:', err);
+                console.error('웰컴 이벤트 호출 실패:', err);
             }
         };
 
         triggerSignupWelcome();
 
         Voice.onSpeechError = (e) => {
-            console.error('❌ 음성 인식 오류:', e.error);
+            console.error('음성 인식 오류:', e.error);
         };
 
         return () => {
@@ -190,10 +189,10 @@ const UserRegisterScreen = ({ navigation }) => {
         };
     }, []);
 
-    // ✅ 지문 인증 성공 + 이름 입력 완료 감시
+    // 지문 인증 성공 + 이름 입력 완료 감시
     useEffect(() => {
         if (isAuthSuccess && name.trim() !== '') {
-            console.log('🧠 지문 인증 성공 + 이름 입력 완료 → 회원가입 시도');
+            console.log('지문 인증 성공 + 이름 입력 완료 → 회원가입 시도');
             handleRegister();
         }
     }, [isAuthSuccess, name]);
@@ -230,7 +229,7 @@ const UserRegisterScreen = ({ navigation }) => {
 
             {!userId && isAuthSuccess && name.trim() !== '' && (
                 <Text style={{ marginTop: height * 0.02, fontSize: 16, color: '#555', fontWeight: 'bold' }}>
-                    ✅ 지문 인증 완료. 회원가입을 진행 중입니다...
+                    지문 인증 완료. 회원가입을 진행 중입니다...
                 </Text>
             )}
 

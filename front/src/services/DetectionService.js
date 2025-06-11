@@ -4,25 +4,25 @@ import { AppState, Vibration, Platform } from "react-native";
 import Tts from 'react-native-tts';
 
 const APP_SERVER_PORT = 5000;
-const VERY_CLOSE_ANNOUNCEMENT_COOLDOWN = 1500; // "매우 가까이" 안내 쿨다운
-const DEFAULT_ANNOUNCEMENT_COOLDOWN = 5000;   // 일반적인 시간 기반 쿨다운
+const VERY_CLOSE_ANNOUNCEMENT_COOLDOWN = 1500; // 매우 가까이 안내 쿨다운
+const DEFAULT_ANNOUNCEMENT_COOLDOWN = 5000;   // 일반적인 시간 쿨다운
 const MIN_CONFIDENCE_FOR_ANNOUNCEMENT = 0.3; // 안내 최소 신뢰도
-const DISTANCE_M_THRESHOLD_VERY_CLOSE = 2.0; // 미터 (1m 미만)
-const DISTANCE_M_THRESHOLD_CLOSE = 3.5;    // 미터 (2m 미만)
+const DISTANCE_M_THRESHOLD_VERY_CLOSE = 2.0; // 미터 (2m 미만)
+const DISTANCE_M_THRESHOLD_CLOSE = 3.5;    // 미터 (3.5m 미만)
 
 // 진동 패턴
-const VIBRATION_PATTERN_VERY_CLOSE = [0, 200, 100, 200]; // "매우 가까이" 시 짧고 빠른 패턴
-const VIBRATION_PATTERN_CLOSE = [0, 500]; // "가까이" 시 한 번 길게
+const VIBRATION_PATTERN_VERY_CLOSE = [0, 200, 100, 200]; // 매우 가까이 짧고 빠르게
+const VIBRATION_PATTERN_CLOSE = [0, 500]; // 가까이 한 번 길게
 const VIBRATION_PATTERN_NONE = null;
 
 // 진동 주기
-const VIBRATION_INTERVAL_VERY_CLOSE = 1000; // "매우 가까이" 상태 진동 시도 간격 (1초)
-const VIBRATION_INTERVAL_CLOSE = 2000;    // "가까이" 상태 진동 시도 간격 (2초)
+const VIBRATION_INTERVAL_VERY_CLOSE = 1000; // 매우 가까이 진동 간격 (1초)
+const VIBRATION_INTERVAL_CLOSE = 2000;    // 가까이 진동 시도 간격 (2초)
 
 let serverInstance = null;
 let clientSocketInstance = null;
 let isConnectedToRPi = false;
-let lastSuccessfullyAnnouncedTTS = { content: null, time: 0 }; // 쿨다운용 (content는 ttsKey 저장)
+let lastSuccessfullyAnnouncedTTS = { content: null, time: 0 };
 let appState = AppState.currentState;
 let appStateSubscription = null;
 let lastVibrationTime = 0;
@@ -44,16 +44,16 @@ const translateClass = (cls) => {
     return dict[cls.toLowerCase()] || cls;
 };
 
-// RPi 데이터 파싱 -> TTS 메시지 생성
+// RPi 데이터 파싱
 const parseDataAndGenerateTTS = (raw) => {
     try {
         const trimmedRaw = raw.trim();
-        let detectedDistanceM = null; // RPi에서 넘어오는 미터 단위 거리
+        let detectedDistanceM = null;
         let detectedObjects = [];
         let vibrationPatternToUse = VIBRATION_PATTERN_NONE;
 
         if (trimmedRaw === "" || trimmedRaw.toUpperCase() === "NO_OBJECT") {
-            console.log("DetectionService: 주변에 감지된 객체가 없습니다.");
+            console.log("DetectionService: 주변에 감지된 객체 없음");
             return { ttsMessage: null, ttsKey: null, isVeryClose: false, VIBRATION_PATTERN_NONE };
         }
 
@@ -127,13 +127,13 @@ const parseDataAndGenerateTTS = (raw) => {
 const sendCommandToRPi = (command) => {
     if (clientSocketInstance && !clientSocketInstance._destroyed && clientSocketInstance._readyState === "open") {
         try {
-            console.log(`DetectionService: 📲 RPi 명령 전송: ${command}`);
+            console.log(`DetectionService: RPi 명령 전송: ${command}`);
             clientSocketInstance.write(`${command}\n`);
         } catch (error) {
-            console.error("DetectionService: 🚨 RPi 명령 전송 오류:", error, "명령:", command);
+            console.error("DetectionService: RPi 명령 전송 오류:", error, "명령:", command);
         }
     } else {
-        console.warn("DetectionService: ⚠️ RPi 소켓 준비 안됨. 명령 전송 실패:", command);
+        console.warn("DetectionService: RPi 소켓 준비 안됨. 명령 전송 실패:", command);
     }
 };
 
@@ -161,7 +161,7 @@ export const startDetectionService = () => {
         return;
     }
 
-    console.log("DetectionService: 서비스 시작 중...");
+    console.log("DetectionService: 서비스 시작 중");
 
     lastSuccessfullyAnnouncedTTS = { content: null, time: 0 };
     lastVibrationTime = 0;
@@ -173,7 +173,7 @@ export const startDetectionService = () => {
     appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
 
     const server = TcpSocket.createServer((socket) => {
-        console.log("DetectionService: 📥 라즈베리파이 연결됨.");
+        console.log("DetectionService: 라즈베리파이 연결됨.");
         isConnectedToRPi = true;
         clientSocketInstance = socket;
 
@@ -186,7 +186,7 @@ export const startDetectionService = () => {
 
         socket.on("data", (data) => {
             const message = data.toString().trim();
-            console.log("DetectionService: 📦 RPi 데이터 수신:", message);
+            console.log("DetectionService: RPi 데이터 수신:", message);
 
             const parsedResult = parseDataAndGenerateTTS(message);
             const now = Date.now();
@@ -196,20 +196,18 @@ export const startDetectionService = () => {
 
                 if (!parsedResult.isVeryClose && parsedResult.ttsKey === lastSuccessfullyAnnouncedTTS.content) {
 
-                    console.log(`DetectionService: TTS 이미 안내됨 (매우 가까이 아님, 동일 Key) - Key: "${parsedResult.ttsKey}"`);
+                    console.log(`DetectionService: TTS 이미 안내됨 - Key: "${parsedResult.ttsKey}"`);
                     return; // 동일 키, 매우 가까이 아니면 중복 안내 방지
                 }
 
                 if (parsedResult.ttsKey === lastSuccessfullyAnnouncedTTS.content &&
                     (now - lastSuccessfullyAnnouncedTTS.time < currentCooldownToApply)) {
-                    console.log(`DetectionService: TTS 시간 쿨다운 - Key: "${parsedResult.ttsKey}", Msg: "${parsedResult.ttsMessage}" (최근 안내됨)`);
+                    console.log(`DetectionService: TTS 시간 쿨다운 - Key: "${parsedResult.ttsKey}", Msg: "${parsedResult.ttsMessage}" 최근 안내`);
                 } else {
-                    console.log(`DetectionService: 🗣️ TTS 안내: "${parsedResult.ttsMessage}"`);
+                    console.log(`DetectionService: TTS 안내: "${parsedResult.ttsMessage}"`);
                     Tts.stop(); // 이전 TTS 중지
                     Tts.speak(parsedResult.ttsMessage, {
-                        // androidParams: { /* 필요한 경우 특정 스트림 지정 */ },
-                        rate: 0.85, // TTS 속도 (0.5가 보통, 1.0이 빠름)
-                        // pitch: 1.0 // 음높이
+                        rate: 0.85, // TTS 속도
                     });
                     lastSuccessfullyAnnouncedTTS = { content: parsedResult.ttsKey, time: now };
                 }
@@ -244,13 +242,13 @@ export const startDetectionService = () => {
         });
 
         socket.on("close", (hadError) => {
-            console.log(`DetectionService: ❌ RPi 연결 종료됨. 오류 발생: ${hadError}`);
+            console.log(`DetectionService: RPi 연결 종료됨. 오류 발생: ${hadError}`);
             isConnectedToRPi = false;
             clientSocketInstance = null;
         });
 
         socket.on("error", (error) => {
-            console.error("DetectionService: 🚨 소켓 오류:", error);
+            console.error("DetectionService: 소켓 오류:", error);
             if (clientSocketInstance && clientSocketInstance === socket) {
                 isConnectedToRPi = false;
                 clientSocketInstance = null;
@@ -259,12 +257,12 @@ export const startDetectionService = () => {
     });
 
     server.on('error', (error) => {
-        console.error('DetectionService: 🚨 서버 생성/리스닝 오류:', error);
+        console.error('DetectionService: 서버 생성/리스닝 오류:', error);
         serverInstance = null;
     });
 
     server.listen({ port: APP_SERVER_PORT, host: "0.0.0.0" }, () => {
-        console.log(`DetectionService: ✅ TCP 서버 시작됨. 포트: ${APP_SERVER_PORT}`);
+        console.log(`DetectionService: TCP 서버 시작됨. 포트: ${APP_SERVER_PORT}`);
     });
     serverInstance = server;
 };
@@ -274,11 +272,11 @@ export const stopDetectionService = () => {
     Vibration.cancel();
 
     if (!serverInstance) {
-        console.log("DetectionService: 이미 중지되었거나 시작되지 않았습니다.");
+        console.log("DetectionService: 이미 중지되었거나 시작되지 않음");
         return;
     }
 
-    console.log("DetectionService: 서비스 중지 중...");
+    console.log("DetectionService: 서비스 중지 중");
     if (appStateSubscription) {
         appStateSubscription.remove();
         appStateSubscription = null;

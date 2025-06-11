@@ -92,12 +92,12 @@ const userScreenOptions = ({ route }) => ({
 const playSound = (filenameWithExtension) => {
     const sound = new Sound(filenameWithExtension, Sound.MAIN_BUNDLE, (error) => {
         if (error) {
-            console.error(`❌ 사운드 로드 실패 (${filenameWithExtension}):`, error);
+            console.error(`사운드 로드 실패 (${filenameWithExtension}):`, error);
             return;
         }
         sound.play((success) => {
             if (!success) {
-                console.error(`❌ 사운드 재생 실패 (${filenameWithExtension})`);
+                console.error(`사운드 재생 실패 (${filenameWithExtension})`);
             }
             sound.release();
         });
@@ -220,7 +220,7 @@ const VOICE_RECOGNITION_ALLOWED_SCREENS = [
 ];
 
 
-// ✅ 앱 전체 구성
+// 앱 전체 구성
 const App = () => {
     const [currentRouteName, setCurrentRouteName] = useState(null);
     const [isVoiceListening, setIsVoiceListening] = useState(false);
@@ -229,7 +229,6 @@ const App = () => {
 
     useEffect(() => {
         Tts.setDefaultLanguage('ko-KR');
-        // 앱 시작 시 TTS 엔진 준비 (선택적이지만, 첫 TTS 지연 감소에 도움될 수 있음)
         Tts.getInitStatus().then(() => {
             console.log("TTS 엔진 초기화 완료 또는 이미 준비됨.");
         }).catch((err) => {
@@ -269,7 +268,7 @@ const App = () => {
         Voice.onSpeechResults = (e) => {
             const text = e.value?.[0];
             if (!text || text.trim() === "") {
-                console.log("⚠️ 음성 인식 결과 없음 또는 빈 문자열");
+                console.log("음성 인식 결과 없음 또는 빈 문자열");
                 return;
             }
             console.log('🎤 인식된 말:', text);
@@ -281,9 +280,8 @@ const App = () => {
                     return res.json();
                 })
                 .then(data => {
-                    console.log('🧠 Dialogflow 응답:', data); // 서버에서 받은 그대로 출력
+                    console.log('Dialogflow 응답:', data); // 서버에서 받은 그대로 출력
 
-                    // 1. Dialogflow의 일반 응답 TTS
                     if (data && data.message) {
                         Tts.speak(data.message);
                     } else {
@@ -294,7 +292,7 @@ const App = () => {
                     // data.intentName 대신 data.intent 사용!
                     if (data && data.intent) { // <--- 여기를 수정했습니다!
                         const intentName = data.intent.toLowerCase(); // <--- 여기를 수정했습니다!
-                        console.log('🔍 감지된 인텐트 (수정 후):', intentName);
+                        console.log('감지된 인텐트 (수정 후):', intentName);
 
                         if (intentName === 'detection') {
                             console.log('🚀 "detection" 인텐트 수신. DetectionService 시작 요청.');
@@ -312,19 +310,17 @@ const App = () => {
                     }
                 })
                 .catch(err => {
-                    console.error('❌ Dialogflow 요청 또는 처리 오류:', err);
+                    console.error('Dialogflow 요청 또는 처리 오류:', err);
                     Tts.speak('죄송합니다. 다시 시도해주세요.');
                 });
         };
 
         Voice.onSpeechError = (e) => {
-            console.log('❌ 음성 인식 에러:', e.error);
-            // 사용자에게 피드백 (예: "음성 인식 중 오류가 발생했습니다.")
-            // Tts.speak("음성 인식 중 오류가 발생했습니다. 다시 시도해주세요.");
+            console.log('음성 인식 에러:', e.error);
         };
 
         Voice.onSpeechEnd = () => {
-            console.log('🛑 음성 인식이 끝났습니다');
+            console.log('음성 인식이 끝났습니다');
             playSound('end.mp3'); // .mp3 확장자 확인
         };
 
@@ -342,7 +338,6 @@ const App = () => {
 
 
         return () => {
-            // 컴포넌트 언마운트 시 정리
             console.log("App 컴포넌트 언마운트. 리소스 정리.");
             stopSSE();
             Voice.destroy().then(Voice.removeAllListeners).catch(e => console.error("Voice destroy error", e));
@@ -351,7 +346,7 @@ const App = () => {
     }, []);
 
 
-    // ✅ 전체 화면 터치 시 STT 시작
+    // 전체 화면 터치 시 STT 시작
     const handleStartListening = async () => {
        const activeRouteName = routeNameRef.current;
        console.log(`화면 터치됨. ${activeRouteName}, 인식 중: ${isVoiceListening}`);

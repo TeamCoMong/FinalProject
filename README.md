@@ -1,6 +1,6 @@
 # 시각장애인 보행 보조 어플리케이션
 
-DEV: 이백범, 박주민, 김준희, 윤창현/
+DEV: 이백범, 박주민, 김준희, 윤창현 /
 기간: 2025.02 ~ 2025.06
 
 🔗[칸바 링크](https://www.canva.com/design/DAGpYBWOyQE/m2NQZaUPpJgJ0xCuOp_k6Q/edit?ui=eyJIIjp7IkEiOnRydWV9fQ)

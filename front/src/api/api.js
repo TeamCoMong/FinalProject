@@ -1,8 +1,9 @@
 import axios from 'axios';
-
+import EncryptedStorage from 'react-native-encrypted-storage';
+import { NGROK_URL } from '../config/ngrok';
 // Base Url 설정
-const BASE_URL = 'http://10.0.2.2:8080/api';
-
+const BASE_URL = `${NGROK_URL}/api`;
+// const BASE_URL = 'http://192.168.34.34:8080/api';
 // Axios 인스턴스 생성
 const api = axios.create({
     baseURL: BASE_URL,
@@ -11,5 +12,12 @@ const api = axios.create({
         'Content-Type': 'application/json',
     },
 });
-
+// 매 요청 전에 accessToken 자동 첨부
+api.interceptors.request.use(async (config) => {
+    const token = await EncryptedStorage.getItem('accessToken');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
 export default api;

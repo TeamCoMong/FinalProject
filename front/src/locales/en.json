@@ -1,0 +1,88 @@
+{
+  "tab": {
+    "home": "Home",
+    "help": "Help",
+    "settings": "Settings"
+  },
+  "settings": {
+    "title": "My Settings",
+    "language": "Language",
+    "change_language": "Change Language",
+    "notifications": "Notifications",
+    "voice_feedback": "Voice Feedback",
+    "details": "Details",
+    "logout": "Log Out"
+  },
+  "auth": {
+    "biometric_prompt": "Please authenticate with fingerprint",
+    "error": "Error",
+    "no_biometrics": "Biometric authentication is not available on this device.",
+    "fail": "Fingerprint authentication failed.",
+    "no_user": "No login information available.",
+    "fingerprint_loading": "Authenticating fingerprint..."
+  },
+  "profile": {
+    "title": "My Unique Code",
+    "guardians": "Registered Guardians"
+  },
+  "permission": {
+    "mic_request_title": "Microphone Permission Request",
+    "mic_request_message": "Microphone access is required for voice recognition.",
+    "positive": "Allow",
+    "negative": "Deny",
+    "neutral": "Later"
+  },
+  "userHelp": {
+    "title": "User Help",
+    "navigation": "Navigation Guide",
+    "guardian": "Guardian Linking",
+    "settings": "Settings Features"
+  },
+  "tab": {
+    "home": "Home",
+    "help": "Help",
+    "settings": "Settings"
+  },
+  "navigationHelp": {
+    "title": "Navigation Guide",
+    "description": "With SmartVision’s navigation feature, users can safely reach their destination. It provides route guidance and voice instructions.",
+    "button": "Start Navigation"
+  },
+  "settingsHelp": {
+    "title": "Additional Settings",
+    "description": "With SmartVision's various settings features, you can enjoy a personalized service experience. Supports theme change, notification settings, and more.",
+    "button": "Go to Settings"
+  },
+  "guardianHelp": {
+    "title": "Guardian Registration",
+    "description": "By entering the user’s unique code, guardians can receive location info and emergency alerts.",
+    "button": "View My Registered Guardians"
+  },
+
+  "guardianMode": {
+    "title": "Guardian Mode",
+    "login": "Login",
+    "signup": "Sign Up",
+    "feature": {
+      "navigation": "Navigation",
+      "voice": "Voice Guidance",
+      "obstacle": "Obstacle Detection"
+    }
+  },
+  "common": {
+    "createdBy": "Created by CoMong"
+  },
+  "userMode": {
+    "title": "User Mode",
+    "login": "Login",
+    "signup": "Sign Up",
+    "guide": "Navigation",
+    "voice": "Voice Guide",
+    "obstacle": "Obstacle Detection"
+  },
+  "guardianTab": {
+    "location": "Location",
+    "users": "User List",
+    "settings": "Settings"
+  }
+}

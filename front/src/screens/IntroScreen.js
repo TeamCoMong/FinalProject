@@ -3,76 +3,68 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 
 const IntroScreen = ({ navigation }) => {
     return (
-        <View style={styles.container}>
-            {/* 로고 및 앱 이름 */}
-            <View style={styles.logoContainer}>
-                <Image source={require('../assets/god.png')} style={styles.logo} />
-                <Text style={styles.appName}>PathFinder</Text>
-            </View>
-
-            {/* 간략한 설명 */}
-            <Text style={styles.mainDescription}></Text>
-
-            {/* 주요 기능 아이콘 */}
-            <View style={styles.iconSection}>
-                <View style={styles.iconCard}>
-                    <Image source={require('../assets/joomin_map.png')} style={styles.icon} />
-                    <Text style={styles.iconLabel}>길안내</Text>
-                </View>
-                <View style={styles.iconCard}>
-                    <Image source={require('../assets/personal.png')} style={styles.icon} />
-                    <Text style={styles.iconLabel}>음성 안내</Text>
-                </View>
-                <View style={styles.iconCard}>
-                    <Image source={require('../assets/chatbot.png')} style={styles.icon} />
-                    <Text style={styles.iconLabel}>장애물 감지</Text>
-                </View>
-
-            </View>
-
-
-            {/* 버튼 섹션 */}
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                    style={styles.loginButton}
-                    onPress={() => navigation.navigate('Login')}
-                >
-                    <Text style={styles.buttonText}>로그인</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.signUpButton}
-                    onPress={() => navigation.navigate('Register')}
-                >
-                    <Text style={styles.buttonText}>회원가입</Text>
-                </TouchableOpacity>
-                {/*테스트용*/}
-                <TouchableOpacity
-                    style={styles.testButton}
-                    onPress={() => navigation.navigate('KakaoMap')}
-                >
-                    <Text style={styles.buttonText}>테스트</Text>
-                </TouchableOpacity>
-                {/*테스트용*/}
-            </View>
-
-            {/* 프론트 테스트 버튼을 별도의 View로 분리 */}
-            <View style={styles.singleButtonContainer}>
-                <TouchableOpacity
-                    style={styles.testButton2}
-                    onPress={() => navigation.navigate('TestLoginScreen')}
-                >
-                    <Text style={styles.buttonText}>프론트 테스트</Text>
-                </TouchableOpacity>
-            </View>
-
-            <View style={styles.footerContainer}>
-                <Text style={styles.footerText}>Created by CoMong</Text>
-                <Image source={require('../assets/copyright.png')} style={styles.footerIcon} />
-            </View>
-
-
-
+      <View style={styles.container}>
+        <View style={styles.logoContainer}>
+          <Image source={require('../assets/logo.png')} style={styles.logo} />
+          <Text style={styles.appName}>SmartVision</Text>
         </View>
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={() => navigation.navigate('UserModeSelectionScreen')}>
+            <Image
+              source={require('../assets/blindness.png')}
+              style={styles.buttonIcon}
+            />
+            <Text style={styles.buttonText}>사용자 모드</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.signUpButton}
+            onPress={() => navigation.navigate('GuardianModeSelectionScreen')}>
+            <Image
+              source={require('../assets/protector.png')}
+              style={styles.buttonIcon}
+            />
+            <Text style={styles.buttonText}>보호자 모드</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.iconSection}>
+          <View style={styles.iconCard}>
+            <Image
+              source={require('../assets/joomin_map.png')}
+              style={styles.icon}
+            />
+            <Text style={styles.iconLabel}>길안내</Text>
+          </View>
+          <View style={styles.iconCard}>
+            <Image
+              source={require('../assets/technology.png')}
+              style={styles.icon}
+            />
+            <Text style={styles.iconLabel}>음성 안내</Text>
+          </View>
+          <View style={styles.iconCard}>
+            <Image
+              source={require('../assets/login_obstacles.png')}
+              style={styles.icon}
+            />
+            <Text style={styles.iconLabel}>장애물 감지</Text>
+          </View>
+        </View>
+
+        {/* face id 테스트*/}
+
+        <View style={styles.footerContainer}>
+          <Text style={styles.footerText}>Created by CoMong</Text>
+          <Image
+            source={require('../assets/copyright.png')}
+            style={styles.footerIcon}
+          />
+        </View>
+      </View>
     );
 };
 
@@ -84,25 +76,37 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     logoContainer: {
+        position: 'absolute',
+        top: 50, // 숫자가 작을수록 위로 감
+        left: 0,
+        right: 0,
         alignItems: 'center',
-        marginBottom: 20,
     },
+
     logo: {
-        width: 80,
-        height: 80,
+        width: 110,
+        height: 110,
     },
     appName: {
-        fontSize: 32,
+        fontSize: 25,
         fontWeight: 'bold',
         color: '#cd5c5c',
         marginTop: 10,
+        marginBottom: 20,
+    },
+    subAppName: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#cd5c5c',
+        marginTop: 10,
+        marginBottom: 10,
     },
     mainDescription: {
         fontSize: 22,
         fontWeight: 'bold',
         color: '#D51',
         textAlign: 'center',
-        marginBottom: 30,
+        marginBottom: 10,
     },
     subDescription: {
         fontSize: 16,
@@ -114,7 +118,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around',
         width: '90%',
-        marginBottom: 20,
+        marginTop: 30, // 마진 탑을 적당히 설정
+        marginBottom: 10,
+        alignSelf: 'center',  // 가운데 정렬을 위해 추가
+
     },
     iconCard: {
         alignItems: 'center',
@@ -127,48 +134,65 @@ const styles = StyleSheet.create({
     iconLabel: {
         fontSize: 14,
         color: '#555',
+        fontWeight: '600', // 글씨 굵게
     },
     buttonContainer: {
-        flexDirection: 'row',
-        width: '80%',
-        justifyContent: 'space-between',
-        marginTop: 30,
+        flexDirection: 'column',
+        width: '90%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 180, // 더 아래쪽에 위치
     },
+
     loginButton: {
         backgroundColor: '#66cdaa',
-        paddingVertical: 15,
-        flex: 1,
+        paddingVertical: 22,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
         borderRadius: 25,
-        marginRight: 10,
+        marginBottom: 20,
+        elevation: 3, // 안드로이드 그림자
+        shadowColor: '#000', // iOS 그림자
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
     },
+
     signUpButton: {
         backgroundColor: '#00C853',
-        paddingVertical: 15,
-        flex: 1,
+        paddingVertical: 22,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
         borderRadius: 25,
+        marginBottom: 10,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
     },
-
-    testButton: {
-        backgroundColor: '#007BFF',
-        paddingVertical: 15,
-        flex: 1,
-        borderRadius: 25,
-        marginLeft: 10
-    },
-
-
 
     buttonText: {
-        color: '#FFF',
-        fontSize: 16,
+        color: 'black',
+        fontSize: 30,
         textAlign: 'center',
         fontWeight: 'bold',
+        marginLeft: 50, // 이미지와 텍스트 사이의 간격을 늘림
     },
 
+// 이미지 스타일
+    buttonIcon: {
+        width: 120,
+        height: 120, // 이미지 크기 설정
+    },
     // 주민 프론트 테스트 버튼 컨테이너
     singleButtonContainer: {
         width: '80%',
-        marginTop: 40,
+        marginTop: 100,
         borderRadius: 25,
     },
     // 주민 프론트 테스트 버튼 위치(임시)
@@ -187,20 +211,20 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 10,
         width: '100%',
+
     },
     footerText: {
         fontSize: 12,
         color: '#000', // 검정색으로 변경
         textAlign: 'center',
         marginRight: 5, // 아이콘과 간격 추가
+        fontWeight: '600', // 글씨 굵게
     },
     footerIcon: {
         width: 14, // 아이콘 크기 조정
         height: 14,
     },
-
-
-
 });
+
 
 export default IntroScreen;

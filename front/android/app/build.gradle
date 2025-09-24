@@ -79,11 +79,13 @@ android {
 
     namespace "com.app"
     defaultConfig {
-        applicationId "com.app"
+        applicationId "com.smartvision.back"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+
+        multiDexEnabled true
     }
     signingConfigs {
         debug {
@@ -110,10 +112,46 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
+    implementation files("libs/tmap-sdk-2.2.aar")
+    implementation files("libs/vsm-tmap-sdk-v2-android-1.7.23.aar")
+    implementation ('com.squareup.okhttp3:okhttp:4.12.0')
+
+    //websocket
+    implementation 'org.java-websocket:Java-WebSocket:1.5.2'
+
+
+    // for vsm sdk
+    implementation 'com.google.flatbuffers:flatbuffers-java:1.11.0'
+
+    // Dependency for Navi SDK.
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.9.0'
+    implementation 'com.google.android.exoplayer:exoplayer:2.17.1'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.17.1'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.17.1'
+
+    // Dependency for UI SDK.
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation "androidx.compose.ui:ui:$compose_ui_version"
+    implementation "androidx.compose.foundation:foundation:$compose_version"
+    implementation "androidx.compose.material:material:$compose_version"
+    implementation "androidx.compose.material:material-icons-core:$compose_version"
+    implementation "androidx.compose.material:material-icons-extended:$compose_version"
+    implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+    implementation 'com.github.bumptech.glide:glide:4.13.2'
+    implementation 'com.google.android.gms:play-services-location:17.0.0'
+    implementation 'com.airbnb.android:lottie:3.0.7'
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {
         implementation jscFlavor
     }
+
+    // ✅ 여기에 추가: Biometric API
+    implementation("androidx.biometric:biometric:1.1.0")
+//    implementation("androidx.biometric:biometric-ktx:1.4.0-alpha02") // (선택사항, Kotlin 사용 시)
+
+    implementation 'androidx.multidex:multidex:2.0.1'
 }

@@ -17,7 +17,7 @@ PI 카메라, LiDAR, 음성 안내를 통해 안전하고 직관적인 보행을
 
 ## 📌 주요 기능
 
-<img width="793" height="446" alt="image" src="https://github.com/user-attachments/assets/c5ece0bb-fd62-4f0f-834c-ffc682a3deac" />
+
 
 ### 🚧 장애물 인식 및 거리 감지 경고
 - **Pi 카메라**와 **LiDAR 센서**를 통한 실시간 장애물 인식
@@ -31,15 +31,9 @@ PI 카메라, LiDAR, 음성 안내를 통해 안전하고 직관적인 보행을
 - **Dialogflow 챗봇 기반** 음성 제어
 - 사용자가 음성으로 메뉴 및 기능을 손쉽게 이동
 
-<img width="793" height="446" alt="image" src="https://github.com/user-attachments/assets/daa7ad5b-e7f0-4529-a49b-c64dc9056501" />
-
-
 ### 👨‍👩‍👧 보호자 연동 및 위치 공유
 - 사용자의 위치를 보호자에게 실시간 전송
 - 보호자는 앱을 통해 이동 경로 확인 가능
-
-<img width="796" height="443" alt="image" src="https://github.com/user-attachments/assets/8116d638-d464-4bd2-b00e-7401d951b845" />
-
 
 ### 🛠 관리자 기능
 - YOLO 객체 감지 결과 및 LiDAR 거리 데이터 수신/시각화
@@ -59,9 +53,6 @@ PI 카메라, LiDAR, 음성 안내를 통해 안전하고 직관적인 보행을
 ---
 
 ## ⚙️ 개발 환경 및 도구
-
-<img width="716" height="331" alt="image" src="https://github.com/user-attachments/assets/f349bae1-de2b-42e1-86f7-d9e7f9c93599" />
-
 
 ### 🖇 협업도구
 - GitHub, Notion, Figma, Canva
